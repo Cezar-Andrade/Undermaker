@@ -15,8 +15,17 @@
     {"name":"Sprites","order":1,"path":"folders/Sprites.yy",},
     {"name":"Tile Sets","order":2,"path":"folders/Tile Sets.yy",},
     {"name":"Timelines","order":8,"path":"folders/Timelines.yy",},
+    {"name":"Overworld","order":1,"path":"folders/Objects/Overworld.yy",},
+    {"name":"Menu","order":2,"path":"folders/Objects/Menu.yy",},
   ],
   "ResourceOrderSettings": [
+    {"name":"obj_bullet","order":3,"path":"objects/obj_bullet/obj_bullet.yy",},
+    {"name":"obj_playerHeart","order":2,"path":"objects/obj_playerHeart/obj_playerHeart.yy",},
+    {"name":"obj_eventTrigger","order":3,"path":"objects/obj_eventTrigger/obj_eventTrigger.yy",},
+    {"name":"obj_box","order":1,"path":"objects/obj_box/obj_box.yy",},
+    {"name":"obj_collision","order":1,"path":"objects/obj_collision/obj_collision.yy",},
     {"name":"rm_overworld","order":1,"path":"rooms/rm_overworld/rm_overworld.yy",},
+    {"name":"obj_gameManager","order":3,"path":"objects/obj_gameManager/obj_gameManager.yy",},
+    {"name":"obj_interaction","order":2,"path":"objects/obj_interaction/obj_interaction.yy",},
   ],
 }
