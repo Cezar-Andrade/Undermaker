@@ -20,12 +20,12 @@
   ],
   "ResourceOrderSettings":[
     {"name":"obj_bullet","order":2,"path":"objects/obj_bullet/obj_bullet.yy",},
-    {"name":"spr_border","order":1,"path":"sprites/spr_border/spr_border.yy",},
-    {"name":"obj_playerHeart","order":1,"path":"objects/obj_playerHeart/obj_playerHeart.yy",},
-    {"name":"obj_eventTrigger","order":3,"path":"objects/obj_eventTrigger/obj_eventTrigger.yy",},
     {"name":"obj_collision","order":1,"path":"objects/obj_collision/obj_collision.yy",},
-    {"name":"rm_overworld","order":1,"path":"rooms/rm_overworld/rm_overworld.yy",},
+    {"name":"obj_eventTrigger","order":3,"path":"objects/obj_eventTrigger/obj_eventTrigger.yy",},
     {"name":"obj_gameManager","order":3,"path":"objects/obj_gameManager/obj_gameManager.yy",},
     {"name":"obj_interaction","order":2,"path":"objects/obj_interaction/obj_interaction.yy",},
+    {"name":"obj_playerHeart","order":1,"path":"objects/obj_playerHeart/obj_playerHeart.yy",},
+    {"name":"rm_overworld","order":1,"path":"rooms/rm_overworld/rm_overworld.yy",},
+    {"name":"spr_border","order":1,"path":"sprites/spr_border/spr_border.yy",},
   ],
 }
