@@ -33,10 +33,11 @@
   "isEcma":false,
   "LibraryEmitters":[],
   "MetaData":{
-    "IDEVersion":"2024.2.0.132",
+    "IDEVersion":"2024.4.0.137",
   },
   "name":"Undermaker",
   "resources":[
+    {"id":{"name":"fnt_arial","path":"fonts/fnt_arial/fnt_arial.yy",},},
     {"id":{"name":"obj_box","path":"objects/obj_box/obj_box.yy",},},
     {"id":{"name":"obj_bullet","path":"objects/obj_bullet/obj_bullet.yy",},},
     {"id":{"name":"obj_collision","path":"objects/obj_collision/obj_collision.yy",},},
@@ -48,7 +49,7 @@
     {"id":{"name":"obj_playerHeart","path":"objects/obj_playerHeart/obj_playerHeart.yy",},},
     {"id":{"name":"rm_battle","path":"rooms/rm_battle/rm_battle.yy",},},
     {"id":{"name":"rm_overworld","path":"rooms/rm_overworld/rm_overworld.yy",},},
-    {"id":{"name":"scr_macros","path":"scripts/scr_macros/scr_macros.yy",},},
+    {"id":{"name":"scr_init","path":"scripts/scr_init/scr_init.yy",},},
     {"id":{"name":"spr_border","path":"sprites/spr_border/spr_border.yy",},},
     {"id":{"name":"spr_playerHeart","path":"sprites/spr_playerHeart/spr_playerHeart.yy",},},
   ],

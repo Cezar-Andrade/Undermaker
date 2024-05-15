@@ -1,2 +1,0 @@
-#macro GAME_WIDTH 640
-#macro GAME_HEIGHT 480
