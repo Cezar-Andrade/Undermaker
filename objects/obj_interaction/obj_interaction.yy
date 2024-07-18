@@ -27,7 +27,10 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":null,
+  "spriteId":{
+    "name":"spr_interaction",
+    "path":"sprites/spr_interaction/spr_interaction.yy",
+  },
   "spriteMaskId":null,
   "visible":true,
 }
