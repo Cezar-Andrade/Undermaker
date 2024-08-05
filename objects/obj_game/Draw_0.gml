@@ -1,6 +1,4 @@
-draw_set_font(fnt_determination)
-draw_set_color(c_dkgrey);
-draw_rectangle(0,100,640,228,false);
+draw_set_font(fnt_determination);
 dialog.draw();
 /*draw_text(0, 0, "Control type: " + string(control_type));
 draw_text(0, 20, "Up: " + string(global.up_button))
@@ -14,17 +12,17 @@ draw_text(0, 160, "Escape: " + string(global.escape_hold_button))*/
 
 
 if (control_type == CONTROL_TYPE.MAPPING_CONTROLLER){
-	switch (controller_mapping_state){
-		case MAPPING.WAITING_ENTER:
+	switch (controller_CONTROLLER_MAPPING_state){
+		case CONTROLLER_MAPPING.WAITING_ENTER:
 			draw_text(100, 140, "Controlador detectado.\nPresiona Enter para empezar\nel mapeado.");
 		break;
-		case MAPPING.GET_CONFIRM:
+		case CONTROLLER_MAPPING.GET_CONFIRM:
 			draw_text(100, 140, "Presiona el boton del mando\npara asignar Z.");
 		break;
-		case MAPPING.GET_CANCEL:
+		case CONTROLLER_MAPPING.GET_CANCEL:
 			draw_text(100, 140, "Presiona el boton del mando\npara asignar X.");
 		break;
-		case MAPPING.GET_MENU:
+		case CONTROLLER_MAPPING.GET_MENU:
 			draw_text(100, 140, "Presiona el boton del mando\npara asignar C.");
 		break;
 	}

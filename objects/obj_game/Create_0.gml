@@ -9,16 +9,15 @@ Add proper description later.
 
 /*
 This function starts the sequence to assign the controller's button to the confirm, cancel and menu actions of the game.
-Only executes if game maekr has no mapping for the controller when connected from the Async - System event.
+Only executes if game maekr has no CONTROLLER_MAPPING for the controller when connected from the Async - System event.
 You can also run it to remap the controller in a configuration menu too.
 
-INTEGER _index -> Must be the index of the controller that you are trying to map, get it from the Async - System event or use the controller_id variable from this object that
-				  gets sets to the first connected controller that is supported by game maker (see that process in the Async - System event of this object).
+INTEGER _index -> Must be the index of the controller that you are trying to map, get it from the Async - System event or use the controller_id variable from this object that gets sets to the first connected controller that is supported by game maker (see that process in the Async - System event of this object).
 */
 map_controller = function(_index){
 	control_type = CONTROL_TYPE.MAPPING_CONTROLLER;
 	controller_id = _index;
-	controller_mapping_state = MAPPING.WAITING_ENTER;
+	controller_CONTROLLER_MAPPING_state = CONTROLLER_MAPPING.WAITING_ENTER;
 }
 
 get_controller_button_pressed = function(_index){
@@ -177,18 +176,25 @@ goto_room = NaN;
 event_after_room_change = undefined;
 timer = 0;
 
-print = function(a){
-	show_message(a);
-}
+var _dialogs = ["[wait:100][asterisk:false][font:" + string(real(fnt_papyrus)) + "][effect:shadow,-8,12," + string(c_dkgray) + "," + string(real(fnt_wingdings)) + "][effect:malfunction,0.06,false]¡HOLA, AMIGOS![w:20] ¿SABÍAN QUE TENGO UN GRAN SUEÑO?[w:20] ¡QUIERO UNIRME A LA GUARDIA REAL![pop_up:right instant,200,150,Que hago aqui\\, aucsilio me han secuestrado!,200]",
+				"[container:" + string(real(spr_bubble_normal)) + "][tail:" + string(real(spr_bubble_normal_tail)) + "][asterisk:true][sprite:-1][voice:" + string(real(snd_monster_voice)) + "][font:" + string(real(fnt_determination)) + "][color_rgb:0,0,0][apply_to_asterisk]¡Eso suena increíble Papyrus!",
+				"[tail_position:220,180][text_speed:10][color_rgb:0,0,0][apply_to_asterisk]...",
+				"[tail_position:470,180][color_rgb:0,0,0][apply_to_asterisk]¿Por qué quieres ser parte de la guardia real?",
+				"[container:" + string(real(spr_box_normal)) + "][tail:-1][asterisk:false][sprite:" + string(real(spr_papyrus)) + ",0,1][voice:" + string(real(snd_papyrus_voice)) + "][font:" + string(real(fnt_papyrus)) + "]¡ES SIMPLE![w:20] QUIERO DEMOSTRAR QUE SOY UN ESQUELETO FUERTE Y VALIENTE.",
+				"[tail:" + string(real(spr_box_normal_tail)) + ",-30,180][tail_mask:" + string(real(spr_box_normal_mask)) + "]ADEMÁS[w:20], ¡PODRÍA HACER AMIGOS INCREÍBLES Y DEFENDER A LOS QUE LO NECESITAN![w:20] NYEHEHEH.",
+				"[container:" + string(real(spr_box_round)) + "][tail:" + string(real(spr_box_round_tail)) + ",500,180][tail_mask:" + string(real(spr_box_round_mask)) + "][asterisk:true][sprite:" + string(real(spr_wth)) + ",0,1,2,1][sprite_speed:5][voice:" + string(real(snd_monster_voice)) + "][font:" + string(real(fnt_determination)) + "]¡Woof[w:10], woof![w:10] (Eso suena genial)",
+				"[container:" + string(real(spr_bubble_normal)) + "][tail:" + string(real(spr_bubble_normal_tail)) + ",220,-30][tail_mask:-1][sprite:-1][color_rgb:0,0,0][apply_to_asterisk]¿Has pensado en cómo puedes prepararte para eso?",
+				"[container:" + string(real(spr_box_normal)) + "][tail:" + string(real(spr_box_normal_tail)) + ",-50,180][tail_mask:" + string(real(spr_box_normal_mask)) + "][asterisk:false][sprite:" + string(real(spr_papyrus)) + ",0,1][sprite_y_offset:-10][sprite_speed:10][voice:" + string(real(snd_papyrus_voice)) + "][font:" + string(real(fnt_papyrus)) + "]¡SÍ![w:20] ESTOY ENTRENANDO TODOS LOS DÍAS JUNTO CON UNDYNE.[w:20] PRACTICO MIS MOVIMIENTOS Y TRABAJO EN MIS HABILIDADES DE COMBATE...[w:20] ¡Y TAMBIÉN EN HACER LOS MEJORES ESPAGUETIS!",
+				"[container:" + string(real(spr_box_round)) + "][tail:" + string(real(spr_box_round_tail)) + ",500,180][tail_mask:" + string(real(spr_box_round_mask)) + "][asterisk:true][sprite:" + string(real(spr_wth)) + ",0,1,2,1][sprite_y_offset:10][sprite_speed:5][voice:" + string(real(snd_monster_voice)) + "][font:" + string(real(fnt_determination)) + "]*Mueve la cola*[w:10] ¡Woof[w:10], woof![w:10] (¡Eso es importante también!)"];
 
-dialog = new DisplayDialog(0, 100, ["[color_rgb:0,255,255][effect:shake][apply_to_asterisk][effect:none][color_rgb:0,255,0][wait:100][text_speed:4][display_text:words]\\[Hola] [effect:rainbow,2]\\[weyes], bien[effect:shake]venidos[func:" + string(method_get_index(print)) + ",hola] a[color_rgb:255,255,0,down][effect:oscillate,4] otro video-ooooo[color_rgb:0,255,255,up][effect:twitch,4] en este canal de [effect:none][color_rgb:255,0,0,left][color_rgb:255,255,255,right]undertula.","El dia de hoy, vamos a probar BEETHOVENUS!"], 640,, spr_wth, [0, 1, 2, 1], 5, 30,,,, true);
+dialog = new DisplayDialog(100, 100, _dialogs, 440, 1, 1, snd_papyrus_voice, spr_papyrus, [0, 1], spr_box_normal);
 
 with_border = false;
 border_id = 0; //There's just 1 border as of now, so this won't do anything yet.
 
 control_type = CONTROL_TYPE.KEYBOARD;
 controller_id = -1; //-1 means that there's no controller assigned, either not connected or not supported.
-controller_mapping_state = -1;
+controller_CONTROLLER_MAPPING_state = -1;
 controller_confirm_button = -1;
 controller_cancel_button = -1;
 controller_menu_button = -1;

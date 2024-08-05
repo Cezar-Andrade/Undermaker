@@ -1,0 +1,12 @@
+{
+  "$GMShader":"",
+  "%Name":"shd_alpha_masking",
+  "name":"shd_alpha_masking",
+  "parent":{
+    "name":"Shaders",
+    "path":"folders/Shaders.yy",
+  },
+  "resourceType":"GMShader",
+  "resourceVersion":"2.0",
+  "type":1,
+}

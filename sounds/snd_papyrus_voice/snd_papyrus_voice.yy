@@ -1,6 +1,6 @@
 {
   "$GMSound":"",
-  "%Name":"snd_test",
+  "%Name":"snd_papyrus_voice",
   "audioGroupId":{
     "name":"audiogroup_default",
     "path":"audiogroups/audiogroup_default",
@@ -9,17 +9,17 @@
   "bitRate":128,
   "compression":0,
   "conversionMode":0,
-  "duration":33.10346,
-  "name":"snd_test",
+  "duration":0.098209,
+  "name":"snd_papyrus_voice",
   "parent":{
-    "name":"Sounds",
-    "path":"folders/Sounds.yy",
+    "name":"Voices",
+    "path":"folders/Sounds/Voices.yy",
   },
   "preload":false,
   "resourceType":"GMSound",
   "resourceVersion":"2.0",
   "sampleRate":44100,
-  "soundFile":"snd_test.ogg",
+  "soundFile":"snd_papyrus_voice.wav",
   "type":0,
   "volume":1.0,
 }

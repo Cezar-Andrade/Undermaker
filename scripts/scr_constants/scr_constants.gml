@@ -1,3 +1,5 @@
+gpu_set_blendmode_ext_sepalpha(bm_src_alpha, bm_inv_src_alpha, bm_src_alpha, bm_one);
+
 /*
 If you are gonna change the game size then you will have to redo the border system to fit the new game size and probably also change the border's size.
 Also take into account the fullscreen feature with the , you might also need to change some stuff in it.
@@ -5,6 +7,8 @@ All that can be found in obj_game.
 */
 #macro GAME_WIDTH 640
 #macro GAME_HEIGHT 480
+
+#macro ASTERISK_SIZE 30
 
 /*
 Control types that are mainly used for obj_game to set the global inputs of the user.
@@ -46,17 +50,18 @@ Constants for the commands of the dialog system.
 enum COMMAND_TYPE{
 	WAIT,
 	WAIT_PRESS_KEY,
-	WAIT_FOR, ////DOES NOT WORK FOR NOW
+	WAIT_FOR,
 	SKIP_ENABLING,
 	SKIP_DIALOG,
 	STOP_SKIP,
 	DISPLAY_TEXT,
 	PROGRESS_MODE,
 	NEXT_DIALOG,
-	FUNCTION, ////DOES NOT WORK FOR NOW
+	FUNCTION,
 	COLOR_RGB,
 	COLOR_HSV,
 	TEXT_EFFECT,
+	DISABLE_TEXT_EFFECT,
 	SET_TEXT_SPEED,
 	SET_SPRITE,
 	SET_SUBIMAGES,
@@ -64,7 +69,35 @@ enum COMMAND_TYPE{
 	PLAY_SOUND,
 	SET_VOICE,
 	VOICE_MUTING,
-	APPLY_TO_ASTERISK
+	APPLY_TO_ASTERISK,
+	SET_ASTERISK,
+	SET_FONT,
+	SET_WIDTH_SPACING,
+	SET_HEIGHT_SPACING,
+	SET_SPRITE_Y_OFFSET,
+	SET_CONTAINER,
+	SET_CONTAINER_TAIL,
+	SET_CONTAINER_TAIL_MASK,
+	SET_CONTAINER_TAIL_DRAW_MODE,
+	SET_CONTAINER_TAIL_POSITION,
+	SHOW_DIALOG_POP_UP
+}
+
+/*
+Constants for the various modes a dialog pop up can appear in a dialog, check the dialog system for more information on the user documentation.
+*/
+enum POP_UP_MODE{
+	NONE,
+	FADE,
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN,
+	INSTANT,
+	LEFT_INSTANT,
+	RIGHT_INSTANT,
+	UP_INSTANT,
+	DOWN_INSTANT,
 }
 
 /*
@@ -75,7 +108,9 @@ enum EFFECT_TYPE{
 	TWITCH,
 	SHAKE,
 	OSCILLATE,
-	RAINBOW
+	RAINBOW,
+	SHADOW,
+	MALFUNCTION
 }
 
 /*
@@ -87,9 +122,19 @@ enum DISPLAY_TEXT{
 }
 
 /*
-Constants for the mapping state of a controller when there's no control map that game maker can assign in it.
+Constants for the different draw modes the tail of a container can have, these are used in the dialog system when drawing the container with a tail.
 */
-enum MAPPING{
+enum CONTAINER_TAIL_DRAW_MODE{
+	BELOW,
+	TOP,
+	SPRITE_MASK,
+	INVERTED_SPRITE_MASK
+}
+
+/*
+Constants for the CONTROLLER_MAPPING state of a controller when there's no control map that game maker can assign in it.
+*/
+enum CONTROLLER_MAPPING{
 	WAITING_ENTER,
 	GET_CONFIRM,
 	GET_CANCEL,

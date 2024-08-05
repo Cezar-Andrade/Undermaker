@@ -1,31 +1,31 @@
 //Keyboard controls handler, if you don't understand it, I recommend not to touch it, don't even look at it... well ok you can in an attempt to understand, my bad, sorry...
 switch (control_type){
 	case CONTROL_TYPE.MAPPING_CONTROLLER:
-		switch (controller_mapping_state){
-			case MAPPING.WAITING_ENTER: //make macros for this in scr_init.
+		switch (controller_CONTROLLER_MAPPING_state){
+			case CONTROLLER_MAPPING.WAITING_ENTER: //make macros for this in scr_init.
 				if (keyboard_check_pressed(vk_enter)){
-					controller_mapping_state = MAPPING.GET_CONFIRM;
+					controller_CONTROLLER_MAPPING_state = CONTROLLER_MAPPING.GET_CONFIRM;
 				}
 			break;
-			case MAPPING.GET_CONFIRM:
+			case CONTROLLER_MAPPING.GET_CONFIRM:
 				var _button_z = get_controller_button_pressed(controller_id);
 				if (_button_z != -1){
 					controller_confirm_button = _button_z;
-					controller_mapping_state = MAPPING.GET_CANCEL;
+					controller_CONTROLLER_MAPPING_state = CONTROLLER_MAPPING.GET_CANCEL;
 				}
 			break;
-			case MAPPING.GET_CANCEL:
+			case CONTROLLER_MAPPING.GET_CANCEL:
 				var _button_x = get_controller_button_pressed(controller_id);
 				if (_button_x != -1){
 					controller_cancel_button = _button_x;
-					controller_mapping_state = MAPPING.GET_MENU;
+					controller_CONTROLLER_MAPPING_state = CONTROLLER_MAPPING.GET_MENU;
 				}
 			break;
-			case MAPPING.GET_MENU:
+			case CONTROLLER_MAPPING.GET_MENU:
 				var _button_c = get_controller_button_pressed(controller_id);
 				if (_button_c != -1){
 					controller_menu_button = _button_c;
-					controller_mapping_state = MAPPING.DONE;
+					controller_CONTROLLER_MAPPING_state = CONTROLLER_MAPPING.DONE;
 					control_type = CONTROL_TYPE.CONTROLLER;
 					save_controller_config(controller_id);
 				}
@@ -60,7 +60,7 @@ switch (control_type){
 		global.left_button = max(-gamepad_axis_value(controller_id, gp_axislh), gamepad_button_check(controller_id, gp_padl), 0);
 		global.down_button = max(gamepad_axis_value(controller_id, gp_axislv), gamepad_button_check(controller_id, gp_padu), 0);
 		global.right_button = max(gamepad_axis_value(controller_id, gp_axislh), gamepad_button_check(controller_id, gp_padr), 0);
-		if (controller_mapping_state == MAPPING.DONE){
+		if (controller_CONTROLLER_MAPPING_state == CONTROLLER_MAPPING.DONE){
 			global.confirm_button = gamepad_button_check_pressed(controller_id, controller_confirm_button);
 			global.cancel_button = gamepad_button_check_pressed(controller_id, controller_cancel_button);
 			global.menu_button = gamepad_button_check_pressed(controller_id, controller_menu_button);
