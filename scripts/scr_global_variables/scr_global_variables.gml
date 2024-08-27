@@ -19,3 +19,6 @@ global.down_button = 0;
 global.left_button = 0;
 global.right_button = 0;
 global.escape_hold_button = 0;
+
+global.wall_1_moved = false;
+global.puzzle_1 = false;

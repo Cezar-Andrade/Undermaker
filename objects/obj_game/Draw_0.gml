@@ -1,5 +1,4 @@
 draw_set_font(fnt_determination);
-dialog.draw();
 /*draw_text(0, 0, "Control type: " + string(control_type));
 draw_text(0, 20, "Up: " + string(global.up_button))
 draw_text(0, 40, "Left: " + string(global.left_button))

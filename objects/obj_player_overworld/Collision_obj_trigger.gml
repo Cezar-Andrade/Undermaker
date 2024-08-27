@@ -1,3 +1,5 @@
 /// @description Trigger an event, change room, make a cutscene, etc.
 
-other.trigger_function();
+if (obj_game.state == GAME_STATE.PLAYER_CONTROL){
+	other.trigger_function();
+}

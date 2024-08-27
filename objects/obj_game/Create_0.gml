@@ -172,22 +172,21 @@ toggle_border = function(_state){
 }
 
 state = GAME_STATE.PLAYER_CONTROL; ////REPLACE WHEN ALL IS DONE.
-goto_room = NaN;
+goto_room = undefined;
+event_update = undefined;
+event_end_condition = undefined;
 event_after_room_change = undefined;
+
+options = [undefined, undefined, undefined, undefined, undefined]; //none, left, down, right, up.
+choice_sprite = spr_player_heart;
+choice_index = 0;
+choice_color = c_red;
+
 timer = 0;
+selection = 0;
+dialog_surface = -1;
 
-var _dialogs = ["[wait:100][asterisk:false][font:" + string(real(fnt_papyrus)) + "][effect:shadow,-8,12," + string(c_dkgray) + "," + string(real(fnt_wingdings)) + "][effect:malfunction,0.06,false]¡HOLA, AMIGOS![w:20] ¿SABÍAN QUE TENGO UN GRAN SUEÑO?[w:20] ¡QUIERO UNIRME A LA GUARDIA REAL![pop_up:right instant,200,150,Que hago aqui\\, aucsilio me han secuestrado!,200]",
-				"[container:" + string(real(spr_bubble_normal)) + "][tail:" + string(real(spr_bubble_normal_tail)) + "][asterisk:true][sprite:-1][voice:" + string(real(snd_monster_voice)) + "][font:" + string(real(fnt_determination)) + "][color_rgb:0,0,0][apply_to_asterisk]¡Eso suena increíble Papyrus!",
-				"[tail_position:220,180][text_speed:10][color_rgb:0,0,0][apply_to_asterisk]...",
-				"[tail_position:470,180][color_rgb:0,0,0][apply_to_asterisk]¿Por qué quieres ser parte de la guardia real?",
-				"[container:" + string(real(spr_box_normal)) + "][tail:-1][asterisk:false][sprite:" + string(real(spr_papyrus)) + ",0,1][voice:" + string(real(snd_papyrus_voice)) + "][font:" + string(real(fnt_papyrus)) + "]¡ES SIMPLE![w:20] QUIERO DEMOSTRAR QUE SOY UN ESQUELETO FUERTE Y VALIENTE.",
-				"[tail:" + string(real(spr_box_normal_tail)) + ",-30,180][tail_mask:" + string(real(spr_box_normal_mask)) + "]ADEMÁS[w:20], ¡PODRÍA HACER AMIGOS INCREÍBLES Y DEFENDER A LOS QUE LO NECESITAN![w:20] NYEHEHEH.",
-				"[container:" + string(real(spr_box_round)) + "][tail:" + string(real(spr_box_round_tail)) + ",500,180][tail_mask:" + string(real(spr_box_round_mask)) + "][asterisk:true][sprite:" + string(real(spr_wth)) + ",0,1,2,1][sprite_speed:5][voice:" + string(real(snd_monster_voice)) + "][font:" + string(real(fnt_determination)) + "]¡Woof[w:10], woof![w:10] (Eso suena genial)",
-				"[container:" + string(real(spr_bubble_normal)) + "][tail:" + string(real(spr_bubble_normal_tail)) + ",220,-30][tail_mask:-1][sprite:-1][color_rgb:0,0,0][apply_to_asterisk]¿Has pensado en cómo puedes prepararte para eso?",
-				"[container:" + string(real(spr_box_normal)) + "][tail:" + string(real(spr_box_normal_tail)) + ",-50,180][tail_mask:" + string(real(spr_box_normal_mask)) + "][asterisk:false][sprite:" + string(real(spr_papyrus)) + ",0,1][sprite_y_offset:-10][sprite_speed:10][voice:" + string(real(snd_papyrus_voice)) + "][font:" + string(real(fnt_papyrus)) + "]¡SÍ![w:20] ESTOY ENTRENANDO TODOS LOS DÍAS JUNTO CON UNDYNE.[w:20] PRACTICO MIS MOVIMIENTOS Y TRABAJO EN MIS HABILIDADES DE COMBATE...[w:20] ¡Y TAMBIÉN EN HACER LOS MEJORES ESPAGUETIS!",
-				"[container:" + string(real(spr_box_round)) + "][tail:" + string(real(spr_box_round_tail)) + ",500,180][tail_mask:" + string(real(spr_box_round_mask)) + "][asterisk:true][sprite:" + string(real(spr_wth)) + ",0,1,2,1][sprite_y_offset:10][sprite_speed:5][voice:" + string(real(snd_monster_voice)) + "][font:" + string(real(fnt_determination)) + "]*Mueve la cola*[w:10] ¡Woof[w:10], woof![w:10] (¡Eso es importante también!)"];
-
-dialog = new DisplayDialog(100, 100, _dialogs, 440, 1, 1, snd_papyrus_voice, spr_papyrus, [0, 1], spr_box_normal);
+dialog = new DisplayDialog(0, 0, "[next]", 1);
 
 with_border = false;
 border_id = 0; //There's just 1 border as of now, so this won't do anything yet.

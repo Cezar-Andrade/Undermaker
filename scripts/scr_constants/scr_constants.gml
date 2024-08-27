@@ -1,5 +1,3 @@
-gpu_set_blendmode_ext_sepalpha(bm_src_alpha, bm_inv_src_alpha, bm_src_alpha, bm_one);
-
 /*
 If you are gonna change the game size then you will have to redo the border system to fit the new game size and probably also change the border's size.
 Also take into account the fullscreen feature with the , you might also need to change some stuff in it.
@@ -8,7 +6,11 @@ All that can be found in obj_game.
 #macro GAME_WIDTH 640
 #macro GAME_HEIGHT 480
 
-#macro ASTERISK_SIZE 30
+/*
+Constant that tells how many pixels should the asterisk from the begginning of dialogs should be separated from the text.
+It doesn't count the asterisk's size.
+*/
+#macro ASTERISK_SPACING 16
 
 /*
 Control types that are mainly used for obj_game to set the global inputs of the user.
@@ -37,11 +39,12 @@ Player states for the overworld, used in the Player Overworld object, and change
 Read the programmer manual to know more about this.
 */
 enum GAME_STATE{
-	MENU_CONTROL,
+	MENU_CONTROL, //This state is not used in the engine, it is for you to use in your menu so you have your own logic and doesn't affect anything inside this engine, you can chane it, remove it, whatever you want.
 	ROOM_CHANGE,
 	PLAYER_CONTROL,
 	PLAYER_MENU_CONTROL,
-	EVENT
+	EVENT,
+	DIALOG_CHOICE
 }
 
 /*
@@ -80,7 +83,8 @@ enum COMMAND_TYPE{
 	SET_CONTAINER_TAIL_MASK,
 	SET_CONTAINER_TAIL_DRAW_MODE,
 	SET_CONTAINER_TAIL_POSITION,
-	SHOW_DIALOG_POP_UP
+	SHOW_DIALOG_POP_UP,
+	BIND_INSTANCE
 }
 
 /*

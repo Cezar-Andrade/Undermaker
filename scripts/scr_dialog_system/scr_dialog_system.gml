@@ -8,18 +8,17 @@ REAL _x -------------------------------------> Initial X position of the dialog,
 REAL _y -------------------------------------> Initial Y position of the dialog, being the origin the left top corner.
 ARRAY OF STRINGS / STRING _dialogues --------> Dialogues that will be displayed on screen, using the proper format for dialogues.
 INTEGER _width ------------------------------> Amount of text that can fit horizontally in pixels, you can use a REAL number but it functions as a truncated INTEGER instead 'cause pixels counting cannot be REAL, so just use integers please.
+REAL _height --------------------------------> Minimum height of the dialog, if text doesn't fit in that height, it will be higher then to contain the text, but if the text leaves space, it will extend to that size.
 REAL _xscale --------------------------------> Initial X scale of the dialog as a whole.
 REAL _yscale --------------------------------> Initial Y scale of the dialog as a whole.
 ARRAY OF INTEGERS / INTEGER _voices ---------> ID or IDs of the audios that will be used for the voice of every single letter being displayed, by default it uses the monster voice.
 INTEGER _face_sprite ------------------------> ID of the sprite to be used as a portrait in the dialog, if undefined is given, no portrait sprite will be shown, by default is undefined.
 ARRAY OF INTEGERS / INTEGER _face_subimages -> ID or IDs of the subimages of the sprite that will be used to animate it, if undefined is given, it will take all the subimages from the sprite and iterate through all of them by default for the animation, by default is undefined.
-REAL _portrait_speed ------------------------> Frames it will take to change between the subimages of the sprite while it's speaking the dialog, by default it's 10 frames.
-REAL _portrait_y_offset ---------------------> Offset in pixels for the Y coordinate between the portrait and the dialog text, if the number is positive, the text will be moved downwards, if the number is negative, the portrait is the one that will be moved downwards instead, this is to avoid offsetting the Y position in general of the dialog (for more information check the user manual and/or the programmer manual), by default is 0.
 INTEGER _container_sprite -------------------> ID of the sprite to be used as a container to hold the entire dialog inside it, used to make dialog bubbles basically, its collision region determinates where the text of the dialog can be contained and it will scale to fit all of the text inside it, it is recommended to use a sprite with nine-slices activated.
 INTEGER _container_tail_sprite --------------> ID of the sprite to be used as the tail of the container, used to make the dialog bubbles with tail, so you don't have to make multiple sprites with different position of the tail, the heavy calculation for its positioning was already made by me and a friend, really heavy math XD.
 INTEGER _container_tail_mask_sprite ---------> ID of the sprite to be used as a mask region to determinate where the tail should be drawn, can be any size but have in mind that it will scale to fit the size of the container itself.
 */
-function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices=snd_monster_voice, _face_sprite=undefined, _face_subimages=undefined, _container_sprite=undefined, _container_tail_sprite=undefined, _container_tail_mask_sprite=undefined) constructor{
+function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale=1, _voices=snd_monster_voice, _face_sprite=undefined, _face_subimages=undefined, _container_sprite=undefined, _container_tail_sprite=undefined, _container_tail_mask_sprite=undefined) constructor{
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	//INITIALIZATION OF VARIABLES
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -40,8 +39,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 	asterisk = true; //Asterisk can be changed the same way as fonts.
 	dialog_x = _x; //X and Y coordinates of the dialog itself, can be moved around!
 	dialog_y = _y;
-	dialog_width = _width;
+	dialog_width = max(_width, 1); //Width cannot be 0 or negative, minimum of 1.
 	dialog_height = 0; //This will be calculated.
+	dialog_minimum_height = max(_height, 0); //Same as width, cannot be negative, except this time it can be 0.
 	dialog_heights = []; //For each dialog height calculated, will be inserted here in order to keep the height of the dialogues and not recalculate them (as it is impossible to recaculate once they are calculated).
 	dialog_x_offset = 0; //Offset of the dialog's position depending of the container sprite.
 	dialog_y_offset = 0; //If it's not given, these remain on 0, these will contain the top and left sides of the bbox collision of the sprite, which is where the text will be.
@@ -77,11 +77,20 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 	//Variables that handle the portrait sprite in the dialog.
 	face_sprite = _face_sprite;
 	face_timer = 0;
-	face_animation = true;
 	face_y_offset = 0;
 	face_subimages_cycle = _face_subimages;
+	face_subimages_length = 0;
 	face_index = 0;
 	face_speed = 10;
+	face_animation = true;
+	
+	//Variables that handle a sprite binded for talking.
+	instance_index = undefined;
+	instance_timer = 0;
+	instance_image_index = 0;
+	instance_image_prev_index = 0;
+	instance_image_cycle = undefined;
+	instance_image_length = 0;
 	
 	//Variables used for rendering every letter in the dialog on screen.
 	visual_command_index = 0;
@@ -104,7 +113,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 	draw_effect_y = 0;
 	draw_shadow_effect_x = 0;
 	draw_shadow_effect_y = 0;
-	text_align_x = ASTERISK_SIZE;
+	text_align_x = ASTERISK_SPACING;
 	
 	//Variables of the container sprite.
 	container_sprite = undefined;
@@ -155,6 +164,11 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		}else{
 			face_subimages_length = sprite_get_number(face_sprite);
 		}
+		
+		//If there is an animation, make it almost instant.
+		if (face_subimages_length > 1){
+			face_timer = face_speed - 1;
+		}
 	}
 	
 	//Final variables for handling all the dialogs changes without applying them directly to the constructor, they keep the last dialog configuration in the dialogs.
@@ -204,7 +218,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		//Condition to get the confirm button to advance to the next dialog.
 		if (string_index == dialog_length and can_progress and (global.confirm_button or global.menu_hold_button)){ //global.confirm_button and global.menu_hold_button only returns 0 or 1, so essencially it's a great boolean thing.
 			next_dialog(false);
-			face_step();
+			animation_step();
 			
 			return;
 		}
@@ -430,7 +444,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		}
 		
 		//Lastly just step the portrait animation, it does nothing if there's no sprite assigned to it.
-		face_step();
+		animation_step();
 	}
 	
 	/*
@@ -439,6 +453,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 	*/
 	draw = function(){
 		//Back ups the current depth buffer disable in case some others need it.
+		var _surface_prev_target = surface_get_target();
 		var _depth_buffer_disabled = surface_get_depth_disable();
 		
 		//----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -456,23 +471,6 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		
 		var _initial_x = dialog_x + dialog_x_offset*xscale; //Calculate the X and Y position where the text with/without portrait origin is located.
 		var _initial_y = dialog_y + dialog_y_offset*yscale;
-		var _offset_x = 0; //These offset by X amount the position for something in specific that is needed for, usually for correct positioning inside a surface.
-		var _offset_y = 0;
-		
-		//When the shadow effect is active, convert the coordinates into relative ones.
-		if (shadow_effect){
-			if (_depth_buffer_disabled){
-				surface_depth_disable(false);
-			}
-			
-			if (!surface_exists(surface)){
-				surface = surface_create(dialog_width, dialog_height);
-			}
-			
-			_offset_x = -_initial_x; //Offset letters to set them in 0,0 on the surface.
-			_offset_y = -_initial_y;
-		}
-		
 		var _reset_point_x = _initial_x + text_align_x*xscale; //Set the X point where it resets the X position for every line jump with text_aling_x to make extra space for the portrait and asterisk.
 		var _letter_x = _reset_point_x; //Start the variables to position each letter.
 		var _letter_y = _initial_y;
@@ -481,9 +479,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		//CONTAINER DRAWING
 		//----------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
-		//Draw the tail first if the draw mode is below.
+		//Draw the tail first if the draw mode is bottom.
 		if (sprite_exists(container_tail_sprite) and !is_undefined(container_x_origin) and !is_undefined(container_y_origin) and container_tail_draw_mode == CONTAINER_TAIL_DRAW_MODE.BELOW){
-			draw_sprite_ext(container_tail_sprite, 0, dialog_x + container_x_origin*xscale, dialog_y + container_y_origin*yscale, container_tail_width*xscale, yscale, container_tail_angle, c_white, 1);
+			draw_sprite_ext(container_tail_sprite, 0, dialog_x + container_x_origin*xscale, dialog_y + container_y_origin*yscale, container_tail_width*xscale, container_tail_height*yscale, container_tail_angle, c_white, 1);
 		}
 		
 		//Draw the container that will hold the text.
@@ -495,40 +493,71 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		if (sprite_exists(container_tail_sprite) and !is_undefined(container_x_origin) and !is_undefined(container_y_origin) and container_tail_draw_mode != CONTAINER_TAIL_DRAW_MODE.BELOW){
 			//If the draw mode is any of the masking modes, prepare the mask sprite.
 			//Only it can be any of the masking modes if a mask sprite is set, any attempt to force without a mask sprite it may result in error.
-			if (container_tail_draw_mode != CONTAINER_TAIL_DRAW_MODE.TOP){
+			if (container_tail_draw_mode == CONTAINER_TAIL_DRAW_MODE.INVERTED_SPRITE_MASK){
+				var _offset_x = -get_tail_width();
+				var _offset_y = -get_tail_height();
+				var _offset_x2 = max(_offset_x, 0);
+				var _offset_y2 = max(_offset_y, 0);
+				
+				show_debug_message(-_offset_x)
+				show_debug_message(-_offset_y)
+				
+				if (!surface_exists(surface)){
+					surface = surface_create(get_width() + abs(_offset_x), get_height() + abs(_offset_y));
+				}
+				
+				surface_set_target(surface);
+				
+				draw_sprite_ext(container_tail_sprite, 0, _offset_x2 + container_x_origin*xscale, _offset_y2 + container_y_origin*yscale, container_tail_width*xscale, container_tail_height*yscale, container_tail_angle, c_white, 1);
+				
 				gpu_set_blendenable(false);
-				gpu_set_colorwriteenable(false, false, false, true);
+				gpu_set_colorwriteenable(true, true, true, true);
 				gpu_set_alphatestenable(true);
 				
-				//This shader allows for masks with alpha to be used for effects you may want, if by any chance you or your end users cannot run this shader, you will have to use masks with full alpha only, no transparency allowed.
 				shader_set(shd_alpha_masking);
-				draw_sprite_ext(container_tail_mask_sprite, 0, dialog_x, dialog_y, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
+				draw_sprite_ext(container_tail_mask_sprite, 0, _offset_x2, _offset_y2, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
 				shader_reset();
 				
 				gpu_set_blendenable(true);
-				gpu_set_colorwriteenable(true, true, true, false);
-				
-				if (container_tail_draw_mode == CONTAINER_TAIL_DRAW_MODE.SPRITE_MASK){
-					gpu_set_blendmode_ext(bm_inv_dest_alpha, bm_dest_alpha);
-				}else{
-					gpu_set_blendmode_ext(bm_dest_alpha, bm_inv_dest_alpha);
-				}
-			}
-			
-			//Draw the tail with its corresponding data.
-			draw_sprite_ext(container_tail_sprite, 0, dialog_x + container_x_origin*xscale, dialog_y + container_y_origin*yscale, container_tail_width*xscale, container_tail_height*yscale, container_tail_angle, c_white, 1);
-			
-			//Remove all changes made with the masking sprite if it exists.
-			if (container_tail_draw_mode != CONTAINER_TAIL_DRAW_MODE.TOP){
-				gpu_set_blendenable(false);
-				gpu_set_colorwriteenable(false, false, false, true);
-				
-				draw_sprite_ext(container_tail_mask_sprite, 0, dialog_x, dialog_y, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
-				
-				gpu_set_blendenable(true);
-				gpu_set_colorwriteenable(true, true, true, true);
-				gpu_set_blendmode_ext_sepalpha(bm_src_alpha, bm_inv_src_alpha, bm_src_alpha, bm_one);
+				gpu_set_blendmode_ext(bm_one, bm_inv_src_alpha);
 				gpu_set_alphatestenable(false);
+				
+				surface_reset_target();
+				
+				draw_surface(surface, dialog_x + min(-_offset_x, 0), dialog_y + min(-_offset_y, 0));
+				
+				gpu_set_blendmode(bm_normal);
+			}else{
+				if (container_tail_draw_mode == CONTAINER_TAIL_DRAW_MODE.SPRITE_MASK){
+					gpu_set_blendenable(false);
+					gpu_set_colorwriteenable(false, false, false, true);
+					gpu_set_alphatestenable(true);
+					
+					//This shader allows for masks with alpha to be used for effects you may want, if by any chance you or your end users cannot run this shader, you will have to use masks with full alpha only, no transparency allowed.
+					shader_set(shd_alpha_masking);
+					draw_sprite_ext(container_tail_mask_sprite, 0, dialog_x, dialog_y, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
+					shader_reset();
+					
+					gpu_set_blendenable(true);
+					gpu_set_colorwriteenable(true, true, true, false);
+					gpu_set_blendmode_ext(bm_inv_dest_alpha, bm_dest_alpha);
+				}
+				
+				//Draw the tail with its corresponding data.
+				draw_sprite_ext(container_tail_sprite, 0, dialog_x + container_x_origin*xscale, dialog_y + container_y_origin*yscale, container_tail_width*xscale, container_tail_height*yscale, container_tail_angle, c_white, 1);
+				
+				//Remove all changes made with the masking sprite if it exists.
+				if (container_tail_draw_mode == CONTAINER_TAIL_DRAW_MODE.SPRITE_MASK){
+					gpu_set_blendenable(false);
+					gpu_set_colorwriteenable(false, false, false, true);
+					
+					draw_sprite_ext(container_tail_mask_sprite, 0, dialog_x, dialog_y, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
+					
+					gpu_set_blendenable(true);
+					gpu_set_colorwriteenable(true, true, true, true);
+					gpu_set_blendmode(bm_normal);
+					gpu_set_alphatestenable(false);
+				}
 			}
 		}
 		
@@ -538,9 +567,25 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		color[2] = c_white; //Ease some of the job it does.
 		color[3] = c_white; //Optimize.
 		
-		//For the shadow effect a surface is used.
+		var _offset_x = 0; //These offset by X amount the position for something in specific that is needed for, usually for correct positioning inside a surface.
+		var _offset_y = 0;
+		
+		//When the shadow effect is active, convert the coordinates into relative ones and create a surface.
 		if (shadow_effect){
+			if (_depth_buffer_disabled){
+				surface_depth_disable(false);
+			}
+			
+			if (!surface_exists(surface)){
+				surface = surface_create(dialog_width*xscale, dialog_height*yscale);
+			}
+			
+			_offset_x = -_initial_x; //Offset letters to set them in 0,0 on the surface.
+			_offset_y = -_initial_y;
+			
 			surface_set_target(surface);
+			
+			draw_clear_alpha(c_black, 0); //Clean any remainings from it.
 		}
 		
 		//Do stuff only if the sprite for the portrait is set.
@@ -625,17 +670,18 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 					
 					if (draw_shadow_effect){ //This happens paired to the shadow_effect variable, so a surface must be active when this happens.
 						surface_reset_target();
+				
 						draw_set_font(draw_shadow_effect_font);
 						
-						draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x - ASTERISK_SIZE)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, 1);
+						draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, 1);
 						
 						draw_set_font(font);
 						surface_set_target(surface);
 					}
 					
-					draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x - ASTERISK_SIZE)*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, color[0], color[1], color[2], color[3], 1);
+					draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, color[0], color[1], color[2], color[3], 1);
 				}else{ //Otherwise, display a normal asterisk in normal circumstances.
-					draw_text_transformed_color(_letter_x + _offset_x - ASTERISK_SIZE*xscale, _letter_y + _offset_y, _letter, xscale, yscale, 0, c_white, c_white, c_white, c_white, 1);
+					draw_text_transformed_color(_letter_x + _offset_x - ASTERISK_SPACING*xscale, _letter_y + _offset_y, _letter, xscale, yscale, 0, c_white, c_white, c_white, c_white, 1);
 				}
 			}
 			
@@ -683,14 +729,15 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 					if (_original_letter == "\n" and asterisk){ //If the line jump is \n, print an asterisk, conserving the properties of the effects.
 						if (draw_shadow_effect){ //This happens paired to the shadow_effect variable, so a surface must be active when this happens.
 							surface_reset_target();
+							
 							draw_set_font(draw_shadow_effect_font);
 							
 							if (draw_color_effect == EFFECT_TYPE.RAINBOW){ //If you want a different interaction with the rainbow effect and shadows, modify it here.
 								draw_color_effect_value = make_color_hsv(color_get_hue(draw_color_effect_value), 255, 64);
 								
-								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x - ASTERISK_SIZE)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, 1);
+								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, 1);
 							}else{
-								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x - ASTERISK_SIZE)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, 1);
+								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, 1);
 							}
 							
 							draw_set_font(font);
@@ -698,15 +745,16 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 						}
 						
 						if (draw_color_effect == EFFECT_TYPE.RAINBOW){ //If the effect currently on is a rainbow, do a different color rendering.
-							draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x - ASTERISK_SIZE)*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, 1);
+							draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, 1);
 						}else{
-							draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x - ASTERISK_SIZE)*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, color[0], color[1], color[2], color[3], 1);
+							draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, color[0], color[1], color[2], color[3], 1);
 						}
 					}
 				}else{ //Otherwise, render the letter.
 					if (_original_letter != " "){ //If the letter is not a space, draw it, otherwise well don't, why would you draw a space XD.
 						if (draw_shadow_effect){ //This happens paired to the shadow_effect variable, so a surface must be active when this happens.
 							surface_reset_target();
+							
 							draw_set_font(draw_shadow_effect_font);
 						
 							if (draw_color_effect == EFFECT_TYPE.RAINBOW){ //If you want a different interaction with the rainbow effect and shadows, modify it here.
@@ -739,7 +787,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		if (shadow_effect){
 			surface_reset_target();
 			
-			draw_surface(surface, dialog_x + dialog_x_offset, dialog_y + dialog_y_offset);
+			draw_surface(surface, _initial_x, _initial_y);
 		}
 		
 		//----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -781,30 +829,30 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 					
 					switch (_dialog.mode){
 						case POP_UP_MODE.LEFT: case POP_UP_MODE.LEFT_INSTANT:
-							_x_offset = -4*(15 - _dialog.timer);
+							_x_offset = -2*(15 - _dialog.timer);
 						break;
 						case POP_UP_MODE.RIGHT: case POP_UP_MODE.RIGHT_INSTANT:
-							_x_offset = 4*(15 - _dialog.timer);
+							_x_offset = 2*(15 - _dialog.timer);
 						break;
 						case POP_UP_MODE.UP: case POP_UP_MODE.UP_INSTANT:
-							_y_offset = -4*(15 - _dialog.timer);
+							_y_offset = -2*(15 - _dialog.timer);
 						break;
 						case POP_UP_MODE.DOWN: case POP_UP_MODE.DOWN_INSTANT:
-							_y_offset = 4*(15 - _dialog.timer);
+							_y_offset = 2*(15 - _dialog.timer);
 						break;
 					}
 				}
 				
 				//Draw the pop up on the proper place.
-				draw_surface_ext(surface, dialog_x + _dialog.x + _x_offset, dialog_y + _dialog.y + _y_offset, 1, 1, 0, c_white, _alpha);
+				draw_surface_ext(surface, dialog_x + (_dialog.x + _x_offset)*xscale, dialog_y + (_dialog.y + _y_offset)*yscale, 1, 1, 0, c_white, _alpha);
 			}else{ //If the mode is NONE, just draw the pop up as is, and it's like a tiny dialog functioning inside a dialog basically.
-				_dialog.system.move_to(dialog_x + _dialog.x, dialog_y + _dialog.y);
+				_dialog.system.move_to(dialog_x + _dialog.x*xscale, dialog_y + _dialog.y*yscale);
 				_dialog.system.draw();
 			}
 		}
 		
-		//Surface is no longer needed, delete it, see how to optimize this.
-		if (surface_exists(surface)){
+		//Surface is no longer needed, delete it.
+		if (dialog_pop_ups_amount == 0 and !shadow_effect and surface_exists(surface)){
 			surface_free(surface);
 			surface = -1;
 		}
@@ -902,8 +950,24 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		array_delete(dialog_pop_ups, 0, dialog_pop_ups_amount);
 		dialog_pop_ups_amount = 0;
 		
+		//Set the timers of the portrait animation to trigger almost immediatelly as the dialog starts.
+		if (sprite_exists(face_sprite) and face_subimages_length > 1){
+			face_timer = face_speed - 1;
+		}
+		
+		//Same for the instance binded if there's any.
+		if (!is_undefined(instance_index) and instance_image_length > 1){
+			instance_timer = face_speed - 1;
+		}
+		
 		//If no more dialogs are there after deleting it, just finish there.
 		if (dialogues_amount == 0){
+			//If an instance is binded at this point, unbinds it.
+			if (!is_undefined(instance_index)){
+				instance_index.image_index = instance_image_prev_index;
+				instance_index = undefined;
+			}
+		
 			return;
 		}
 		
@@ -928,7 +992,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 			return;
 		}
 		
-		array_push(dialog_pop_ups, {timer: 0, mode: _mode, x: _x, y: _y, system: new DisplayDialog(0, 0, _dialog, 2*_width, xscale/2, yscale/2,,_face_sprite, _face_subimages)});
+		array_push(dialog_pop_ups, {timer: 0, mode: _mode, x: _x, y: _y, system: new DisplayDialog(0, 0, _dialog, 2*_width,, xscale/2, yscale/2,, _face_sprite, _face_subimages)});
 		dialog_pop_ups_amount++;
 		
 		var _system = dialog_pop_ups[dialog_pop_ups_amount - 1].system;
@@ -1148,7 +1212,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		//Set the font that will be once all the dialogues have passed, even if the dialogues are not yet in that point, this variables holds the one that should be the last state of the font.
 		draw_set_font(final_font);
 		
-		dialog_height = 0; //When dialogues are being added, this gets recalculated using dialog_heights stored previously.
+		dialog_height = dialog_minimum_height; //When dialogues are being added, this gets recalculated using dialog_heights stored previously, but it must at least be the minimum size of height.
 		
 		var _dialogues_amount = 1;
 		var _execute_initial_configuration = (dialogues_amount == 0); //If no dialogs are in currently, then it must execute the initial configuration.
@@ -1243,7 +1307,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 							
 							if (_j == 1){
 								final_face_sprite = _arguments[0];
-								final_text_align_x = ASTERISK_SIZE*final_asterisk;
+								final_text_align_x = ASTERISK_SPACING*final_asterisk;
 								
 								if (sprite_exists(final_face_sprite)){
 									final_face_height = sprite_get_height(final_face_sprite);
@@ -1258,6 +1322,22 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 							
 							for (var _k = 0; _k < _command_arguments_length; _k++){
 								_command_data.value[_k] = int64(_command_data.value[_k]);
+							}
+						break;
+						case "bind_instance":
+							_command_data.type = COMMAND_TYPE.BIND_INSTANCE;
+							_command_data.value = string_split(_command_content[1], ",");
+							_command_data.inst = handle_parse(_command_data.value[0]);
+							
+							array_delete(_command_data.value, 0, 1);
+							_command_arguments_length = array_length(_command_data.value);
+							
+							if (_command_arguments_length > 0){
+								for (var _k = 0; _k < _command_arguments_length; _k++){
+									_command_data.value[_k] = int64(_command_data.value[_k]);
+								}
+							}else{
+								_command_data.value = undefined;
 							}
 						break;
 						case "pop_up": //The format is _mode, _x, _y, _dialog, _width, _face_sprite, _face_subimages
@@ -1400,7 +1480,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 									_command_data.subtype = EFFECT_TYPE.TWITCH;
 									
 									if (array_length(_command_arguments) > 1 and _command_arguments[1] != ""){
-										_command_data.value = abs(int64(_command_arguments[1]));
+										_command_data.value = abs(real(_command_arguments[1]));
 									}else{
 										_command_data.value = 2;
 									}
@@ -1409,7 +1489,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 									_command_data.subtype = EFFECT_TYPE.SHAKE;
 									
 									if (array_length(_command_arguments) > 1 and _command_arguments[1] != ""){
-										_command_data.value = abs(int64(_command_arguments[1]));
+										_command_data.value = abs(real(_command_arguments[1]));
 									}else{
 										_command_data.value = 2;
 									}
@@ -1418,7 +1498,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 									_command_data.subtype = EFFECT_TYPE.OSCILLATE;
 									
 									if (array_length(_command_arguments) > 1 and _command_arguments[1] != ""){
-										_command_data.value = abs(int64(_command_arguments[1]));
+										_command_data.value = abs(real(_command_arguments[1]));
 									}else{
 										_command_data.value = 2;
 									}
@@ -1427,7 +1507,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 									_command_data.subtype = EFFECT_TYPE.RAINBOW;
 									
 									if (array_length(_command_arguments) > 1 and _command_arguments[1] != ""){
-										_command_data.value = abs(int64(_command_arguments[1]));
+										_command_data.value = abs(real(_command_arguments[1]));
 									}else{
 										_command_data.value = 0;
 									}
@@ -1482,7 +1562,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 						break;
 						case "no_effect":
 							_command_data.type = COMMAND_TYPE.DISABLE_TEXT_EFFECT;
-							var _command_arguments = string_split(_command_content[1], ",");
+							_command_arguments = string_split(_command_content[1], ",");
 							
 							switch (_command_arguments[0]){
 								case "twitch":
@@ -1514,6 +1594,12 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 						break;
 						case "skip":
 							_command_data.type = COMMAND_TYPE.SKIP_DIALOG;
+							
+							if (array_length(_command_content) > 1){
+								_command_data.value = bool(_command_content[1]);
+							}else{
+								_command_data.value = true;
+							}
 						break;
 						case "stop_skip":
 							_command_data.type = COMMAND_TYPE.STOP_SKIP;
@@ -1730,7 +1816,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 								_command_data.type = COMMAND_TYPE.SET_ASTERISK;
 								_command_data.value = _command_value;
 							
-								final_text_align_x += ASTERISK_SIZE*(2*_command_value - 1);
+								final_text_align_x += ASTERISK_SPACING*(2*_command_value - 1);
 							}else{
 								continue;
 							}
@@ -1974,16 +2060,20 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 	
 	/*
 	This functions calls the add_dialogues(), the difference is that this one deletes all the current dialogues that are loaded and sets the new ones you load in it, making a good reset with new dialogues.
-	This functions is not used by the main code or any commands, so you can modify it as you want, it is meant for you the programmer to be used in code in case you need it.
+	This functions is not used by the main code or any commands, so you can modify it as you want, be sure to know what you're doing when modifying the dialog system information, it is meant for you the programmer to be used in code in case you need it.
 	
-	The original code in this makes it so all information of the old dialogues is cleared and handles the new dialogues with the settings the dialog was in the moment this function was called
-	This means that if you set a [font] through a dialogue and this function is being called before that font is being set in the dialogue, it will keep the previous font instead of the new one, and that info is used to shape the new dialogues, this includes portrait sprites as well.
-	So be careful of when you call this function if you depend on the previous configuration of the dialogues, one way to avoid this is to set your new dialogues with that in mind and reset the settings to not depend on that, this includes the removal of sprites as they are not removed from the dialogue at all.
-	In short, nothing is being reset or removed with this function, have that in mind when using it.
+	The original code in this makes it so all information of the old dialogues is cleared and handles the new dialogues with the settings the dialog was in the moment this function was called.
+	This means that if you set a [font] through a dialogue and this function is being called before that font is being set in the dialogue, it will keep the previous font instead of the new one, and that info is used to shape the new dialogues.
+	So be careful of when you call this function if you depend on the previous configuration of the dialogues, one way to avoid this is to set your new dialogues with that in mind and reset the settings to not depend on that.
+	The only exception to this is the portrait sprite in the dialog, as that one will be reset/removed when calling this function, you can set the starting one by passing the arguments of it of course.
+	In short, nothing is being reset or removed with this function, except the portrait sprite and the instance that may be binded is unbinded, have that in mind when using it.
 	
-	ARRAY OF STRINGS / STRING _dialogues -> Dialogues that will be added to the list of dialogues to be displayed on screen, using the proper format for dialogues.
+	ARRAY OF STRINGS / STRING _dialogues --------> Dialogues that will be added to the list of dialogues to be displayed on screen, using the proper format for dialogues.
+	INTEGER _width ------------------------------> Sets a new width for the dialog itself, since all dialogs are cleared, this is helpful to resize the box and new dialog will be affected by the new value.
+	INTEGER _face_sprite ------------------------> ID of the new sprite to use as portrait sprite, if it's not a valid sprite, then the new dialog won't contain a portrait sprite.
+	ARRAY OF INTEGERS / INTEGER _face_subimages -> ID or IDS of the subimages of the portrait sprite to use for the animation of the sprite, if none are given, it will use all the subimages of the sprite for it.
 	*/
-	set_dialogues = function(_dialogues){
+	set_dialogues = function(_dialogues, _width=undefined, _height=undefined, _face_sprite=undefined, _face_subimages=undefined){
 		//Delete all dialogs and dialog heights.
 		array_delete(dialogues, 0, dialogues_amount);
 		array_delete(dialog_heights, 0, dialogues_amount);
@@ -1991,13 +2081,48 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 		array_delete(visual_commands, 0, dialogues_amount);
 		dialogues_amount = 0;
 		
-		//Load the final variables data with the current state of the dialogues.
-		final_face_height = 0;
-		
-		if (sprite_exists(face_sprite)){
-			final_face_height = sprite_get_height(face_sprite);
+		//If an instance is binded, unbinds it.
+		if (!is_undefined(instance_index)){
+			instance_index.image_index = instance_image_prev_index;
+			instance_index = undefined;
 		}
 		
+		//Set the new width if it's defined and it's a positive number.
+		if (!is_undefined(_width)){
+			dialog_width = max(_width, 1);
+		}
+		
+		//Set the new minimum height as well, which can only be a positive number.
+		if (!is_undefined(_height)){
+			dialog_minimum_height = max(_height, 0);
+		}
+		
+		//Reset the text_align_x and the final_face_height to recalculate them again with the new assigned face_sprite from this function, which gets reset of course.
+		text_align_x = ASTERISK_SPACING*asterisk;
+		final_face_height = 0;
+		face_sprite = _face_sprite;
+		face_subimages_cycle = _face_subimages;
+		face_subimages_length = 0;
+		
+		//Set the info of the new face sprite properly.
+		if (sprite_exists(face_sprite)){
+			final_face_height = sprite_get_height(face_sprite);
+			text_align_x += sprite_get_width(face_sprite) + 10;
+			
+			//If no subimages are given, it uses all of the subimages of the sprite for the speaking animation.
+			if (!is_undefined(face_subimages_cycle)){
+				if (typeof(face_subimages_cycle) == "number"){
+					face_index = face_subimages_cycle;
+					face_subimages_length = 1;
+				}else{
+					face_subimages_length = array_length(face_subimages_cycle);
+				}
+			}else{
+				face_subimages_length = sprite_get_number(face_sprite);
+			}
+		}
+		
+		//Load the final variables data with the current state of the dialogues.
 		final_asterisk = asterisk;
 		final_font = font;
 		final_spacing_width = spacing_width;
@@ -2087,10 +2212,10 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 	RETURNS -> REAL --Positive if it's from the right side, Negative if it's from the left side.
 	*/
 	get_tail_width = function(){
-		if (sprite_exists(container_tail) and !is_undefined(container_x_offset) and !is_undefined(container_y_offset)){
+		if (sprite_exists(container_tail_sprite) and !is_undefined(container_x_offset) and !is_undefined(container_y_offset)){
 			var _size = container_tail_width*container_tail_sprite_width*dcos(container_tail_angle);
 			
-			if (sprite_exists(container_sprite)){
+			if (sprite_exists(container_tail_sprite)){
 				//If the container is set, substract the side it's the tail in, once it overpasses that it does gives numbers different from 0.
 				if (container_tail_angle < 90 or container_tail_angle > 270){
 					return max(_size*xscale - container_sprite_width + container_right_collision, 0);
@@ -2113,12 +2238,12 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 	RETURNS -> REAL --Positive if it's from the down side, Negative if it's from the up side.
 	*/
 	get_tail_height = function(){
-		if (sprite_exists(container_tail) and !is_undefined(container_x_offset) and !is_undefined(container_y_offset)){
+		if (sprite_exists(container_tail_sprite) and !is_undefined(container_x_offset) and !is_undefined(container_y_offset)){
 			var _size = container_tail_width*container_tail_sprite_width*dsin(-container_tail_angle);
 			
-			if (sprite_exists(container_sprite)){
+			if (sprite_exists(container_tail_sprite)){
 				//If the container is set, substract the side it's the tail in, once it overpasses that it does gives numbers different from 0.
-				if (container_tail_angle < 90 or container_tail_angle > 270){
+				if (container_tail_angle > 180){
 					return max(_size*yscale - container_sprite_height + container_bottom_collision, 0);
 				}else{
 					return min(_size*yscale + dialog_y_offset, 0);
@@ -2147,7 +2272,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 	RETURNS -> BOOLEAN. --True if the text is advacing normally, which means it is talking, false if a stop is made, either by any of the [wait] commands and its variants or other commands that can do that.
 	*/
 	is_talking = function(){
-		return face_animation;
+		return (face_animation and string_index < dialog_length);
 	}
 	
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2157,15 +2282,53 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 	//Unless you know what you're doing, do not call these functions in your code or attempt to modify them in any way as you may end up messing the system leading to unexpected results or with errors.
 	
 	/*
-	This is a special step function that controls only the portrait sprite of the dialog if there's any, since there are more than 1 place that needs to execute the same logic, it is a separate function (only 2 places in the step function XD).
+	This is a function that is used to bind an instance to the dialog so it animates the sprite as the dialog bubble is speaking.
+	Have in mind that if you change the sprite_index of the instance while binded to the dialog, if it's not the same subimages size, it might result in undesirable results.
+	Once the instance gets unbinded, it will reset to the previous image_index it had when this function was called with the instance provided.
+	
+	INTEGER / INSTANCE REF / OBJECT REF _inst -> ID or REF of the instance or object to bind the dialog with for the animation of it, have in mind that if you bind an object, you will end up animating all instances of the object, good for group animating.
+	ARRAY OF INTEGERS _indexes ----------------> ID or IDS of the subimages to use for the animating of the instance or object.
 	*/
-	face_step = function(){
+	bind_instance = function(_inst, _indexes=undefined){
+		//Keep the binding of the instance in a variable.
+		if (!is_undefined(instance_index)){
+			instance_index.image_index = instance_image_prev_index;
+		}
+		
+		instance_index = _inst;
+		
+		if (!is_undefined(instance_index)){
+			instance_image_prev_index = _inst.image_index; //Save the previous index of it, to go back to it once the dialog is done.
+		
+			//If indexes are not defined, it takes all subimages from its current assigned sprite_index.
+			if (is_undefined(_indexes)){
+				instance_image_index = 0;
+				instance_image_cycle = undefined;
+				instance_image_length = sprite_get_number(_inst.sprite_index);
+				_inst.image_index = 0;
+			}else if (array_length(_indexes) == 1){ //If only one index is given, then change to that index and the animation will never change from that one, once the dialog is done it will return to the previous one it had before this functions was executed, a nice temporal index change.
+				instance_image_index = _indexes[0];
+				instance_image_length = 1;
+				_inst.image_index = instance_image_index;
+			}else{ //This space is only if multiple indexes have been given, save all of them and will do an iteration for them.
+				instance_image_index = 0;
+				instance_image_cycle = _indexes;
+				instance_image_length = array_length(_indexes);
+				_inst.image_index = instance_image_cycle[instance_image_index];
+			}
+		}
+	}
+	
+	/*
+	This is a special step function that controls only the portrait sprite and instance binded sprite animation of the dialog if there's any of those, since there are more than 1 place that needs to execute the same logic, it is a separate function (only 2 places in the step function XD).
+	*/
+	animation_step = function(){
 		//First it checks for the sprite, if the sprite exists and has more than 1 subimage assigned for use, then continue.
 		if (sprite_exists(face_sprite) and face_subimages_length > 1){
 			//This condition prevents the animation from running when a [wait] command has been executed, so it looks like it's actually talking.
 			if (((string_index < dialog_length and is_undefined(wait_for_key) and is_undefined(wait_for_function)) and face_animation or face_index > 0) and string_index > 0){ //Once again, abusing the fact, booleans are 0 (false) and 1 (true).
 				face_timer++; //Counter for the portrait animations
-			
+				
 				if (face_timer >= face_speed){ //When it's time to change the subimage for the animation do the following.
 					face_timer -= face_speed;
 					face_index++; //Just change the index of the portrait sprite.
@@ -2176,6 +2339,34 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 				}
 			}else{ //When it's not talking, just set the first index for the sprite.
 				face_index = 0;
+				face_timer = face_speed - 1;
+			}
+		}
+		
+		//This next condition does the same as the one above but for the instance it may be binded in the dialog, it uses some of the face variables.
+		if (!is_undefined(instance_index) and instance_image_length > 1){
+			//This condition prevents the animation from running when a [wait] command has been executed, so it looks like it's actually talking.
+			if (((string_index < dialog_length and is_undefined(wait_for_key) and is_undefined(wait_for_function)) and face_animation or instance_image_index > 0) and string_index > 0){ //Once again, abusing the fact, booleans are 0 (false) and 1 (true).
+				instance_timer++; //Counter for the portrait animations
+			
+				if (instance_timer >= face_speed){ //When it's time to change the subimage for the animation do the following.
+					instance_timer -= face_speed;
+					instance_image_index++; //Just change the index of the portrait sprite.
+					
+					if (instance_image_index >= instance_image_length){ //If it goes over the length of the array, set it back to 0.
+						instance_image_index = 0;
+					}
+				}
+			}else{ //When it's not talking, just set the first index for the sprite.
+				instance_image_index = 0;
+				instance_timer = face_speed - 1;
+			}
+			
+			//Here it the image_index altered depending if the image cycle is defined.
+			if (is_undefined(instance_image_cycle)){
+				instance_index.image_index = instance_image_index;
+			}else{
+				instance_index.image_index = instance_image_cycle[instance_image_index];
 			}
 		}
 	}
@@ -2186,6 +2377,11 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 	RETURNS -> INTEGER/UNDEFINED. --It returns the current text_timer everytime it's called, except when it executes the command [next] where it returns undefined, there's only one point in the step function where that matters.
 	*/
 	execute_action_commands = function(_is_skipping=false){
+		//If no dialogs then just do nothing.
+		if (dialogues_amount == 0){
+			return;
+		}
+		
 		if (command_length > 0){ //If there are any commands to execute, do enter.
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------
 			//VARIABLE DEFINITION
@@ -2196,6 +2392,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 			var _command_data = _current_commands[0];
 			var _index = max(string_index, 0) + 1;
 			var _has_skipped = _is_skipping;
+			var _has_set_face_timer = false;
+			var _has_set_instance_timer = false;
 			
 			//While commands exist and not wait events happen and the index of the command is in bounds of the current position of the dialog and text_timer is under or equal 0 or _is_skipping is set, do execute commands.
 			while (command_length > 0 and is_undefined(wait_for_key) and is_undefined(wait_for_function) and (_is_skipping or (text_timer <= 0 and _command_data.index <= _index))){
@@ -2261,7 +2459,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 						//Since a skip is comming, and it returns, it is needed to remove the command from here.
 						command_length--;
 						array_delete(_current_commands, 0, 1);
-					return skip_dialog(); //When skipping dialog it will call this function again with _is_skipping being true, so just do a return with any value the skip_dialog() returns.
+					return skip_dialog(_command_data.value); //When skipping dialog it will call this function again with _is_skipping being true, so just do a return with any value the skip_dialog() returns.
 					case COMMAND_TYPE.STOP_SKIP:
 						//Yeah, this prevents the skip to continue.
 						if (_is_skipping){
@@ -2303,7 +2501,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 						var _sprite_exists = sprite_exists(_sprite);
 						
 						if (_command_data.index == 1){
-							text_align_x = ASTERISK_SIZE*asterisk;
+							text_align_x = ASTERISK_SPACING*asterisk;
 							
 							if (_sprite_exists){
 								text_align_x += sprite_get_width(_sprite) + 10;
@@ -2313,14 +2511,12 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 						face_sprite = _sprite;
 						
 						if (!_sprite_exists){
+							_has_set_face_timer = false;
+							
 							break;
 						}
 						
 						array_delete(_command_data.value, 0, 1);
-						
-						if (array_length(_command_data.value) == 0){
-							break;
-						}
 					case COMMAND_TYPE.SET_SUBIMAGES: //Yeah, what this does, the set_sprite command also uses.
 						face_index = 0;
 						var _subimages = _command_data.value;
@@ -2338,9 +2534,24 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 							face_subimages_cycle = undefined;
 							face_subimages_length = sprite_get_number(face_sprite);
 						}
+						
+						if (face_subimages_length > 1){
+							_has_set_face_timer = true;
+							face_timer = face_speed - 1;
+						}else{
+							_has_set_face_timer = false;
+						}
 					break;
 					case COMMAND_TYPE.SET_SPRITE_SPEED:
 						face_speed = _command_data.value;
+						
+						if (_has_set_face_timer){
+							face_timer = face_speed - 1;
+						}
+						
+						if (_has_set_instance_timer){
+							instance_timer = face_speed - 1;
+						}
 					break;
 					case COMMAND_TYPE.PLAY_SOUND:
 						audio_play_sound(_command_data.value, 100, false);
@@ -2361,7 +2572,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 						}
 		
 						asterisk = _asterisk;
-						text_align_x += ASTERISK_SIZE*(2*asterisk - 1);
+						text_align_x += ASTERISK_SPACING*(2*asterisk - 1);
 						
 						if (!_is_skipping){
 							string_index = -asterisk;
@@ -2433,6 +2644,20 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 						}
 						
 						make_tiny_dialog_pop_up(_mode, _x, _y, _dialog, _width, _face_sprite, _face_subimages);
+					break;
+					case COMMAND_TYPE.BIND_INSTANCE:
+						bind_instance(_command_data.inst, _command_data.value);
+						
+						if (!is_undefined(instance_index)){
+							if (instance_image_length > 1){
+								_has_set_instance_timer = true;
+								instance_timer = face_speed - 1;
+							}else{
+								_has_set_instance_timer = false;
+							}
+						}else{
+							_has_set_instance_timer = false;
+						}
 					break;
 				}
 				
@@ -2643,8 +2868,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _xscale=1, _yscale=1, _voices
 					break;
 				}
 			case EFFECT_TYPE.SHAKE:
-				draw_effect_x = irandom_range(-draw_position_effect_value, draw_position_effect_value);
-				draw_effect_y = irandom_range(-draw_position_effect_value, draw_position_effect_value);
+				draw_effect_x = random_range(-draw_position_effect_value, draw_position_effect_value);
+				draw_effect_y = random_range(-draw_position_effect_value, draw_position_effect_value);
 			break;
 		}
 		

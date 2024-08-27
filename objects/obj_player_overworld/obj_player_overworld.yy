@@ -33,8 +33,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_player_overworld_walk",
-    "path":"sprites/spr_player_overworld_walk/spr_player_overworld_walk.yy",
+    "name":"spr_unknown_walk",
+    "path":"sprites/spr_unknown_walk/spr_unknown_walk.yy",
   },
   "spriteMaskId":null,
   "visible":true,

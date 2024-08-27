@@ -89,7 +89,8 @@ switch (state){
 				state = GAME_STATE.PLAYER_CONTROL;
 			}else{
 				state = GAME_STATE.EVENT;
-				event_after_room_change(); ////CHECK THIS SOMEHOW FOR A LONG CUTSCENE IDK
+				
+				event_after_room_change();
 				event_after_room_change = undefined;
 			}
 		}else if (timer == 20){
@@ -97,7 +98,62 @@ switch (state){
 		}
 	break;
 	case GAME_STATE.EVENT:
-		////ONE OF THESE DAYS XD
+		if (!is_undefined(event_update)){
+			event_update();
+		}
+		
+		if (event_end_condition()){
+			state = GAME_STATE.PLAYER_CONTROL;
+			
+			event_update = undefined;
+			event_end_condition = undefined;
+		}
+	break;
+	case GAME_STATE.DIALOG_CHOICE:
+		var _prev_selection = selection;
+		
+		if (!is_undefined(event_update)){
+			event_update();
+		}
+		
+		for (var _i = 1; _i < 5; _i++){
+			if (!is_undefined(options[_i])){
+				options[_i][4].step();
+			}
+		}
+		
+		if (global.confirm_button and selection > 0){
+			//Unless the function passed in the option variables set it otherwise, upon finishing a selection, the player regains control, a little fail safe in case you forget to place the event.
+			state = GAME_STATE.PLAYER_CONTROL;
+			
+			options[selection][3]();
+			
+			var _length = array_length(options);
+			for (var _i = 0; _i < _length; _i++){
+				if (_i > 0){
+					options[_i][3] = undefined;
+					delete options[_i][4];
+				}
+				
+				options[_i] = undefined;
+			}
+		}else if (global.left_button and !is_undefined(options[1])){
+			selection = 1;
+		}else if (global.right_button and !is_undefined(options[3])){
+			selection = 3;
+		}else if (global.up_button and !is_undefined(options[4])){
+			selection = 4;
+		}else if (global.down_button and !is_undefined(options[2])){
+			selection = 2;
+		}
+		
+		if (_prev_selection != selection and !is_undefined(options[_prev_selection]) and !is_undefined(options[selection])){
+			if (_prev_selection > 0){
+				options[_prev_selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false]" + options[_prev_selection][2]);
+			}
+			
+			options[selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false][color_rgb:255,255,0]" + options[selection][2]);
+		}
 	break;
 }
 

@@ -28,7 +28,7 @@
     "name":"Container Tails",
     "path":"folders/Sprites/Dialog Resources/Container Tails.yy",
   },
-  "preMultiplyAlpha":false,
+  "preMultiplyAlpha":true,
   "resourceType":"GMSprite",
   "resourceVersion":"2.0",
   "sequence":{
