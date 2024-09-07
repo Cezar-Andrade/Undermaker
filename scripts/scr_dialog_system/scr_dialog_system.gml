@@ -267,7 +267,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		//----------------------------------------------------------------------------------------------------------------------------------------------------------------
 		//First it is checked if it's not waiting for a key or a function and it's in range to advance the dialog.
 		
-		if (is_undefined(wait_for_key) and is_undefined(wait_for_function) and string_index < dialog_length){
+		if (is_undefined(wait_for_key) and is_undefined(wait_for_function) and (string_index < dialog_length or command_length > 0)){
 			text_timer--; //Counts down until 0 is reached so it may advance the dialog.
 			var _voice_reproduced = false; //In case multiple characters are being displayed, we don't want a sound for each one, right? It gets pretty loud otherwise.
 		
@@ -498,9 +498,6 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 				var _offset_y = -get_tail_height();
 				var _offset_x2 = max(_offset_x, 0);
 				var _offset_y2 = max(_offset_y, 0);
-				
-				show_debug_message(-_offset_x)
-				show_debug_message(-_offset_y)
 				
 				if (!surface_exists(surface)){
 					surface = surface_create(get_width() + abs(_offset_x), get_height() + abs(_offset_y));

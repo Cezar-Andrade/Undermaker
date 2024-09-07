@@ -69,6 +69,7 @@
     {"id":{"name":"rm_battle","path":"rooms/rm_battle/rm_battle.yy",},},
     {"id":{"name":"rm_overworld_1_grass_land","path":"rooms/rm_overworld_1_grass_land/rm_overworld_1_grass_land.yy",},},
     {"id":{"name":"rm_overworld_2_the_void","path":"rooms/rm_overworld_2_the_void/rm_overworld_2_the_void.yy",},},
+    {"id":{"name":"rm_overworld_3_hallway","path":"rooms/rm_overworld_3_hallway/rm_overworld_3_hallway.yy",},},
     {"id":{"name":"scr_constants","path":"scripts/scr_constants/scr_constants.yy",},},
     {"id":{"name":"scr_dialog_system","path":"scripts/scr_dialog_system/scr_dialog_system.yy",},},
     {"id":{"name":"scr_dialog_tree","path":"scripts/scr_dialog_tree/scr_dialog_tree.yy",},},
@@ -80,6 +81,7 @@
     {"id":{"name":"spr_border","path":"sprites/spr_border/spr_border.yy",},},
     {"id":{"name":"spr_box_normal_mask","path":"sprites/spr_box_normal_mask/spr_box_normal_mask.yy",},},
     {"id":{"name":"spr_box_normal_tail","path":"sprites/spr_box_normal_tail/spr_box_normal_tail.yy",},},
+    {"id":{"name":"spr_box_normal_tiny_tail","path":"sprites/spr_box_normal_tiny_tail/spr_box_normal_tiny_tail.yy",},},
     {"id":{"name":"spr_box_normal","path":"sprites/spr_box_normal/spr_box_normal.yy",},},
     {"id":{"name":"spr_box_round_mask","path":"sprites/spr_box_round_mask/spr_box_round_mask.yy",},},
     {"id":{"name":"spr_box_round","path":"sprites/spr_box_round/spr_box_round.yy",},},
@@ -108,6 +110,7 @@
     {"roomId":{"name":"rm_overworld_1_grass_land","path":"rooms/rm_overworld_1_grass_land/rm_overworld_1_grass_land.yy",},},
     {"roomId":{"name":"rm_battle","path":"rooms/rm_battle/rm_battle.yy",},},
     {"roomId":{"name":"rm_overworld_2_the_void","path":"rooms/rm_overworld_2_the_void/rm_overworld_2_the_void.yy",},},
+    {"roomId":{"name":"rm_overworld_3_hallway","path":"rooms/rm_overworld_3_hallway/rm_overworld_3_hallway.yy",},},
   ],
   "templateType":null,
   "TextureGroups":[

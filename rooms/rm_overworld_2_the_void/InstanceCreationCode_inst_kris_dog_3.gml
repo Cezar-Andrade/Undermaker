@@ -18,8 +18,6 @@ interaction = function(){
 
 update = function(){
 	if (!is_undefined(instance)){
-		show_debug_message(timer)
-		show_debug_message(obj_game.dialog.instance_timer)
 		if (!obj_game.dialog.is_finished()){
 			if (obj_game.dialog.is_talking() or instance.image_index > 0){
 				timer++;
