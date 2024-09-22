@@ -246,6 +246,11 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 						wait_for_key = undefined;
 					}
 				break;
+				case "progress":
+					if (global.confirm_button or global.menu_hold_button){
+						wait_for_key = undefined;
+					}
+				break;
 				case "any":
 					if (keyboard_check_pressed(vk_anykey)){
 						wait_for_key = undefined;
@@ -511,7 +516,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 				gpu_set_colorwriteenable(true, true, true, true);
 				gpu_set_alphatestenable(true);
 				
-				shader_set(shd_alpha_masking);
+				shader_set(sh_alpha_masking);
 				draw_sprite_ext(container_tail_mask_sprite, 0, _offset_x2, _offset_y2, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
 				shader_reset();
 				
@@ -531,7 +536,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 					gpu_set_alphatestenable(true);
 					
 					//This shader allows for masks with alpha to be used for effects you may want, if by any chance you or your end users cannot run this shader, you will have to use masks with full alpha only, no transparency allowed.
-					shader_set(shd_alpha_masking);
+					shader_set(sh_alpha_masking);
 					draw_sprite_ext(container_tail_mask_sprite, 0, dialog_x, dialog_y, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
 					shader_reset();
 					
@@ -1029,10 +1034,12 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		container_bottom_collision = sprite_get_bbox_bottom(container_sprite) + 1;
 		container_sprite_width = sprite_get_width(container_sprite);
 		container_sprite_height = sprite_get_height(container_sprite);
-		container_width = (dialog_x_offset + dialog_width + container_sprite_width - container_right_collision)/container_sprite_width;
-		container_height = (dialog_y_offset + dialog_height + container_sprite_height - container_bottom_collision)/container_sprite_height;
 		container_x_origin = sprite_get_xoffset(container_sprite);
 		container_y_origin = sprite_get_yoffset(container_sprite);
+		
+		//Call the function to update parameters of the container sprite once the variables have been set.
+		update_container_sprite();
+		
 		container_x_offset = container_x_origin*container_width;
 		container_y_offset = container_y_origin*container_height;
 		
@@ -1047,7 +1054,6 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		
 		//In case a tail exists, send the container's new origin to set the tail's position and if a mask also exists, update the information.
 		set_container_tail_position(container_x_origin, container_y_origin);
-		update_container_tail_mask_sprite();
 	}
 	
 	/*
@@ -1068,7 +1074,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		container_tail_y_origin = sprite_get_yoffset(container_tail_sprite);
 		container_tail_width_pixels = sprite_get_xoffset(container_tail_sprite);
 		container_tail_height_pixels = sprite_get_height(container_tail_sprite);
-		container_tail_height = min(dialog_height/container_tail_height_pixels, 1);
+		
+		//Call the function to update parameters of the tail sprite once they have been set.
+		update_container_tail_sprite();
 		
 		//If these origins are set, which can only happen either by setting it manually with the set_container_tail_position() or by loading a container sprite, then continue past this condition.
 		if (is_undefined(container_x_origin) or is_undefined(container_y_origin)){
@@ -1226,6 +1234,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 				array_push(dialogues, _dialogues[_i]);
 			}
 		}
+		
+		_execute_initial_configuration = (_execute_initial_configuration and dialogues_amount > 0);
 		
 		//This for cycle iterates all the new dialogues to fetch its command information and insert the line jumps in it.
 		for (var _i = dialogues_amount - _dialogues_amount; _i < dialogues_amount; _i++){
@@ -1488,7 +1498,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 									if (array_length(_command_arguments) > 1 and _command_arguments[1] != ""){
 										_command_data.value = abs(real(_command_arguments[1]));
 									}else{
-										_command_data.value = 2;
+										_command_data.value = 1;
 									}
 								break;
 								case "oscillate":
@@ -1601,11 +1611,11 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 						case "stop_skip":
 							_command_data.type = COMMAND_TYPE.STOP_SKIP;
 						break;
-						case "wait_press_key":
-							_command_data.type = COMMAND_TYPE.WAIT_PRESS_KEY;
+						case "wait_key_press": case "wait_key":
+							_command_data.type = COMMAND_TYPE.WAIT_KEY_PRESS;
 							_command_data.value = _command_content[1];
 						break;
-						case "wait_for":
+						case "wait_for": case "wait_function": case "wait_func":
 							_command_data.type = COMMAND_TYPE.WAIT_FOR;
 							_arguments = string_split(_command_content[1], ",", false, 1);
 							
@@ -2040,6 +2050,11 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 			dialog_height = max(dialog_heights[_i], dialog_height);
 		}
 		
+		//Since the dialog_height is recalculated, maybe it's different size, so the container sprite's size must be updated and the tail sprite too alongside its position too.
+		update_container_sprite();
+		update_container_tail_sprite();
+		set_container_tail_position(container_x_origin, container_y_origin);
+		
 		if (_execute_initial_configuration){
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------
 			//CURRENT DATA VARIABLES
@@ -2080,7 +2095,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		
 		//If an instance is binded, unbinds it.
 		if (!is_undefined(instance_index)){
-			instance_index.image_index = instance_image_prev_index;
+			if (instance_exists(instance_index)){
+				instance_index.image_index = instance_image_prev_index;
+			}
 			instance_index = undefined;
 		}
 		
@@ -2411,7 +2428,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 						text_timer = _command_data.value;
 						face_animation = false;
 					break;
-					case COMMAND_TYPE.WAIT_PRESS_KEY:
+					case COMMAND_TYPE.WAIT_KEY_PRESS:
 						//Some commands, may stop the skipping, like wait press key or stop skip.
 						string_index = min(_command_data.index - 1, string_index);
 						
@@ -2932,17 +2949,43 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		var _y_origin_scale = container_tail_y_origin/container_tail_height_pixels; //The tail variables hold the pixels and absolute positions of the origin and height, the proportion of these is needed instead.
 		
 		while (true){
-			var _F = dcos(_xn - _angle_offset)*dcos(_xn - _angle_offset) - dsin(_angle - _xn) * _d / container_tail_height_pixels - _y_origin_scale;
+			var _f = dcos(_xn - _angle_offset)*dcos(_xn - _angle_offset) - dsin(_angle - _xn) * _d / container_tail_height_pixels - _y_origin_scale;
 			
-			if (abs(_F) <= 0.01){ //99% preccise solutions are accepted only.
+			if (abs(_f) <= 0.01){ //99% preccise solutions are accepted only.
 				break;
 			}
 			
-			_xn = _xn - _F/(_const * dcos(_xn) * dsin(_xn) + _d / container_tail_height_pixels * dcos(_angle - _xn));
+			_xn = _xn - _f/(_const * dcos(_xn) * dsin(_xn) + _d / container_tail_height_pixels * dcos(_angle - _xn));
 		}
 		
 		//At this point the correct angle must have been achieved if done correctly.
 		return _xn;
+	}
+	
+	/*
+	This simple function updates the width and height values of the container so it's scaled correctly with the current size of the dialog itself and the container data.
+	*/
+	update_container_sprite = function(){
+		if (!sprite_exists(container_sprite)){
+			return;
+		}
+		
+		container_width = (dialog_x_offset + dialog_width + container_sprite_width - container_right_collision)/container_sprite_width;
+		container_height = (dialog_y_offset + dialog_height + container_sprite_height - container_bottom_collision)/container_sprite_height;
+		
+		//In case the mask exists with a tail, update the data of it since the width and height are being changed.
+		update_container_tail_mask_sprite();
+	}
+	
+	/*
+	This simple function updates the height value of the container tail so it's correctly scaled with the current size of the dialog itself and the container tail data.
+	*/
+	update_container_tail_sprite = function(){
+		if (!sprite_exists(container_tail_sprite)){
+			return;
+		}
+		
+		container_tail_height = min(dialog_height/container_tail_height_pixels, 1);
 	}
 	
 	/*

@@ -17,7 +17,7 @@ INTEGER _index -> Must be the index of the controller that you are trying to map
 map_controller = function(_index){
 	control_type = CONTROL_TYPE.MAPPING_CONTROLLER;
 	controller_id = _index;
-	controller_CONTROLLER_MAPPING_state = CONTROLLER_MAPPING.WAITING_ENTER;
+	controller_controller_mapping_state = CONTROLLER_MAPPING.WAITING_ENTER;
 }
 
 get_controller_button_pressed = function(_index){
@@ -175,25 +175,30 @@ state = GAME_STATE.PLAYER_CONTROL; ////REPLACE WHEN ALL IS DONE.
 goto_room = undefined;
 event_update = undefined;
 event_end_condition = undefined;
-event_after_room_change = undefined;
+after_transition_function = undefined;
+start_room_function = undefined;
+end_room_function = undefined;
 
 options = [undefined, undefined, undefined, undefined, undefined]; //none, left, down, right, up.
 choice_sprite = spr_player_heart;
 choice_index = 0;
 choice_color = c_red;
 
-timer = 0;
+room_change_timer = 0;
+room_change_fade_in_time = 0;
+room_change_wait_time = 0;
+room_change_fade_out_time = 0;
 selection = 0;
 dialog_surface = -1;
 
-dialog = new DisplayDialog(0, 0, "[next]", 1);
+dialog = new DisplayDialog(0, 0, [], 1);
 
 with_border = false;
 border_id = 0; //There's just 1 border as of now, so this won't do anything yet.
 
 control_type = CONTROL_TYPE.KEYBOARD;
 controller_id = -1; //-1 means that there's no controller assigned, either not connected or not supported.
-controller_CONTROLLER_MAPPING_state = -1;
+controller_controller_mapping_state = -1;
 controller_confirm_button = -1;
 controller_cancel_button = -1;
 controller_menu_button = -1;

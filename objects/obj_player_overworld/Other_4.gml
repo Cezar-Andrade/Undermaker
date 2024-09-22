@@ -32,4 +32,6 @@ if (!is_undefined(spawn_point_reference)){
 			break;
 		}
 	}
+	
+	spawn_point_reference = undefined;
 }

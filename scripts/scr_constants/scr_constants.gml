@@ -52,7 +52,7 @@ Constants for the commands of the dialog system.
 */
 enum COMMAND_TYPE{
 	WAIT,
-	WAIT_PRESS_KEY,
+	WAIT_KEY_PRESS,
 	WAIT_FOR,
 	SKIP_ENABLING,
 	SKIP_DIALOG,

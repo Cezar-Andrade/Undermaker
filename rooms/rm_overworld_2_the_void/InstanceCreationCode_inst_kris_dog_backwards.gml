@@ -5,5 +5,5 @@ interaction = function(){
 }
 
 draw = function(){
-	draw_sprite_ext(spr_kris_dog, image_index, x + 54, y - 60, 2, 2, 180, c_white, 1);
+	draw_sprite_ext(spr_kris_dog, image_index, x + 14, y - 60, 2, 2, 180, c_white, 1);
 }

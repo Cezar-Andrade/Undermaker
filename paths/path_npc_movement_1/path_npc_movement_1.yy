@@ -1,0 +1,20 @@
+{
+  "$GMPath":"",
+  "%Name":"path_npc_movement_1",
+  "closed":false,
+  "kind":1,
+  "name":"path_npc_movement_1",
+  "parent":{
+    "name":"Paths",
+    "path":"folders/Paths.yy",
+  },
+  "points":[
+    {"speed":100.0,"x":860.0,"y":100.0,},
+    {"speed":100.0,"x":860.0,"y":220.0,},
+    {"speed":100.0,"x":660.0,"y":220.0,},
+    {"speed":100.0,"x":660.0,"y":100.0,},
+  ],
+  "precision":4,
+  "resourceType":"GMPath",
+  "resourceVersion":"2.0",
+}

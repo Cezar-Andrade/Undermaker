@@ -23,7 +23,7 @@
   ],
   "name":"spr_rock",
   "nineSlice":null,
-  "origin":6,
+  "origin":7,
   "parent":{
     "name":"Objects",
     "path":"folders/Sprites/Overworld/Objects.yy",
@@ -75,7 +75,7 @@
     ],
     "visibleRange":null,
     "volume":1.0,
-    "xorigin":0,
+    "xorigin":10,
     "yorigin":18,
   },
   "swatchColours":null,

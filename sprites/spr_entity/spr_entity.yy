@@ -23,7 +23,7 @@
   ],
   "name":"spr_entity",
   "nineSlice":null,
-  "origin":6,
+  "origin":7,
   "parent":{
     "name":"Debug",
     "path":"folders/Sprites/Debug.yy",
@@ -75,7 +75,7 @@
     ],
     "visibleRange":null,
     "volume":1.0,
-    "xorigin":0,
+    "xorigin":10,
     "yorigin":20,
   },
   "swatchColours":null,

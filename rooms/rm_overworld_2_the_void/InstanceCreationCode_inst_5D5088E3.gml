@@ -14,5 +14,5 @@ update = function(){
 }
 
 draw = function(){
-	draw_sprite_ext(spr_kris_dog, image_index, x - 27 + 27*dcos(angle) + 30*dsin(angle), y - 46 + 10*dsin(timer) + 30*dcos(angle) - 27*dsin(angle), -2, 2, angle, c_white, 1);
+	draw_sprite_ext(spr_kris_dog, image_index, x, y - 10 + 10*dsin(timer), -2, 2, angle, c_white, 1);
 }

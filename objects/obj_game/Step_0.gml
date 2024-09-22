@@ -1,31 +1,31 @@
 //Keyboard controls handler, if you don't understand it, I recommend not to touch it, don't even look at it... well ok you can in an attempt to understand, my bad, sorry...
 switch (control_type){
 	case CONTROL_TYPE.MAPPING_CONTROLLER:
-		switch (controller_CONTROLLER_MAPPING_state){
+		switch (controller_controller_mapping_state){
 			case CONTROLLER_MAPPING.WAITING_ENTER: //make macros for this in scr_init.
 				if (keyboard_check_pressed(vk_enter)){
-					controller_CONTROLLER_MAPPING_state = CONTROLLER_MAPPING.GET_CONFIRM;
+					controller_controller_mapping_state = CONTROLLER_MAPPING.GET_CONFIRM;
 				}
 			break;
 			case CONTROLLER_MAPPING.GET_CONFIRM:
 				var _button_z = get_controller_button_pressed(controller_id);
 				if (_button_z != -1){
 					controller_confirm_button = _button_z;
-					controller_CONTROLLER_MAPPING_state = CONTROLLER_MAPPING.GET_CANCEL;
+					controller_controller_mapping_state = CONTROLLER_MAPPING.GET_CANCEL;
 				}
 			break;
 			case CONTROLLER_MAPPING.GET_CANCEL:
 				var _button_x = get_controller_button_pressed(controller_id);
 				if (_button_x != -1){
 					controller_cancel_button = _button_x;
-					controller_CONTROLLER_MAPPING_state = CONTROLLER_MAPPING.GET_MENU;
+					controller_controller_mapping_state = CONTROLLER_MAPPING.GET_MENU;
 				}
 			break;
 			case CONTROLLER_MAPPING.GET_MENU:
 				var _button_c = get_controller_button_pressed(controller_id);
 				if (_button_c != -1){
 					controller_menu_button = _button_c;
-					controller_CONTROLLER_MAPPING_state = CONTROLLER_MAPPING.DONE;
+					controller_controller_mapping_state = CONTROLLER_MAPPING.DONE;
 					control_type = CONTROL_TYPE.CONTROLLER;
 					save_controller_config(controller_id);
 				}
@@ -60,7 +60,7 @@ switch (control_type){
 		global.left_button = max(-gamepad_axis_value(controller_id, gp_axislh), gamepad_button_check(controller_id, gp_padl), 0);
 		global.down_button = max(gamepad_axis_value(controller_id, gp_axislv), gamepad_button_check(controller_id, gp_padu), 0);
 		global.right_button = max(gamepad_axis_value(controller_id, gp_axislh), gamepad_button_check(controller_id, gp_padr), 0);
-		if (controller_CONTROLLER_MAPPING_state == CONTROLLER_MAPPING.DONE){
+		if (controller_controller_mapping_state == CONTROLLER_MAPPING.DONE){
 			global.confirm_button = gamepad_button_check_pressed(controller_id, controller_confirm_button);
 			global.cancel_button = gamepad_button_check_pressed(controller_id, controller_cancel_button);
 			global.menu_button = gamepad_button_check_pressed(controller_id, controller_menu_button);
@@ -83,18 +83,17 @@ global.escape_hold_button = keyboard_check(vk_escape); //Exclusive to keyboard.
 
 switch (state){
 	case GAME_STATE.ROOM_CHANGE:
-		timer++;
-		if (timer == 40){
-			if (is_undefined(event_after_room_change)){
-				state = GAME_STATE.PLAYER_CONTROL;
-			}else{
-				state = GAME_STATE.EVENT;
-				
-				event_after_room_change();
-				event_after_room_change = undefined;
-			}
-		}else if (timer == 20){
+		room_change_timer++;
+		
+		if (room_change_timer == room_change_fade_in_time){
 			room_goto(goto_room);
+		}else if (room_change_timer == room_change_fade_out_time){
+			state = GAME_STATE.PLAYER_CONTROL;
+			
+			if (!is_undefined(after_transition_function)){
+				after_transition_function();
+				after_transition_function = undefined;
+			}
 		}
 	break;
 	case GAME_STATE.EVENT:

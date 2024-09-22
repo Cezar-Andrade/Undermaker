@@ -12,7 +12,11 @@ depth_ordering = true;
 
 interaction_key = "confirm";
 
+before_update = undefined;
 update = undefined;
+after_update = undefined;
+before_draw = undefined;
 draw = undefined;
+after_draw = undefined;
 interaction = undefined;
 when_colliding = undefined; //Will do nothing until it's defined, it triggers when the player collides with it.

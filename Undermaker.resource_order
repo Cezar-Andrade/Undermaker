@@ -1,6 +1,9 @@
 {
   "FolderOrderSettings":[
     {"name":"Animation Curves","order":12,"path":"folders/Animation Curves.yy",},
+    {"name":"Audio","order":3,"path":"folders/Audio.yy",},
+    {"name":"Sounds","order":2,"path":"folders/Audio/Sounds.yy",},
+    {"name":"Voices","order":1,"path":"folders/Audio/Voices.yy",},
     {"name":"Extensions","order":14,"path":"folders/Extensions.yy",},
     {"name":"Fonts","order":7,"path":"folders/Fonts.yy",},
     {"name":"Notes","order":13,"path":"folders/Notes.yy",},
@@ -13,8 +16,6 @@
     {"name":"Scripts","order":5,"path":"folders/Scripts.yy",},
     {"name":"Sequences","order":11,"path":"folders/Sequences.yy",},
     {"name":"Shaders","order":6,"path":"folders/Shaders.yy",},
-    {"name":"Sounds","order":3,"path":"folders/Sounds.yy",},
-    {"name":"Voices","order":1,"path":"folders/Sounds/Voices.yy",},
     {"name":"Sprites","order":1,"path":"folders/Sprites.yy",},
     {"name":"Battle","order":5,"path":"folders/Sprites/Battle.yy",},
     {"name":"Buttons","order":2,"path":"folders/Sprites/Battle/Buttons.yy",},
@@ -56,6 +57,7 @@
     {"name":"spr_box_round","order":1,"path":"sprites/spr_box_round/spr_box_round.yy",},
     {"name":"spr_bubble_normal","order":2,"path":"sprites/spr_bubble_normal/spr_bubble_normal.yy",},
     {"name":"spr_entity","order":4,"path":"sprites/spr_entity/spr_entity.yy",},
+    {"name":"spr_hotdiggitydemondotcom","order":3,"path":"sprites/spr_hotdiggitydemondotcom/spr_hotdiggitydemondotcom.yy",},
     {"name":"spr_interaction","order":2,"path":"sprites/spr_interaction/spr_interaction.yy",},
     {"name":"spr_kris_dog","order":2,"path":"sprites/spr_kris_dog/spr_kris_dog.yy",},
     {"name":"spr_papyrus","order":3,"path":"sprites/spr_papyrus/spr_papyrus.yy",},

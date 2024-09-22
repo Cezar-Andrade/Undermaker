@@ -11,7 +11,7 @@ draw_text(0, 160, "Escape: " + string(global.escape_hold_button))*/
 
 
 if (control_type == CONTROL_TYPE.MAPPING_CONTROLLER){
-	switch (controller_CONTROLLER_MAPPING_state){
+	switch (controller_controller_mapping_state){
 		case CONTROLLER_MAPPING.WAITING_ENTER:
 			draw_text(100, 140, "Controlador detectado.\nPresiona Enter para empezar\nel mapeado.");
 		break;

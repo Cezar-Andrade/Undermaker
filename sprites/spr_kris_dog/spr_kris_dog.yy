@@ -24,7 +24,7 @@
   ],
   "name":"spr_kris_dog",
   "nineSlice":null,
-  "origin":6,
+  "origin":7,
   "parent":{
     "name":"Characters",
     "path":"folders/Sprites/Overworld/Characters.yy",
@@ -79,7 +79,7 @@
     ],
     "visibleRange":null,
     "volume":1.0,
-    "xorigin":0,
+    "xorigin":13,
     "yorigin":30,
   },
   "swatchColours":null,

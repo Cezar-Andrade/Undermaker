@@ -23,50 +23,13 @@ function handle_interaction_action(_direction, _movement_speed){
 		
 		if (_is_interacting){
 			obj_player_overworld.player_anim_stop(); //This resets the player animation automatically, but since it's ran before the interaction function, users can change that.
-			interaction(); //Trigger the interaction if the played pressed the right key to interact with.
+			interaction(_direction); //Trigger the interaction if the played pressed the right key to interact with.
 		}
 		
 		return _is_interacting;
 	}
 	
 	return false;
-}
-
-function verify_and_adjust_entity_position(_id, _pusher){
-	var _colliding_instances = [];
-	var _instance_directions = [];
-	var _collision_amount = 0;
-	var _length_ids = array_length(collision_ids);
-	
-	do{
-		with (obj_collision){
-			var _can_collide = false;
-			
-			for (var _i=0; _i < _length_ids; _i++){
-				if (_id.collision_ids[_i] == collision_id){
-					_can_collide = true;
-			
-					break;
-				}
-			}
-			
-			if (_can_collide){
-				_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_collision_object_and_interaction_collision);
-			}
-		}
-		
-		with (obj_interaction){
-			if (can_entities_collide){
-				_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_collision_object_and_interaction_collision);
-			}
-		}
-		
-		with (obj_entity){
-			if (id != _id and id != _pusher and (!can_entities_push or !_id.can_push_entities) and !can_overlap){
-				_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_entity_collision);
-			}
-		}
-	}until (_collision_amount == 0);
 }
 
 function handle_entity_collision(_id){
@@ -77,10 +40,10 @@ function handle_entity_collision(_id){
 	var _collision_width = (sprite_get_bbox_right(sprite_index) + 1 - sprite_get_bbox_left(sprite_index))*abs(image_xscale);
 	var _collision_height = (sprite_get_bbox_bottom(sprite_index) + 1 - sprite_get_bbox_top(sprite_index))*abs(image_yscale);
 	
-	var _id_width = (sprite_get_bbox_right(_id.sprite_index) + 1 - sprite_get_bbox_left(_id.sprite_index))*_id.image_xscale;
-	var _id_height = (sprite_get_bbox_bottom(_id.sprite_index) + 1 - sprite_get_bbox_top(_id.sprite_index))*_id.image_yscale;
-	var _id_center_x = _id.x + _id_width/2 + (sprite_get_bbox_left(_id.sprite_index) - sprite_get_xoffset(_id.sprite_index))*_id.image_xscale;
-	var _id_center_y = _id.y + _id_height/2 + (sprite_get_bbox_top(_id.sprite_index) - sprite_get_yoffset(_id.sprite_index))*_id.image_yscale;
+	var _id_width = (sprite_get_bbox_right(_id.sprite_index) + 1 - sprite_get_bbox_left(_id.sprite_index))*abs(_id.image_xscale);
+	var _id_height = (sprite_get_bbox_bottom(_id.sprite_index) + 1 - sprite_get_bbox_top(_id.sprite_index))*abs(_id.image_yscale);
+	var _id_center_x = _id.x + _id_width*sign(_id.image_xscale)/2 + (sprite_get_bbox_left(_id.sprite_index) - sprite_get_xoffset(_id.sprite_index))*_id.image_xscale;
+	var _id_center_y = _id.y + _id_height*sign(_id.image_yscale)/2 + (sprite_get_bbox_top(_id.sprite_index) - sprite_get_yoffset(_id.sprite_index))*_id.image_yscale;
 	
 	if (round_collision_behavior){
 		_direction = point_direction(_collision_center_x, _collision_center_y, _id_center_x, _id_center_y);
@@ -113,20 +76,24 @@ function handle_entity_collision(_id){
 				_id.y -= dsin(_direction);
 			}
 		}else{
-			var _id_moved_dist_x = abs(_id.xprevious - _id.x) + abs(xprevious - x) + 1;
-			var _id_moved_dist_y = abs(_id.yprevious - _id.y) + abs(yprevious - y) + 1;
+			//Checking the closest direction to push out.
+			//In theory, when 2 rectangles collide, the distance will yield always negative values, just in case goes positive the absolute is used.
+			var _left_distance = abs(_id_center_x - _id_width/2 - _collision_center_x - _collision_width/2);
+			var _right_distance = abs(_collision_center_x - _collision_width/2 - _id_center_x - _id_width/2);
+			var _up_distance = abs(_id_center_y - _id_height/2 - _collision_center_y - _collision_height/2);
+			var _down_distance = abs(_collision_center_y - _collision_height/2 - _id_center_y - _id_height/2);
+			var _min_distance = min(_left_distance, _right_distance, _down_distance, _up_distance); //This one stores the closest distance to 0 so it compares with the distances.
 			
-			//These here are for determinating to which cardinal direction it should move.
-			if (!place_meeting(x + _id_moved_dist_x, y, _id)){ //Left pushing
-				_direction = 180;
-				_id.x--;
-			}else if (!place_meeting(x - _id_moved_dist_x, y, _id)){ //Right pushing
+			if (_left_distance == _min_distance){ //Right pushing
 				//_direction = 0; //It is already 0.
 				_id.x++;
-			}else if (!place_meeting(x, y + _id_moved_dist_y, _id)){ //Up pushing
+			}else if (_right_distance == _min_distance){ //Left pushing
+				_direction = 180;
+				_id.x--;
+			}else if (_down_distance == _min_distance){ //Down pushing
 				_direction = 90;
 				_id.y--;
-			}else{ //Down pushing
+			}else{ //Up pushing
 				_direction = 270;
 				_id.y++;
 			}
@@ -151,21 +118,29 @@ function handle_collision_object_and_interaction_collision(_id){
 	var _direction = 0;
 	
 	if (_angle%90 == 0){
-		var _offset_x = _center_x - (xprevious + 10*image_xscale*dcos(previous_angle_of_this_instance) + 10*image_yscale*dsin(previous_angle_of_this_instance));
-		var _offset_y = _center_y - (yprevious + 10*image_yscale*dcos(previous_angle_of_this_instance) - 10*image_xscale*dsin(previous_angle_of_this_instance));
-		var _distance_x = abs(_id.xprevious - _id.x) + abs(xprevious - x + _offset_x) + abs(_offset_x) + 1;
-		var _distance_y = abs(_id.yprevious - _id.y) + abs(yprevious - y + _offset_y) + abs(_offset_y) + 1;
+		var _id_width = (sprite_get_bbox_right(_id.sprite_index) + 1 - sprite_get_bbox_left(_id.sprite_index))*abs(_id.image_xscale);
+		var _id_height = (sprite_get_bbox_bottom(_id.sprite_index) + 1 - sprite_get_bbox_top(_id.sprite_index))*abs(_id.image_yscale);
+		var _collision_width = abs(20*image_xscale*dcos(_angle) + 20*image_yscale*dsin(_angle));
+		var _collision_height = abs(20*image_yscale*dcos(_angle) + 20*image_xscale*dsin(_angle));
 		
-		if (!place_meeting(x + _distance_x, y, _id)){ //Left pushing
-			_direction = 180;
-			_id.x--;
-		}else if (!place_meeting(x - _distance_x, y, _id)){ //Right pushing
+		//Checking the closest direction to push out.
+		//In theory, when 2 rectangles collide, the distance will yield always negative values, just in case goes positive the absolute is used.
+		var _left_distance = abs(_id_center_x - _id_width/2 - _center_x - _collision_width/2);
+		var _right_distance = abs(_center_x - _collision_width/2 - _id_center_x - _id_width/2);
+		var _up_distance = abs(_id_center_y - _id_height/2 - _center_y - _collision_height/2);
+		var _down_distance = abs(_center_y - _collision_height/2 - _id_center_y - _id_height/2);
+		var _min_distance = min(_left_distance, _right_distance, _down_distance, _up_distance); //This one stores the closest distance to 0 so it compares with the distances.
+		
+		if (_left_distance == _min_distance){ //Right pushing
 			//_direction = 0; //It is already 0.
 			_id.x++;
-		}else if (!place_meeting(x, y + _distance_y, _id)){ //Up pushing
+		}else if (_right_distance == _min_distance){ //Left pushing
+			_direction = 180;
+			_id.x--;
+		}else if (_down_distance == _min_distance){ //Down pushing
 			_direction = 90;
 			_id.y--;
-		}else{ //Down pushing
+		}else{ //Up pushing
 			_direction = 270;
 			_id.y++;
 		}
@@ -312,6 +287,73 @@ function general_collision_handler(_id, _colliding_instances, _instance_directio
 	return _collision_amount;
 }
 
+function general_entity_update(_pusher=undefined){
+	var _colliding_instances = [];
+	var _instance_directions = [];
+	var _collision_amount = 0;
+	var _length_ids = array_length(collision_ids);
+	var _id = id;
+	var _current_x = x;
+	var _current_y = y;
+	
+	do{
+		with (obj_collision){
+			var _can_collide = false;
+			
+			for (var _i=0; _i < _length_ids; _i++){
+				if (_id.collision_ids[_i] == collision_id){
+					_can_collide = true;
+			
+					break;
+				}
+			}
+			
+			if (_can_collide){
+				_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_collision_object_and_interaction_collision);
+			}
+		}
+		
+		with (obj_interaction){
+			if (can_entities_collide){
+				_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_collision_object_and_interaction_collision);
+			}
+		}
+		
+		if (!can_overlap){
+			with (obj_entity){
+				if (id != _id and id != _pusher and (!can_entities_push or !_id.can_push_entities) and !can_overlap){
+					_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_entity_collision);
+				}
+			}
+		}
+		
+		if (_current_x == x and _current_y == y){
+			break;
+		}else{
+			_current_x = x;
+			_current_y = y;
+		}
+	}until (_collision_amount == 0);
+	
+	if (can_push_entities){
+		var _colliding_instances = [];
+		var _instance_directions = [];
+		var _collision_amount = 0;
+		
+		with (obj_entity){
+			if (id != _id and id != _pusher and can_entities_push and !can_overlap and place_meeting(x, y, _id)){
+				push_entity(_id);
+				
+				if (!_id.can_overlap and place_meeting(x, y, _id)){
+					do{
+						_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_entity_collision);
+					}until (_collision_amount == 0);
+				}
+			}
+		}
+	}
+}
+
 function push_entity(_pusher){
 	//Some information needed for the obj_entitys.
 	var _pusher_collision_center_x = _pusher.x + ((sprite_get_bbox_right(_pusher.sprite_index) + 1 + sprite_get_bbox_left(_pusher.sprite_index))/2 - sprite_get_xoffset(_pusher.sprite_index))*_pusher.image_xscale;
@@ -372,27 +414,7 @@ function push_entity(_pusher){
 		}
 	}
 	
-	verify_and_adjust_entity_position(id, _pusher); //This function checks if the entity is colliding with any obj_collisions or obj_entity that prevent its movement, and if it does, moves the object to a position where it doesn't collide with them anymore.
-	
-	var _id = id;
-	
-	if (can_push_entities){
-		var _colliding_instances = [];
-		var _instance_directions = [];
-		var _collision_amount = 0;
-		
-		with (obj_entity){
-			if (id != _id and id != _pusher and can_entities_push and !can_overlap and place_meeting(x, y, _id)){
-				push_entity(_id);
-				
-				if (place_meeting(x, y, _id)){
-					do{
-						_collision_amount = general_collision_handler(other.id, _colliding_instances, _instance_directions, _collision_amount, handle_entity_collision);
-					}until (_collision_amount == 0);
-				}
-			}
-		}
-	}
+	general_entity_update(_pusher); //Update the entity so it checks for collision in general of the entity, pass the _pusher id so it avoids taking into account the one that pushed it, as that one will do its own thing after this is done.
 }
 
 function start_choice(_initial_x=undefined, _initial_y=undefined){
@@ -453,12 +475,17 @@ function overworld_dialog(_dialogues, _top=true, _width=260, _height=54, _face_s
 	obj_game.dialog.move_to(292 - _width, 320 - 310*_top);
 }
 
-function change_room(_room_id, _spawn_point_instance, _event=undefined){
+function change_room(_room_id, _spawn_point_instance, _room_change_fade_in_time=20, _room_change_wait_time=0, _room_change_fade_out_time=20, _end_room_func=undefined, _start_room_func=undefined, _after_transition_func=undefined){
 	obj_game.state = GAME_STATE.ROOM_CHANGE;
 	obj_game.goto_room = _room_id;
-	obj_game.event_after_room_change = _event;
-	obj_game.timer = 0;
+	obj_game.end_room_function = _end_room_func;
+	obj_game.start_room_function = _start_room_func;
+	obj_game.after_transition_function = _after_transition_func;
+	obj_game.room_change_timer = 0;
+	obj_game.room_change_fade_in_time = max(ceil(_room_change_fade_in_time), 1); //Cannot allow decimals and negatives.
+	obj_game.room_change_wait_time = max(obj_game.room_change_fade_in_time + ceil(_room_change_wait_time), 1);
+	obj_game.room_change_fade_out_time = max(obj_game.room_change_wait_time + ceil(_room_change_fade_out_time), obj_game.room_change_fade_in_time + 1);
 	
 	obj_player_overworld.spawn_point_reference = _spawn_point_instance;
-	obj_player_overworld.spawn_point_offset = -y - 10*image_yscale + obj_player_overworld.y;
+	obj_player_overworld.spawn_point_offset = obj_player_overworld.y - y - 10*image_yscale;
 }

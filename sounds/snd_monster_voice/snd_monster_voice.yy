@@ -13,7 +13,7 @@
   "name":"snd_monster_voice",
   "parent":{
     "name":"Voices",
-    "path":"folders/Sounds/Voices.yy",
+    "path":"folders/Audio/Voices.yy",
   },
   "preload":false,
   "resourceType":"GMSound",

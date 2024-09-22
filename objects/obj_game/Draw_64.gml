@@ -46,7 +46,7 @@ if (with_border){
 		}
 		
 		if (state == GAME_STATE.ROOM_CHANGE){
-			draw_sprite_ext(spr_pixel, 0, _x, _y, _game_width, _game_height, 0, c_black, (min(timer, 20) - max(timer - 20, 0))/20);
+			draw_sprite_ext(spr_pixel, 0, _x, _y, _game_width, _game_height, 0, c_black, (min(room_change_timer, room_change_fade_in_time) - max(room_change_timer - room_change_wait_time, 0))/20);
 		}
 	}else{
 		var _x = (1.5*resolutions_width[resolution_active] - _game_width)/2;
@@ -62,7 +62,7 @@ if (with_border){
 		}
 		
 		if (state == GAME_STATE.ROOM_CHANGE){
-			draw_sprite_ext(spr_pixel, 0, _x, _y, _game_width, _screen_height, 0, c_black, (min(timer, 20) - max(timer - 20, 0))/20);
+			draw_sprite_ext(spr_pixel, 0, _x, _y, _game_width, _screen_height, 0, c_black, (min(room_change_timer, room_change_fade_in_time) - max(room_change_timer - room_change_wait_time, 0))/20);
 		}
 	}
 }else{
@@ -77,7 +77,7 @@ if (with_border){
 	}
 	
 	if (state == GAME_STATE.ROOM_CHANGE){
-		draw_sprite_ext(spr_pixel, 0, _x, 0, _game_width, _screen_height, 0, c_black, (min(timer, 20) - max(timer - 20, 0))/20);
+		draw_sprite_ext(spr_pixel, 0, _x, 0, _game_width, _screen_height, 0, c_black, (min(room_change_timer, room_change_fade_in_time) - max(room_change_timer - room_change_wait_time, 0))/20);
 	}
 }
 

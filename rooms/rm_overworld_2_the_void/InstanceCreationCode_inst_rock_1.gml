@@ -8,6 +8,6 @@ can_push_entities = true;
 sprite_index = spr_rock;
 
 if (global.puzzle_1){
-	x = 680;
-	y = 320;
+	x = 700;
+	y = 220;
 }

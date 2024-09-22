@@ -23,6 +23,9 @@ update = function(){
 			obj_game.event_end_condition = obj_game.dialog.is_finished;
 		
 			global.puzzle_1 = true;
+			inst_collision_door.when_colliding = undefined;
+			inst_collision_door.collision_id = 1;
+			inst_collision_door.image_blend = #A19E42;
 		}
 	}
 }
