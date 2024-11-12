@@ -3,7 +3,7 @@ trigger_function = function(){
 	var _start_room = undefined;
 	var _after_transition = undefined;
 	
-	if (!global.cutscene_1){
+	if (!global.save_data.cutscene_1){
 		_end_room = function(){
 			room_set_persistent(rm_overworld_3_hallway, true);
 		}
@@ -86,7 +86,7 @@ trigger_function = function(){
 									
 									obj_player_overworld.player_sprite_reset();
 									
-									global.cutscene_1 = true;
+									global.save_data.cutscene_1 = true;
 								}
 							}
 						}

@@ -1,12 +1,3 @@
-
-
-/*
-Add proper description later.
-
-1. Loading and saving data
-2. Room changing between battle and overworld
-*/
-
 /*
 This function starts the sequence to assign the controller's button to the confirm, cancel and menu actions of the game.
 Only executes if game maekr has no CONTROLLER_MAPPING for the controller when connected from the Async - System event.
@@ -64,12 +55,12 @@ get_controller_button_pressed = function(_index){
 }
 
 get_controller_config = function(_index){
-	if (file_exists("settings.json")){
+	if (file_exists("controller settings.save")){
 		var _data = "";
 		var _guid = gamepad_get_guid(_index);
 		var _description = gamepad_get_description(_index);
 		
-		var _file = file_text_open_read("settings.json");
+		var _file = file_text_open_read("controller settings.save");
 		var _list = json_parse(file_text_read_string(_file));
 		file_text_close(_file);
 		
@@ -86,8 +77,8 @@ get_controller_config = function(_index){
 }
 
 save_controller_config = function(_index){
-	if (!file_exists("settings.json")){
-		var _file = file_text_open_write("settings.json");
+	if (!file_exists("controller settings.save")){
+		var _file = file_text_open_write("controller settings.save");
 		file_text_write_string(_file, "[]");
 		file_text_close(_file);
 	}
@@ -95,7 +86,7 @@ save_controller_config = function(_index){
 	var _guid = gamepad_get_guid(_index);
 	var _description = gamepad_get_description(_index);
 	
-	var _file = file_text_open_read("settings.json");
+	var _file = file_text_open_read("controller settings.save");
 	var _list = json_parse(file_text_read_string(_file));
 	file_text_close(_file);
 	
@@ -118,7 +109,7 @@ save_controller_config = function(_index){
 		array_push(_list, {"guid": _guid, "description": _description, "confirm": controller_confirm_button, "cancel": controller_cancel_button, "menu": controller_menu_button, "deadzone": gamepad_get_axis_deadzone(_index)});
 	}
 	
-	_file = file_text_open_write("settings.json");
+	_file = file_text_open_write("controller settings.save");
 	file_text_write_string(_file, json_stringify(_list));
 	file_text_close(_file);
 }
@@ -179,17 +170,31 @@ after_transition_function = undefined;
 start_room_function = undefined;
 end_room_function = undefined;
 
-options = [undefined, undefined, undefined, undefined, undefined]; //none, left, down, right, up.
+options = [undefined, undefined, undefined, undefined, undefined, undefined]; //left, down, right, up, the other 2 are used for the grid choices (the previous 4 too as well as the direction choices).
+options_x = 0;
+options_y = 0;
 choice_sprite = spr_player_heart;
 choice_index = 0;
-choice_color = c_red;
+
+player_menu_heart_subimage = 0; //The index of the sprite heart to use for menus, you can have another one from the battle one if you want.
+player_menu_heart_color = c_red;
+player_menu_state = PLAYER_MENU_STATE.INITIAL;
+player_menu_prev_state = 0;
+player_menu_box = spr_box_normal;
+player_menu_tail = undefined;
+player_menu_tail_mask = undefined;
+player_menu_top = true; //If menu is on the top or not.
+player_menu_selection = [0, 0, 0]; //Initial menu, submenu for cell or inventory, action for item or grid of dimensional box.
+player_box_index = 0; //Index for deciding which box inventory to use.
+player_box_cursor = [0, 0];
+player_save_cursor = 0;
 
 room_change_timer = 0;
 room_change_fade_in_time = 0;
 room_change_wait_time = 0;
 room_change_fade_out_time = 0;
-selection = 0;
-dialog_surface = -1;
+selection = -1;
+ui_surface = -1;
 
 dialog = new DisplayDialog(0, 0, [], 1);
 
@@ -202,6 +207,11 @@ controller_controller_mapping_state = -1;
 controller_confirm_button = -1;
 controller_cancel_button = -1;
 controller_menu_button = -1;
+
+temp_up_button = 0;
+temp_down_button = 0;
+temp_left_button = 0;
+temp_right_button = 0;
 
 application_surface_draw_enable(false);
 
@@ -224,3 +234,8 @@ array_push(resolutions_width, _display_width);
 array_push(resolutions_height, _display_height)
 
 change_resolution(array_length(resolutions_width) - 2);
+
+//Cargamos los items.
+load_items_info("Item pool english.json");
+load_ui_texts("UI texts english.json");
+load_save_info();

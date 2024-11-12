@@ -417,56 +417,109 @@ function push_entity(_pusher){
 	general_entity_update(_pusher); //Update the entity so it checks for collision in general of the entity, pass the _pusher id so it avoids taking into account the one that pushed it, as that one will do its own thing after this is done.
 }
 
-function start_choice(_initial_x=undefined, _initial_y=undefined){
-	var _found_option = 0;
+function start_choice_grid(){
+	//TODO
+}
+
+function start_choice_plus(_x, _y, _start_centered=true){
+	_x = real(_x);
+	_y = real(_y);
+	_start_centered = bool(_start_centered);
 	
-	for (var _i = 1; _i < 5; _i++){
+	var _found_option = -1;
+	
+	for (var _i = 0; _i < 4; _i++){
 		if (!is_undefined(obj_game.options[_i])){
-			if (_found_option == 0){
+			if (_found_option == -1){
 				_found_option = _i;
 			}
 			
-			obj_game.options[_i][4] = new DisplayDialog(obj_game.options[_i][0] + 16, obj_game.options[_i][1] - 14, "[skip:false][progress_mode:none][asterisk:false]" + obj_game.options[_i][2], 640,, 2, 2); //Yes it literally loads a dialog displaying for each one, for the effects it contains.
+			var _dialog_system = new DisplayDialog(0, 0, "[skip:false][progress_mode:none][asterisk:false]" + obj_game.options[_i][2], 640,, 2, 2);
+			obj_game.options[_i][4] = _dialog_system; //Yes it literally loads a dialog displaying for each one, for the effects it contains.
+			
+			switch (_i){
+				case 0:
+					obj_game.options[0][0] -= _dialog_system.get_text_width() + 16;
+					obj_game.options[0][1] -= _dialog_system.get_text_height()/2 - 8;
+				break;
+				case 1:
+					obj_game.options[1][0] -= _dialog_system.get_text_width()/2 + 16;
+					obj_game.options[1][1] += 8;
+				break;
+				case 2:
+					obj_game.options[2][0] -= 16;
+					obj_game.options[2][1] -= _dialog_system.get_text_height()/2 - 8;
+				break;
+				default: //3
+					obj_game.options[3][0] -= _dialog_system.get_text_width()/2 + 16;
+					obj_game.options[3][1] -= _dialog_system.get_text_height() - 8;
+				break;
+			}
+			
+			_dialog_system.move_to(_x + obj_game.options[_i][0] + 16, _y + obj_game.options[_i][1] - 14);
 		}
 	}
 	
-	if (_found_option > 0){
+	if (_found_option >= 0){
 		obj_game.state = GAME_STATE.DIALOG_CHOICE;
+		obj_game.options_x = _x;
+		obj_game.options_y = _y;
 	
-		if (is_undefined(_initial_x) or is_undefined(_initial_y)){
+		if (_start_centered){
+			obj_game.selection = -1;
+		}else{
 			obj_game.selection = _found_option; //The first one that finds is left, if not then, down, if not then, right, if not then, up; it's always secure it's one of those 4 cases.
 			obj_game.options[_found_option][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false][color_rgb:255,255,0]" + obj_game.options[_found_option][2]);
-		}else{
-			obj_game.options[0] = [real(_initial_x), real(_initial_y)];
-			obj_game.selection = 0;
 		}
 	}
 }
 
-function create_choice_option(_direction, _x, _y, _text, _function){
-	var _option_index = 0;
+function create_choice_option(_direction, _distance, _text, _function){
+	var _option_index = _direction;
+	var _x = -_distance*dcos(90*_direction);
+	var _y = _distance*dsin(90*_direction);
 	
-	switch (_direction){
-		case "left":
-			_option_index = 1;
-		break;
-		case "right":
-			_option_index = 3;
-		break;
-		case "up":
-			_option_index = 4;
-		break;
-		case "down":
-			_option_index = 2;
-		break;
-	}
-	
-	if (_option_index > 0){
+	if (_option_index >= 0){
 		obj_game.options[_option_index] = [_x, _y, _text, _function];
 	}
 }
 
-function overworld_dialog(_dialogues, _top=true, _width=260, _height=54, _face_sprite=undefined, _face_subimages=undefined, _box=spr_box_normal, _tail=-1, _tail_mask=-1){
+function start_box_menu(_index, _menu=false){
+	if (_menu){
+		obj_game.player_menu_prev_state = PLAYER_MENU_STATE.CELL;
+	}else{
+		obj_game.player_menu_prev_state = -1;
+	}
+	
+	obj_game.state = GAME_STATE.PLAYER_MENU_CONTROL;
+	obj_game.player_menu_state = PLAYER_MENU_STATE.BOX;
+	obj_game.player_box_index = _index;
+	obj_game.player_box_cursor[1] = 0;
+	
+	if (array_length(global.player_inventory) > 0){
+		obj_game.player_box_cursor[0] = 0;
+	}else if (array_length(global.box_inventory[_index]) > 0){
+		obj_game.player_box_cursor[0] = 1;
+	}else{
+		obj_game.player_box_cursor[0] = -1;
+	}
+}
+
+function start_save_menu(_menu=false){
+	if (_menu){
+		obj_game.player_menu_prev_state = PLAYER_MENU_STATE.CELL;
+	}else{
+		obj_game.player_menu_prev_state = -1;
+		
+		global.player_hp = max(global.player_hp, global.player_max_hp);
+	}
+	
+	obj_game.state = GAME_STATE.PLAYER_MENU_CONTROL;
+	obj_game.player_menu_state = PLAYER_MENU_STATE.SAVE;
+	obj_game.player_save_cursor = 0;
+}
+
+function overworld_dialog(_dialogues, _top=true, _width=261, _height=56, _face_sprite=undefined, _face_subimages=undefined, _box=spr_box_normal, _tail=-1, _tail_mask=-1){
 	obj_game.dialog.set_dialogues(_dialogues, _width, _height, _face_sprite, _face_subimages);
 	obj_game.dialog.set_scale(2, 2);
 	obj_game.dialog.set_container_sprite(_box);
@@ -489,3 +542,171 @@ function change_room(_room_id, _spawn_point_instance, _room_change_fade_in_time=
 	obj_player_overworld.spawn_point_reference = _spawn_point_instance;
 	obj_player_overworld.spawn_point_offset = obj_player_overworld.y - y - 10*image_yscale;
 }
+
+function get_room_name(_rm){
+	var room_name = room_get_name(_rm);
+	
+	return global.UI_texts.rooms[$room_name];
+}
+
+function perform_game_save(_rm, _x, _y){
+	var _file = file_text_open_write(working_directory + "/save0.save");
+	var _items_amount = array_length(global.player_inventory);
+	var _cell_amount = array_length(global.cell_options);
+	var _box_count = array_length(global.box_inventory);
+	var _save_struct_string = json_stringify(global.save_data);
+	var _room_index_name = room_get_name(_rm);
+	var _save_array = [
+		_room_index_name,
+		_x,
+		_y,
+		global.player_max_hp,
+		global.player_hp,
+		global.player_lv,
+		global.player_gold,
+		global.player_name,
+		global.player_atk,
+		global.player_def,
+		global.player_exp,
+		global.player_next_exp,
+		global.player_weapon,
+		global.player_armor,
+		global.player_invulnerability_time,
+		global.player_cell,
+		_items_amount,
+	];
+	
+	for (var _i = 0; _i < _items_amount; _i++){
+		array_push(_save_array, global.player_inventory[_i]);
+	}
+	
+	array_push(_save_array,
+		global.player_inventory_size,
+		_cell_amount
+	);
+	
+	for (var _i = 0; _i < _cell_amount; _i++){
+		array_push(_save_array, global.cell_options[_i]);
+	}
+	
+	array_push(_save_array, _box_count);
+	
+	for (var _i = 0; _i < _box_count; _i++){
+		var _box_amount = array_length(global.box_inventory[_i]);
+		
+		array_push(_save_array, _box_amount, global.box_inventory_size[_i]);
+		
+		for (var _j = 0; _j < _box_amount; _j++){
+			array_push(_save_array, global.box_inventory[_i][_j]);
+		}
+	}
+	
+	array_push(_save_array,
+		global.minutes,
+		global.seconds,
+		_save_struct_string
+	);
+	
+	file_text_write_string(_file, json_stringify(_save_array));
+	file_text_close(_file);
+	
+	global.last_save.player_name = global.player_name;
+	global.last_save.player_lv = global.player_lv;
+	global.last_save.room_name = get_room_name(_rm);
+	global.last_save.minutes = global.minutes;
+	global.last_save.seconds = global.seconds;
+}
+
+function perform_game_load(){
+	var _save_data = load_save_info();
+	var _items_amount = _save_data[16];
+	var _cell_amount = _save_data[18 + _items_amount] + _items_amount;
+	var _box_count = _save_data[19 + _cell_amount];
+	
+	room_goto(asset_get_index(_save_data[0]));
+	obj_game.start_room_function = function(){
+		obj_player_overworld.x = obj_player_x;
+		obj_player_overworld.y = obj_player_y;
+		obj_player_overworld.player_sprite_reset();
+	}
+	obj_game.obj_player_x = _save_data[1];
+	obj_game.obj_player_y = _save_data[2];
+	
+	global.player_max_hp = _save_data[3];
+	global.player_hp = _save_data[4];
+	global.player_lv = _save_data[5];
+	global.player_gold = _save_data[6];
+	global.player_name = _save_data[7];
+	global.player_atk = _save_data[8];
+	global.player_def = _save_data[9];
+	global.player_exp = _save_data[10];
+	global.player_next_exp = _save_data[11];
+	global.player_weapon = _save_data[12];
+	global.player_armor = _save_data[13]; //Yeah a consumable can be equipped as armor, even weapon.
+	global.player_invulnerability_time = _save_data[14];
+	global.player_cell = _save_data[15];
+	global.player_inventory = [];
+	
+	for (var _i = 0; _i < _items_amount; _i++){
+		array_push(global.player_inventory, _save_data[17 + _i]);
+	}
+	
+	global.player_inventory_size = _save_data[17 + _items_amount];
+	global.cell_options = [];
+	
+	for (var _i = _items_amount; _i < _cell_amount; _i++){
+		array_push(global.cell_options, _save_data[19 + _i]);
+	}
+	
+	for (var _i = 0; _i < _box_count; _i++){
+		global.box_inventory[_i] = [];
+		global.box_inventory_size[_i] = _save_data[21 + _cell_amount];
+		
+		var _box_amount = _cell_amount + _save_data[20 + _cell_amount];
+		
+		for (var _j = _cell_amount; _j < _box_amount; _j++){
+			array_push(global.box_inventory[_i], _save_data[22 + _j]);
+		}
+		
+		_cell_amount = _box_amount + 2;
+	}
+
+	global.minutes = _save_data[20 + _cell_amount];
+	global.seconds = _save_data[21 + _cell_amount];
+	global.save_data = json_parse(_save_data[22 + _cell_amount]);
+}
+
+function load_save_info(){
+	var _file_path = working_directory + "/save0.save";
+	var _save_info = undefined;
+	
+	if (file_exists(_file_path)){
+		var _file = file_text_open_read(_file_path);
+		var _text = "";
+		
+		while (!file_text_eof(_file)){
+			_text += file_text_read_string(_file);
+			file_text_readln(_file);
+		}
+		file_text_close(_file);
+		
+		_save_info = json_parse(_text);
+		
+		var _save_size = array_length(_save_info);
+		
+		global.last_save.player_name = _save_info[7];
+		global.last_save.player_lv = _save_info[5];
+		global.last_save.room_name = get_room_name(asset_get_index(_save_info[0]));
+		global.last_save.minutes = _save_info[_save_size - 3];
+		global.last_save.seconds = _save_info[_save_size - 2];
+	}else{
+		global.last_save.player_name = global.UI_texts[$"save empty player name"];
+		global.last_save.player_lv = 0;
+		global.last_save.room_name = "--";
+		global.last_save.minutes = 0;
+		global.last_save.seconds = 0;
+	}
+	
+	return _save_info;
+}
+

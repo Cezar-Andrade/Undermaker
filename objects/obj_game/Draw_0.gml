@@ -1,9 +1,9 @@
-draw_set_font(fnt_determination);
+draw_set_font(fnt_determination_mono);
 /*draw_text(0, 0, "Control type: " + string(control_type));
-draw_text(0, 20, "Up: " + string(global.up_button))
-draw_text(0, 40, "Left: " + string(global.left_button))
-draw_text(0, 60, "Down: " + string(global.down_button))
-draw_text(0, 80, "Right: " + string(global.right_button))
+draw_text(0, 20, "Up: " + string(global.up_hold_button))
+draw_text(0, 40, "Left: " + string(global.left_hold_button))
+draw_text(0, 60, "Down: " + string(global.down_hold_button))
+draw_text(0, 80, "Right: " + string(global.right_hold_button))
 draw_text(0, 100, "Z: " + string(global.confirm_hold_button))
 draw_text(0, 120, "X: " + string(global.cancel_hold_button))
 draw_text(0, 140, "C: " + string(global.menu_hold_button))

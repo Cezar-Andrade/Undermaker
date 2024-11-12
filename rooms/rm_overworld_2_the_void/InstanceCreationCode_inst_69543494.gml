@@ -9,7 +9,7 @@ dialog_3.set_container_tail_position(-15, 30);
 
 
 detect_movement = function(){
-	return (global.up_button or global.down_button or global.right_button or global.left_button);
+	return (global.up_hold_button or global.down_hold_button or global.right_hold_button or global.left_hold_button);
 }
 
 interaction = function(){

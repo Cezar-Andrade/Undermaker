@@ -158,18 +158,32 @@ if (obj_game.state == GAME_STATE.PLAYER_CONTROL){
 	var _is_interacting = false;
 	
 	with (obj_interaction){
+		_is_interacting = handle_interaction_action(_direction, other.movement_speed);
+		
 		if (_is_interacting){
 			break;
 		}
-		
-		_is_interacting = handle_interaction_action(_direction, other.movement_speed);
 	}
 	
 	with (obj_entity){
+		_is_interacting = handle_interaction_action(_direction, other.movement_speed);
+		
 		if (_is_interacting){
 			break;
 		}
+	}
+	
+	if (!_is_interacting and can_open_menu and global.menu_button){
+		obj_game.state = GAME_STATE.PLAYER_MENU_CONTROL;
+		obj_game.player_menu_state = PLAYER_MENU_STATE.INITIAL;
+		obj_game.player_menu_selection[0] = 0;
+		obj_game.player_menu_top = (y < 310);
 		
-		_is_interacting = handle_interaction_action(_direction, other.movement_speed);
+		player_anim_stop();
+		
+		audio_play_sound(snd_menu_selecting, 0, false);
 	}
 }
+
+//Set the depth to it's current -Y position, so the player gives the effect of being behind or in front of stuff, essential.
+depth = -y;

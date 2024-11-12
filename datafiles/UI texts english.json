@@ -1,0 +1,43 @@
+{
+    "hp": "HP",
+    "lv": "LV",
+    "gold": "G",
+    "none": "None",
+    "menu item": "ITEM",
+    "menu stat": "STAT",
+    "menu cell": "CELL",
+    "stat gold": "Gold",
+    "stat attack": "AT",
+    "stat defense": "DF",
+    "stat exp": "Exp",
+    "stat next": "Next",
+    "stat weapon": "Weapon",
+    "stat armor": "Armor",
+    "item use": "USE",
+    "item info": "INFO",
+    "item drop": "DROP",
+    "item heal": {
+        "lost": "You lost [X] HP.",
+        "unchanged": "Your HP remains unchanged.",
+        "heal": "You recovered [X] HP.",
+        "maxheal": "Your HP is maxed out!",
+        "overheal": "Your HP has overflowed!"
+    },
+    "box inventory": "INVENTORY",
+    "box box": "BOX",
+    "box exit": "Press [X] to Finish",
+    "save empty player name": "EMPTY",
+    "save save": "Save",
+    "save return": "Return",
+    "cell options": [
+        "Call Gaster",
+        "Dimentional Box A",
+        "Dimentional Box B",
+        "Save Game"
+    ],
+    "rooms": {
+        "rm_overworld_1_grass_land": "The Grass Land",
+        "rm_overworld_2_the_void": "The Void",
+        "rm_overworld_3_hallway": "The Hallway"
+    }
+}

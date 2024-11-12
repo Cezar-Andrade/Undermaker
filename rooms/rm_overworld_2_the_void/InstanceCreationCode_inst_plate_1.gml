@@ -14,7 +14,7 @@ update = function(){
 			image_index = 0;
 		}
 	
-		if (!global.puzzle_1 and image_index and inst_plate_2.image_index){
+		if (!global.save_data.puzzle_1 and image_index and inst_plate_2.image_index){
 			inst_rock_1.can_player_push = false;
 			inst_rock_2.can_player_push = false;
 	
@@ -22,10 +22,10 @@ update = function(){
 			overworld_dialog(["Test successful!", "You are done with this puzzle."], false);
 			obj_game.event_end_condition = obj_game.dialog.is_finished;
 		
-			global.puzzle_1 = true;
+			global.save_data.puzzle_1 = true;
 			inst_collision_door.when_colliding = undefined;
 			inst_collision_door.collision_id = 1;
-			inst_collision_door.image_blend = #A19E42;
+			inst_collision_door.image_blend = c_red;
 		}
 	}
 }

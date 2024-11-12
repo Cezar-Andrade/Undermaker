@@ -30,13 +30,16 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	
 	//Variables to contain information.
 	dialogues = [];
-	dialogues_amount = 0; //There are variable that hold the lenght of the arrays, so there's no need to calculate it when needed.
+	dialogues_amount = 0; //This is a variable that holds the lenght of the dialog array so there's no need to calculate it when needed.
 	dialog_pop_ups = [];
 	dialog_pop_ups_amount = 0;
-	font = fnt_determination; //Fonts can only be changed per dialog with a command in the dialog and only if it's at the very beginning of it.
+	font = fnt_determination_mono; //Fonts can only be changed per dialog with a command in the dialog and only if it's at the very beginning of it.
+	use_font_space = true; //Flag to determinate if use the space width of the font or not so a constant space width is used, by default true.
 	spacing_width = 0; //This is the additional space between letters, the fonts themselves already have a space between each letter, this adds more between them, can be negative as well.
-	spacing_height = 0; //Same as spacing_width but for space between line jumps.
+	spacing_height = 2; //Same as spacing_width but for space between line jumps.
 	asterisk = true; //Asterisk can be changed the same way as fonts.
+	dialog = "";
+	dialog_length = 0;
 	dialog_x = _x; //X and Y coordinates of the dialog itself, can be moved around!
 	dialog_y = _y;
 	dialog_width = max(_width, 1); //Width cannot be 0 or negative, minimum of 1.
@@ -45,6 +48,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	dialog_heights = []; //For each dialog height calculated, will be inserted here in order to keep the height of the dialogues and not recalculate them (as it is impossible to recaculate once they are calculated).
 	dialog_x_offset = 0; //Offset of the dialog's position depending of the container sprite.
 	dialog_y_offset = 0; //If it's not given, these remain on 0, these will contain the top and left sides of the bbox collision of the sprite, which is where the text will be.
+	line_jump_height = 0; //Stores the calculation of the height jump that needs to be performed when a text jump is executed in the dialog.
 	xscale = _xscale; //Can also be scaled being the origin the top left corner of the boundary box of the text, check the user documentation for more information about that.
 	yscale = _yscale;
 	color = []; //This variable is to color the text as it is being displayed, it gets filled in the draw function of this constructor.
@@ -779,7 +783,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 						
 						_letter_x += (string_width(_original_letter) + spacing_width)*xscale; //Incremented the X position by the width of the letter plus additional space given by the user.
 					}else{
-						_letter_x += (string_width("O") + spacing_width)*xscale; //Incremented the X position by the size of letter A, special case for space character.
+						_letter_x += (((use_font_space) ? string_width(" ") : string_width("O")) + spacing_width)*xscale; //Incremented the X position by the size of letter O, special case for space character.
 					}
 				}
 			}
@@ -945,6 +949,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		
 		array_delete(action_commands, 0, 1);
 		array_delete(visual_commands, 0, 1);
+		array_delete(dialog_heights, 0, 1);
 		array_delete(dialogues, 0, 1);
 		dialogues_amount--;
 		
@@ -1659,11 +1664,13 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 											_first = false;
 										}else{
 											//Otherwise, get it from the argument and add it into the arguments.
-											var _cut_argument = string_copy(_arguments[1], _start_argument, _k - 1);
+											var _cut_argument = string_copy(_arguments[1], _start_argument, _k - _start_argument);
 											
 											if (_cut_argument == ""){
 												_cut_argument = undefined;
 											}
+											
+											_start_argument = _k + 1;
 											
 											array_push(_arguments, _cut_argument);
 										}
@@ -1785,11 +1792,13 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 											_first = false;
 										}else{
 											//Otherwise, get it from the argument and add it into the arguments.
-											var _cut_argument = string_copy(_arguments[1], _start_argument, _k - 1);
+											var _cut_argument = string_copy(_arguments[1], _start_argument, _k - _start_argument);
 											
 											if (_cut_argument == ""){
 												_cut_argument = undefined;
 											}
+											
+											_start_argument = _k + 1;
 											
 											array_push(_arguments, _cut_argument);
 										}
@@ -1829,13 +1838,19 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 							}
 						break;
 						case "font":
-							_command_value = int64(_command_content[1]);
+							_command_arguments = string_split(_command_content[1], ",");
 						
 							if (_j == 1 and _command_value != final_font){
 								final_font = _command_value;
 							
 								_command_data.type = COMMAND_TYPE.SET_FONT;
-								_command_data.value = _command_value;
+								_command_data.value = _command_arguments[0];
+								
+								if (array_length(_command_arguments) > 1){
+									_command_data.bool = bool(_command_arguments[1]);
+								}else{
+									_command_data.bool = true;
+								}
 							
 								draw_set_font(_command_value);
 							}else{
@@ -2109,6 +2124,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		//Set the new minimum height as well, which can only be a positive number.
 		if (!is_undefined(_height)){
 			dialog_minimum_height = max(_height, 0);
+		}else{
+			dialog_minimum_height = 0;
 		}
 		
 		//Reset the text_align_x and the final_face_height to recalculate them again with the new assigned face_sprite from this function, which gets reset of course.
@@ -2188,6 +2205,72 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	move = function(_x, _y){
 		dialog_x += _x;
 		dialog_y += _y;
+	}
+	
+	/*
+	This function returns the width in pixels the text takes with the dialog portrait if it's available, not taking into account containers, dialog_width variable, just what the text takes in space alongside the portrait sprite.
+	Takes into account the xscale factor of the dialog and the asterisk width if it's active.
+	
+	BOOLEAN _current -> If set to true, it will return the current width of the text being displayed with the dialog portrait width included, by default is false, which returns the width of the whole text even if it hasn't shown all of it yet with the dialog portrait width included.
+	
+	RETURN -> REAL -- Width in pixels of the text either currently or all of it even if not displayed with the dialog portrait width and the asterisk width included.
+	*/
+	get_text_width = function(_current=false){
+		draw_set_font(font);
+		
+		var _dialog = dialog;
+		
+		if (_current and string_index < dialog_length){
+			_dialog = string_copy(dialog, 0, max(string_index, 0));
+		}
+		
+		_dialog = string_replace_all(_dialog, "\r", "\n");
+		var _dialog_array = string_split(_dialog, "\n");
+		var _dialogues_amount = array_length(_dialog_array);
+		var _maximum_dialog_width = 0;
+		var _space_width = ((use_font_space) ? string_width(" ") : string_width("O"));
+		
+		for (var _i = 0; _i < _dialogues_amount; _i++){
+			var _dialog_width = -_space_width + text_align_x;
+			var _dialog_without_spaces = string_split(_dialog_array[_i], " ");
+			var _dialog_without_spaces_amount = array_length(_dialog_without_spaces);
+			
+			for (var _j = 0; _j < _dialog_without_spaces_amount; _j++){
+				_dialog_width += string_width(_dialog_without_spaces[_j]) + _space_width;
+			}
+			
+			_dialog_width += spacing_width*string_length(_dialog_array[_i]);
+			_dialog_width *= xscale;
+			
+			_maximum_dialog_width = max(_dialog_width, _maximum_dialog_width)
+		}
+		
+		return _maximum_dialog_width;
+	}
+	
+	/*
+	This function returns the height in pixels the text takes with the dialog portrait if it's available, not taking into account containers, dialog_height variable, just what the text takes in space alongside the portrait sprite.
+	Takes into account the xscale factor of the dialog.
+	
+	BOOLEAN _current -> If set to true, it will return the current height of the text being displayed with the dialog portrait height included, by default is false, which returns the height of the whole text even if it hasn't shown all of it yet with the dialog portrait height included.
+	
+	RETURN -> REAL -- Height in pixels of the text either currently or all of it even if not displayed with the dialog portrait height.
+	*/
+	get_text_height = function(_current=false){
+		draw_set_font(font);
+		
+		var _dialog = dialog;
+		
+		if (_current and string_index < dialog_length){
+			_dialog = string_copy(dialog, 0, max(string_index, 0));
+		}
+		
+		_dialog = string_replace_all(_dialog, "\r", "\n");
+		var _dialog_array = string_split(_dialog, "\n");
+		var _dialogues_amount = array_length(_dialog_array);
+		var _maximum_dialog_height = string_height(_dialog_array[_dialogues_amount - 1]) + (line_jump_height + spacing_height)*string_count(_dialog, "\n");
+		
+		return _maximum_dialog_height;
 	}
 	
 	/*
@@ -2594,6 +2677,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 					break;
 					case COMMAND_TYPE.SET_FONT:
 						font = _command_data.value;
+						use_font_space = _command_data.bool;
 						draw_set_font(font);
 						
 						line_jump_height = string_height("Ag'") + spacing_height;

@@ -10,7 +10,7 @@ All that can be found in obj_game.
 Constant that tells how many pixels should the asterisk from the begginning of dialogs should be separated from the text.
 It doesn't count the asterisk's size.
 */
-#macro ASTERISK_SPACING 16
+#macro ASTERISK_SPACING 15
 
 /*
 Control types that are mainly used for obj_game to set the global inputs of the user.
@@ -28,10 +28,40 @@ Player menu states for the overworld player, used in the Player Overworld object
 enum PLAYER_MENU_STATE{
 	INITIAL,
 	INVENTORY,
-	INVENTORY_SELECTED,
+	ITEM_SELECTED,
 	CELL,
+	BOX, //From this state it can either go back to the overworld or the cell menu.
+	SAVE,
 	STATS,
 	WAITING_DIALOG_END
+}
+
+/*
+Player menu options that you can select in run time.
+*/
+enum PLAYER_MENU_OPTIONS{
+	ITEM,
+	STAT,
+	CELL
+}
+
+/*
+////TODO
+*/
+enum PLAYER_MENU_INVENTORY_OPTIONS{
+	USE,
+	INFO,
+	DROP
+}
+
+/*
+Directions of the options the player can choose in a multiple choice option direction dialog, used only in the create_choice_option() function to indicate which key to listen to for the choice option to select it.
+*/
+enum CHOICE_DIRECTION{
+	LEFT,
+	DOWN,
+	RIGHT,
+	UP
 }
 
 /*

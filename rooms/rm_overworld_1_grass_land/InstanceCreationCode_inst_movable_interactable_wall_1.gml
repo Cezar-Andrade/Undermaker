@@ -1,4 +1,4 @@
-if (global.wall_1_moved){
+if (global.save_data.wall_1_moved){
 	y = 240;
 }
 
@@ -32,24 +32,24 @@ interaction = function(){
 			overworld_dialog(["[asterisk:true]...[w:20]Well[w:20], at least you're honest[w:20], you may pass then.","[func:" + string(method_get_index(epic_movement)) + "][next]"], false);
 		}
 	
-		create_choice_option("left", 120, 390, "Sans", _option_1);
-		create_choice_option("right", 430, 390, "Papyrus", _option_2);
-		create_choice_option("up", 260, 350, "Gaster", _option_3);
-		create_choice_option("down", 220, 430, "I don't know.", _option_4);
+		create_choice_option(CHOICE_DIRECTION.LEFT, 110, "Sans", _option_1);
+		create_choice_option(CHOICE_DIRECTION.RIGHT, 110, "Papyrus", _option_2);
+		create_choice_option(CHOICE_DIRECTION.UP, 35, "Gaster", _option_3);
+		create_choice_option(CHOICE_DIRECTION.DOWN, 35, "I don't know.", _option_4);
 	
-		overworld_dialog(["Halt![w:20] if you want to pass[w:20], then tell me who's the king of the underground.","[progress_mode:none][asterisk:false][func:" + string(start_choice) + ", 320, 390]"]);
+		overworld_dialog(["Halt![w:20] if you want to pass[w:20], then tell me who's the king of the underground.","[progress_mode:none][asterisk:false][func:" + string(start_choice_plus) + ", 320, 390]"]);
 	
 		obj_game.event_update = function(){
 			if (move_wall){
 				if (inst_movable_interactable_wall_1.y < 240){
 					inst_movable_interactable_wall_1.y += 2;
 				}else{
-					global.wall_1_moved = true;
+					global.save_data.wall_1_moved = true;
 				}
 			}
 		}
 		obj_game.event_end_condition = function(){
-			return (obj_game.dialog.is_finished() and (!move_wall or global.wall_1_moved));
+			return (obj_game.dialog.is_finished() and (!move_wall or global.save_data.wall_1_moved));
 		}
 	}else{
 		overworld_dialog("Hello again[w:29], the path is open for you now.");
