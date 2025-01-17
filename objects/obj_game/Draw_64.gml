@@ -1,6 +1,6 @@
 var _screen_height = resolutions_height[resolution_active];
 var _game_width = _screen_height*(4/3);
-var _ui_not_showing = (state == GAME_STATE.PLAYER_MENU_CONTROL or !dialog.is_finished());
+var _ui_not_showing = (state == GAME_STATE.PLAYER_MENU_CONTROL or state == GAME_STATE.ROOM_CHANGE or state == GAME_STATE.BATTLE_START_ANIMATION or !dialog.is_finished());
 
 if (_ui_not_showing){
 	if (!surface_exists(ui_surface)){
@@ -9,10 +9,43 @@ if (_ui_not_showing){
 	surface_set_target(ui_surface);
 	
 	draw_clear_alpha(c_black, 0);
-
+	
 	dialog.draw();
 	
 	switch (state){
+		case GAME_STATE.ROOM_CHANGE:
+			draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, (min(anim_timer, room_change_fade_in_time) - max(anim_timer - room_change_wait_time, 0))/20);
+		break;
+		case GAME_STATE.BATTLE:
+			//Special effects of the battle.
+		break;
+		case GAME_STATE.BATTLE_START_ANIMATION:
+			if (anim_timer >= 0){
+				draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, 1);
+				
+				var _camera_x = camera_get_view_x(view_camera[0]);
+				var _camera_y = camera_get_view_y(view_camera[0]);
+				
+				//If multiple players are on screen, they will do this, makes for a cool effect if you ever need multiple player instances on screen, kinda like surreal.
+				with (obj_player_overworld){
+					var _player_x = (obj_player_overworld.x - _camera_x);
+					var _player_y = (obj_player_overworld.y - _camera_y);
+					
+					if (other.anim_timer < 24){
+						draw_sprite_ext(sprite_index, image_index, _player_x, _player_y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
+					}
+					
+					_player_x += image_xscale;
+					_player_y += image_yscale*(5 - round(sprite_height/(2*image_yscale)));
+					
+					if (other.anim_timer >= 20 or (other.anim_timer < 20 and other.anim_timer%8 < 4)){
+						var _lerp = clamp(other.anim_timer - 24, 0, 20)/20;
+						
+						draw_sprite_ext(spr_player_heart, other.player_heart_subimage, _player_x + _lerp*(other.battle_start_animation_player_heart_x - _player_x), _player_y + _lerp*(other.battle_start_animation_player_heart_y - _player_y), 1, 1, 0, other.player_heart_color, 1);
+					}
+				}
+			}
+		break;
 		case GAME_STATE.DIALOG_CHOICE:
 			for (var _i = 0; _i < 4; _i++){
 				if (!is_undefined(options[_i])){
@@ -21,9 +54,9 @@ if (_ui_not_showing){
 			}
 			
 			if (selection >= 0){
-				draw_sprite_ext(choice_sprite, choice_index, options_x + options[selection][0], options_y + options[selection][1], 1, 1, 0, player_menu_heart_color, 1);
+				draw_sprite_ext(choice_sprite, choice_index, options_x + options[selection][0], options_y + options[selection][1], 1, 1, 0, player_heart_color, 1);
 			}else{
-				draw_sprite_ext(choice_sprite, choice_index, options_x, options_y, 1, 1, 0, player_menu_heart_color, 1);
+				draw_sprite_ext(choice_sprite, choice_index, options_x, options_y, 1, 1, 0, player_heart_color, 1);
 			}
 		break;
 		case GAME_STATE.PLAYER_MENU_CONTROL:
@@ -38,8 +71,8 @@ if (_ui_not_showing){
 				case PLAYER_MENU_STATE.BOX:
 					var _items_string = "";
 					var _box_string = "";
-					var _amount_items = array_length(global.player_inventory);
-					var _amount_box = array_length(global.box_inventory[player_box_index]);
+					var _amount_items = array_length(global.player.inventory);
+					var _amount_box = array_length(global.box.inventory[player_box_index]);
 					_heart_x = 49 + 302*player_box_cursor[0];
 					_heart_y = 88 + 32*player_box_cursor[1];
 					
@@ -48,9 +81,9 @@ if (_ui_not_showing){
 					draw_line_color(318, 92, 318, 392, c_white, c_white);
 					draw_line_color(320, 92, 320, 392, c_white, c_white);
 					
-					for (var _i = 0; _i < min(global.player_inventory_size, 10); _i++){
+					for (var _i = 0; _i < min(global.player.inventory_size, 10); _i++){
 						if (_i < _amount_items){
-							var _item = global.item_pool[global.player_inventory[_i]];
+							var _item = global.item_pool[global.player.inventory[_i]];
 							var _item_name = _item[$"inventory name"];
 							
 							_items_string += _item_name + "\n";
@@ -61,9 +94,9 @@ if (_ui_not_showing){
 						}
 					}
 					
-					for (var _i = 0; _i < min(global.box_inventory_size[player_box_index], 10); _i++){
+					for (var _i = 0; _i < min(global.box.inventory_size[player_box_index], 10); _i++){
 						if (_i < _amount_box){
-							var _item = global.item_pool[global.box_inventory[player_box_index][_i]];
+							var _item = global.item_pool[global.box.inventory[player_box_index][_i]];
 							var _item_name = _item[$"inventory name"];
 							
 							_box_string += _item_name + "\n";
@@ -93,8 +126,8 @@ if (_ui_not_showing){
 					
 					draw_sprite_ext(player_menu_box, 0, 108, 118, 424/30, 174/30, 0, c_white, 1);
 					
-					draw_text_transformed(140, 140, global.last_save.player_name, 2, 2, 0);
-					draw_text_transformed(300, 140, string_concat(global.UI_texts.lv, " ", global.last_save.player_lv), 2, 2, 0);
+					draw_text_transformed(140, 140, global.last_save.player.name, 2, 2, 0);
+					draw_text_transformed(300, 140, string_concat(global.UI_texts.lv, " ", global.last_save.player.lv), 2, 2, 0);
 					draw_text_transformed(140, 180, global.last_save.room_name, 2, 2, 0);
 					draw_text_transformed(170, 240, global.UI_texts[$"save save"], 2, 2, 0);
 					draw_text_transformed(350, 240, global.UI_texts[$"save return"], 2, 2, 0);
@@ -111,15 +144,15 @@ if (_ui_not_showing){
 					var _stats_x = 32;
 					var _stats_y = 320;
 					var _box_height = 0; //Height of the box of the items, cell and stats.
-					_amount_items = array_length(global.player_inventory);
-					var _amount_cell = array_length(global.cell_options);
+					_amount_items = array_length(global.player.inventory);
+					var _amount_cell = array_length(global.player.cell_options);
 					var _item_color = (_amount_items > 0) ? c_white : c_gray; 
 					var _cell_color = (_amount_cell > 0) ? c_white : c_gray;//Color of the item option.
-				
+					
 					if (player_menu_top){
 						_stats_y = 52;
 					}
-				
+					
 					switch (player_menu_state){
 						case PLAYER_MENU_STATE.INITIAL:
 							_heart_x = 64;
@@ -159,31 +192,31 @@ if (_ui_not_showing){
 								var _player_added_atk = 0;
 								var _player_added_def = 0;
 						
-								if (!is_undefined(global.player_weapon) and global.player_weapon >= 0){
-									var _weapon = global.item_pool[global.player_weapon];
+								if (!is_undefined(global.player.weapon) and global.player.weapon >= 0){
+									var _weapon = global.item_pool[global.player.weapon];
 									_player_weapon = _weapon[$"inventory name"];
 									_player_added_atk += ((is_undefined(_weapon[$"atk"])) ? 0 : _weapon[$"atk"]);
 									_player_added_def += ((is_undefined(_weapon[$"def"])) ? 0 : _weapon[$"def"]);
 								}
 						
-								if (!is_undefined(global.player_armor) and global.player_armor >= 0){
-									var _armor = global.item_pool[global.player_armor];
+								if (!is_undefined(global.player.armor) and global.player.armor >= 0){
+									var _armor = global.item_pool[global.player.armor];
 									_player_armor = _armor[$"inventory name"];
 									_player_added_atk += ((is_undefined(_armor[$"atk"])) ? 0 : _armor[$"atk"]);
 									_player_added_def += ((is_undefined(_armor[$"def"])) ? 0 : _armor[$"def"]);
 								}
 						
-								draw_text_transformed(216, 84, "\"" + global.player_name + "\"", 2, 2, 0);
-								draw_text_ext_transformed(216, 144, string_concat(global.UI_texts.lv ,"  ", global.player_lv, "\n", global.UI_texts.hp, "  ", global.player_hp, " / ", global.player_max_hp, "\n\n", global.UI_texts[$"stat attack"], "  ", global.player_atk, " (", _player_added_atk, ")\n", global.UI_texts[$"stat defense"], "  ", global.player_def, " (", _player_added_def, ")\n\n", global.UI_texts[$"stat weapon"], ": ", _player_weapon, "\n", global.UI_texts[$"stat armor"], ": ", _player_armor), 16, 400, 2, 2, 0);
-								draw_text_ext_transformed(384, 240, string_concat(global.UI_texts[$"stat exp"], ": ", global.player_exp, "\n", global.UI_texts[$"stat next"], ": ", global.player_next_exp), 16, 400, 2, 2, 0);
-								draw_text_transformed(216, 408, string_concat(global.UI_texts[$"stat gold"], ": ", global.player_gold), 2, 2, 0);
+								draw_text_transformed(216, 84, "\"" + global.player.name + "\"", 2, 2, 0);
+								draw_text_ext_transformed(216, 144, string_concat(global.UI_texts.lv ,"  ", global.player.lv, "\n", global.UI_texts.hp, "  ", global.player.hp, " / ", global.player.max_hp, "\n\n", global.UI_texts[$"stat attack"], "  ", global.player.atk, " (", _player_added_atk, ")\n", global.UI_texts[$"stat defense"], "  ", global.player.def, " (", _player_added_def, ")\n\n", global.UI_texts[$"stat weapon"], ": ", _player_weapon, "\n", global.UI_texts[$"stat armor"], ": ", _player_armor), 16, 400, 2, 2, 0);
+								draw_text_ext_transformed(384, 240, string_concat(global.UI_texts[$"stat exp"], ": ", global.player.exp, "\n", global.UI_texts[$"stat next"], ": ", global.player.next_exp), 16, 400, 2, 2, 0);
+								draw_text_transformed(216, 408, string_concat(global.UI_texts[$"stat gold"], ": ", global.player.gold), 2, 2, 0);
 							break;
 							case PLAYER_MENU_STATE.INVENTORY: case PLAYER_MENU_STATE.ITEM_SELECTED:
 								_box_height = 362;
 								_items_string = "";
 						
 								for (var _i = 0; _i < _amount_items; _i++){
-									var _item = global.item_pool[global.player_inventory[_i]];
+									var _item = global.item_pool[global.player.inventory[_i]];
 									var _item_name = _item[$"inventory name"];
 							
 									_items_string += _item_name + "\n";
@@ -199,7 +232,7 @@ if (_ui_not_showing){
 								var _cell_string = "";
 						
 								for (var _i = 0; _i < _amount_cell; _i++){
-									var _option = global.UI_texts[$"cell options"][global.cell_options[_i]];
+									var _option = global.UI_texts[$"cell options"][global.player.cell_options[_i]];
 							
 									_cell_string += _option + "\n";
 								}
@@ -209,23 +242,23 @@ if (_ui_not_showing){
 						}
 					}
 				
-					draw_text_transformed(_stats_x + 13, _stats_y + 7, global.player_name, 2, 2, 0);
+					draw_text_transformed(_stats_x + 13, _stats_y + 7, global.player.name, 2, 2, 0);
 					draw_text_transformed_color(83, 187, global.UI_texts[$"menu item"], 2, 2, 0, _item_color, _item_color, _item_color, _item_color, 1);
 					draw_text_transformed(83, 223, global.UI_texts[$"menu stat"], 2, 2, 0);
 			
-					if (global.player_cell){
+					if (global.player.cell){
 						draw_text_transformed_color(83, 259, global.UI_texts[$"menu cell"], 2, 2, 0, _cell_color, _cell_color, _cell_color, _cell_color, 1);
 					}
 			
 					draw_set_font(fnt_crypt_of_tomorrow);
 			
 					draw_text_ext_transformed(_stats_x + 13, _stats_y + 49, string_concat(global.UI_texts.lv, "\n", global.UI_texts.hp, "\n", global.UI_texts.gold), 9, 100, 2, 2, 0);
-					draw_text_ext_transformed(_stats_x + 49, _stats_y + 49, string_concat(global.player_lv, "\n", global.player_hp, "/", global.player_max_hp, "\n", global.player_gold), 9, 100, 2, 2, 0);
+					draw_text_ext_transformed(_stats_x + 49, _stats_y + 49, string_concat(global.player.lv, "\n", global.player.hp, "/", global.player.max_hp, "\n", global.player.gold), 9, 100, 2, 2, 0);
 				break;
 			}
 			
 			if ((player_menu_state != PLAYER_MENU_STATE.BOX or player_box_cursor[0] != -1) and (player_menu_state != PLAYER_MENU_STATE.SAVE or player_save_cursor < 2) and player_menu_state != PLAYER_MENU_STATE.WAITING_DIALOG_END and player_menu_state != PLAYER_MENU_STATE.STATS){
-				draw_sprite_ext(spr_player_heart, player_menu_heart_subimage, _heart_x, _heart_y, 1, 1, 0, player_menu_heart_color, 1);
+				draw_sprite_ext(spr_player_heart, player_heart_subimage, _heart_x, _heart_y, 1, 1, 0, player_heart_color, 1);
 			}
 		break;
 	}
@@ -252,10 +285,6 @@ if (with_border){
 		if (_ui_not_showing){
 			draw_surface_ext(ui_surface, _x, _y, _x_scale, _y_scale, 0, c_white, 1);
 		}
-		
-		if (state == GAME_STATE.ROOM_CHANGE){
-			draw_sprite_ext(spr_pixel, 0, _x, _y, _game_width, _game_height, 0, c_black, (min(room_change_timer, room_change_fade_in_time) - max(room_change_timer - room_change_wait_time, 0))/20);
-		}
 	}else{
 		var _x = (1.5*resolutions_width[resolution_active] - _game_width)/2;
 		var _y = _screen_height*0.0625;
@@ -268,10 +297,6 @@ if (with_border){
 		if (_ui_not_showing){
 			draw_surface_ext(ui_surface, _x, _y, _x_scale, _y_scale, 0, c_white, 1);
 		}
-		
-		if (state == GAME_STATE.ROOM_CHANGE){
-			draw_sprite_ext(spr_pixel, 0, _x, _y, _game_width, _screen_height, 0, c_black, (min(room_change_timer, room_change_fade_in_time) - max(room_change_timer - room_change_wait_time, 0))/20);
-		}
 	}
 }else{
 	var _x = (resolutions_width[resolution_active] - _game_width)/2;
@@ -282,10 +307,6 @@ if (with_border){
 	
 	if (_ui_not_showing){
 		draw_surface_ext(ui_surface, _x, 0, _x_scale, _y_scale, 0, c_white, 1);
-	}
-	
-	if (state == GAME_STATE.ROOM_CHANGE){
-		draw_sprite_ext(spr_pixel, 0, _x, 0, _game_width, _screen_height, 0, c_black, (min(room_change_timer, room_change_fade_in_time) - max(room_change_timer - room_change_wait_time, 0))/20);
 	}
 }
 

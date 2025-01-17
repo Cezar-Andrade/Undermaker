@@ -2,9 +2,11 @@
 
 if (!is_undefined(spawn_point_reference)){
 	with (spawn_point_reference){
-		var _angle = image_angle%360;
+		var _angle = image_angle;
 		if (_angle < 0){
-			_angle += 360;
+			_angle = 359 - (abs(_angle) - 1)%360;
+		}else if (_angle >= 360){
+			_angle %= 360;
 		}
 	
 		var _x_direction = sign(image_xscale);

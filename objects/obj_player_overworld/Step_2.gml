@@ -1,4 +1,4 @@
-/// @description Collision and interaction handling
+/// @description Collision, interaction and layer handling
 
 if (can_collide){
 	var _colliding_instances = [];
@@ -177,7 +177,7 @@ if (obj_game.state == GAME_STATE.PLAYER_CONTROL){
 		obj_game.state = GAME_STATE.PLAYER_MENU_CONTROL;
 		obj_game.player_menu_state = PLAYER_MENU_STATE.INITIAL;
 		obj_game.player_menu_selection[0] = 0;
-		obj_game.player_menu_top = (y < 310);
+		obj_game.player_menu_top = ((y - camera_get_view_y(view_camera[0])) < 310);
 		
 		player_anim_stop();
 		
@@ -185,5 +185,4 @@ if (obj_game.state == GAME_STATE.PLAYER_CONTROL){
 	}
 }
 
-//Set the depth to it's current -Y position, so the player gives the effect of being behind or in front of stuff, essential.
 depth = -y;

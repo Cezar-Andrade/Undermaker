@@ -1,6 +1,9 @@
 {
     "hp": "HP",
     "lv": "LV",
+    "status effects": {
+        "karmic retribution": "KR"
+    },
     "gold": "G",
     "none": "None",
     "menu item": "ITEM",
@@ -35,6 +38,30 @@
         "Dimentional Box B",
         "Save Game"
     ],
+	"no items": {
+		"normal": [
+			"Nothing.",
+			"There used to be items here.",
+			"No items?",
+			"Maybe if you look again later, items may reappear.",
+			"Items were a lie.",
+			"Look at what you did...",
+			"Where are the items?",
+			"You ate them all.",
+			"Don't you hate it when you forget you used all your items?",
+			"You wished there were items here...",
+			"Apparently there are no items.",
+			"So how's your day going with no items?",
+			"Did you want to pet the items?",
+			"You monster...",
+			"Your items ran away!",
+			"Someone stole the items!"
+		],
+		"serious": [
+			"Nothing.",
+			"No items."
+		]
+	},
     "rooms": {
         "rm_overworld_1_grass_land": "The Grass Land",
         "rm_overworld_2_the_void": "The Void",

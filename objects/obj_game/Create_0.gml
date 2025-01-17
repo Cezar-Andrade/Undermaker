@@ -1,3 +1,6 @@
+depth = -1;
+alarm[0] = 1;
+
 /*
 This function starts the sequence to assign the controller's button to the confirm, cancel and menu actions of the game.
 Only executes if game maekr has no CONTROLLER_MAPPING for the controller when connected from the Async - System event.
@@ -8,7 +11,7 @@ INTEGER _index -> Must be the index of the controller that you are trying to map
 map_controller = function(_index){
 	control_type = CONTROL_TYPE.MAPPING_CONTROLLER;
 	controller_id = _index;
-	controller_controller_mapping_state = CONTROLLER_MAPPING.WAITING_ENTER;
+	controller_mapping_state = CONTROLLER_MAPPING.WAITING_ENTER;
 }
 
 get_controller_button_pressed = function(_index){
@@ -163,12 +166,25 @@ toggle_border = function(_state){
 }
 
 state = GAME_STATE.PLAYER_CONTROL; ////REPLACE WHEN ALL IS DONE.
+battle_start_animation_type = BATTLE_START_ANIMATION.NORMAL;
+battle_state = BATTLE_STATE.START;
+
+battle_start_animation_player_heart_x = 0;
+battle_start_animation_player_heart_y = 0;
+battle_button_order = [];
+battle_selection = [0, 0, 0]; //Buttons, enemy/spare/flee selection, act/item selection
+battle_can_flee = true;
+battle_item_page = 1; //For the items in battle
+battle_initial_box_dialog = "";
+battle_player_stats = {x: 70, y: 415, health_size: 110, aux: 0, timer: 0};
+
 goto_room = undefined;
 event_update = undefined;
 event_end_condition = undefined;
 after_transition_function = undefined;
 start_room_function = undefined;
 end_room_function = undefined;
+battle_init_function = undefined;
 
 options = [undefined, undefined, undefined, undefined, undefined, undefined]; //left, down, right, up, the other 2 are used for the grid choices (the previous 4 too as well as the direction choices).
 options_x = 0;
@@ -176,20 +192,25 @@ options_y = 0;
 choice_sprite = spr_player_heart;
 choice_index = 0;
 
-player_menu_heart_subimage = 0; //The index of the sprite heart to use for menus, you can have another one from the battle one if you want.
-player_menu_heart_color = c_red;
+player_heart_subimage = 0; //The index of the sprite heart to use for menus, you can have another one for the battle one if you want, just change this variable when accessing the states.
+player_heart_color = c_red;
+
 player_menu_state = PLAYER_MENU_STATE.INITIAL;
 player_menu_prev_state = 0;
+player_prev_room = undefined;
 player_menu_box = spr_box_normal;
 player_menu_tail = undefined;
 player_menu_tail_mask = undefined;
 player_menu_top = true; //If menu is on the top or not.
 player_menu_selection = [0, 0, 0]; //Initial menu, submenu for cell or inventory, action for item or grid of dimensional box.
+
 player_box_index = 0; //Index for deciding which box inventory to use.
 player_box_cursor = [0, 0];
-player_save_cursor = 0;
 
-room_change_timer = 0;
+player_save_cursor = 0;
+player_save_spawn_point_inst = undefined;
+
+anim_timer = 0; //For animation purposes such as room transition and battle start animation.
 room_change_fade_in_time = 0;
 room_change_wait_time = 0;
 room_change_fade_out_time = 0;
@@ -203,7 +224,7 @@ border_id = 0; //There's just 1 border as of now, so this won't do anything yet.
 
 control_type = CONTROL_TYPE.KEYBOARD;
 controller_id = -1; //-1 means that there's no controller assigned, either not connected or not supported.
-controller_controller_mapping_state = -1;
+controller_mapping_state = -1;
 controller_confirm_button = -1;
 controller_cancel_button = -1;
 controller_menu_button = -1;

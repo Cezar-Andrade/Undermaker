@@ -13,6 +13,67 @@ It doesn't count the asterisk's size.
 #macro ASTERISK_SPACING 15
 
 /*
+Constant that determinates custom craeted fonts, following the same name syntax that fonts use to keep consistency between fonts.
+DO NOT UNDER ANY CIRCUMSTANCE PUT THE FUNCTION TO ADD FONTS DIRECTLY IN THE MACRO, USE A GLOBAL VARIABLE TO PASS THE INDEX.
+Otherwise it will create the font everytime you call the macro, potentially causing memory leak.
+*/
+global.custom_fnt_hachiko = font_add_sprite(spr_fnt_hachiko, 32, true, 4);
+
+#macro fnt_hachiko global.custom_fnt_hachiko
+
+/*
+
+*/
+enum PLAYER_STATUS_EFFECT{
+	KARMIC_RETRIBUTION //Because it's the most used of course you sans freaks!!!
+}
+
+/*
+
+*/
+enum HEART_MODE{
+	NORMAL, //Red
+	GRAVITY //Blue
+}
+
+/*
+
+*/
+enum BUTTON{
+	FIGHT,
+	ACT,
+	ITEM,
+	MERCY
+}
+
+/*
+
+*/
+enum BATTLE_START_ANIMATION{
+	NORMAL,
+	FAST,
+	NO_WARNING,
+	NO_WARNING_FAST
+}
+
+/*
+
+*/
+enum BATTLE_STATE{
+	START,
+	PLAYER_BUTTONS,
+	PLAYER_ENEMY_SELECT,
+	PLAYER_ATTACK,
+	PLAYER_ACT,
+	PLAYER_ITEM,
+	PLAYER_MERCY,
+	PLAYER_DIALOG_RESULT,
+	ENEMY_DIALOG,
+	ENEMY_ATTACK,
+	TURN_END
+}
+
+/*
 Control types that are mainly used for obj_game to set the global inputs of the user.
 You can use them for something else as well in other variables and your own systems.
 */
@@ -20,6 +81,15 @@ enum CONTROL_TYPE{
 	KEYBOARD,
 	CONTROLLER,
 	MAPPING_CONTROLLER
+}
+
+/*
+
+*/
+enum PLAYER_STATE{
+	NONE,
+	STILL, //Like unable to move
+	MOVEMENT
 }
 
 /*
@@ -74,95 +144,10 @@ enum GAME_STATE{
 	PLAYER_CONTROL,
 	PLAYER_MENU_CONTROL,
 	EVENT,
-	DIALOG_CHOICE
-}
-
-/*
-Constants for the commands of the dialog system.
-*/
-enum COMMAND_TYPE{
-	WAIT,
-	WAIT_KEY_PRESS,
-	WAIT_FOR,
-	SKIP_ENABLING,
-	SKIP_DIALOG,
-	STOP_SKIP,
-	DISPLAY_TEXT,
-	PROGRESS_MODE,
-	NEXT_DIALOG,
-	FUNCTION,
-	COLOR_RGB,
-	COLOR_HSV,
-	TEXT_EFFECT,
-	DISABLE_TEXT_EFFECT,
-	SET_TEXT_SPEED,
-	SET_SPRITE,
-	SET_SUBIMAGES,
-	SET_SPRITE_SPEED,
-	PLAY_SOUND,
-	SET_VOICE,
-	VOICE_MUTING,
-	APPLY_TO_ASTERISK,
-	SET_ASTERISK,
-	SET_FONT,
-	SET_WIDTH_SPACING,
-	SET_HEIGHT_SPACING,
-	SET_SPRITE_Y_OFFSET,
-	SET_CONTAINER,
-	SET_CONTAINER_TAIL,
-	SET_CONTAINER_TAIL_MASK,
-	SET_CONTAINER_TAIL_DRAW_MODE,
-	SET_CONTAINER_TAIL_POSITION,
-	SHOW_DIALOG_POP_UP,
-	BIND_INSTANCE
-}
-
-/*
-Constants for the various modes a dialog pop up can appear in a dialog, check the dialog system for more information on the user documentation.
-*/
-enum POP_UP_MODE{
-	NONE,
-	FADE,
-	LEFT,
-	RIGHT,
-	UP,
-	DOWN,
-	INSTANT,
-	LEFT_INSTANT,
-	RIGHT_INSTANT,
-	UP_INSTANT,
-	DOWN_INSTANT,
-}
-
-/*
-Constants for the various effects you can apply on dialog texts.
-*/
-enum EFFECT_TYPE{
-	NONE,
-	TWITCH,
-	SHAKE,
-	OSCILLATE,
-	RAINBOW,
-	SHADOW,
-	MALFUNCTION
-}
-
-/*
-Constants for the different ways of text displaying a dialog can have, only 2.
-*/
-enum DISPLAY_TEXT{
-	LETTERS,
-	WORDS
-}
-
-/*
-Constants for the different draw modes the tail of a container can have, these are used in the dialog system when drawing the container with a tail.
-*/
-enum CONTAINER_TAIL_DRAW_MODE{
-	BELOW,
-	TOP,
-	SPRITE_MASK,
-	INVERTED_SPRITE_MASK
+	BATTLE_START_ANIMATION,
+	BATTLE,
+	DIALOG_CHOICE,
+	GAME_OVER
 }
 
 /*

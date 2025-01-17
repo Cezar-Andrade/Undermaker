@@ -8,21 +8,21 @@ switch (ds_map_find_value(async_load, "event_type")){
 			}else{
 				gamepad_set_axis_deadzone(_index_connected, _config.deadzone);
 			}
-			var _controller_mapping = gamepad_get_controller_mapping(_index_connected);
-			if (_index_connected >= 4 and _controller_mapping == "no CONTROLLER_MAPPING"){
+			var _mapping = gamepad_get_mapping(_index_connected);
+			if (_index_connected >= 4 and _mapping == "no mapping"){
 				controller_id = _index_connected;
 				if (_config == -1){
 					control_type = CONTROL_TYPE.MAPPING_CONTROLLER;
-					controller_controller_mapping_state = CONTROLLER_MAPPING.WAITING_ENTER;
+					controller_mapping_state = CONTROLLER_MAPPING.WAITING_ENTER;
 					map_controller(_index_connected);
 				}else{
 					control_type = CONTROL_TYPE.CONTROLLER;
-					controller_controller_mapping_state = CONTROLLER_MAPPING.DONE;
+					controller_mapping_state = CONTROLLER_MAPPING.DONE;
 					controller_confirm_button = _config.confirm;
 					controller_cancel_button = _config.cancel;
 					controller_menu_button = _config.menu;
 				}
-			}else if (_controller_mapping != "device index out of range" and _controller_mapping != ""){
+			}else if (_mapping != "device index out of range" and _mapping != ""){
 				controller_id = _index_connected;
 				control_type = CONTROL_TYPE.CONTROLLER;
 			}
@@ -35,7 +35,7 @@ switch (ds_map_find_value(async_load, "event_type")){
 		if (controller_id == _index_disconnected){
 			control_type = CONTROL_TYPE.KEYBOARD;
 			controller_id = -1;
-			controller_controller_mapping_state = -1;
+			controller_mapping_state = -1;
 			controller_confirm_button = -1;
 			controller_cancel_button = -1;
 			controller_menu_button = -1;

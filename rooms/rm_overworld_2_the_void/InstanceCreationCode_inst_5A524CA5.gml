@@ -4,10 +4,6 @@ trigger_function = function(){
 	var _after_transition = undefined;
 	
 	if (!global.save_data.cutscene_1){
-		_end_room = function(){
-			room_set_persistent(rm_overworld_3_hallway, true);
-		}
-		
 		_start_room = function(){
 			with (inst_trigger_hall_right){
 				entity = instance_create_layer(1480, obj_player_overworld.y - 190, "Collisions", obj_kris_dog_group);

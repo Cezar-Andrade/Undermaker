@@ -23,9 +23,9 @@ function load_items_info(_path){
 }
 
 function use_item(_inventory_index){
-	var _item_index = global.player_inventory[_inventory_index];
+	var _item_index = global.player.inventory[_inventory_index];
 	var _item_data = variable_clone(global.item_pool[_item_index]);
-	var _player_hp = global.player_hp;
+	var _player_hp = global.player.hp;
 	
 	var _overheal_amount = 0; //This variable can be replaced in some items with some of the arguments you use to allow for some overheal in the system.
 	var _item_use_dialog = _item_data[$"use dialog"]; //Dialog of the item, can be managed in the switch below in case it's a struct, at the end this must be a string or array.
@@ -33,7 +33,7 @@ function use_item(_inventory_index){
 	switch (_item_index){
 		case ITEM.INSTANT_NOODLES:
 			if (room == rm_battle){
-				if (global.encounter_serious_mode){
+				if (global.battle_serious_mode){
 					_item_use_dialog = _item_use_dialog.serious;
 					_item_data.amount = _item_data.amount.serious;
 				}else{
@@ -63,21 +63,21 @@ function use_item(_inventory_index){
 		case "Consumable":
 			var _heal_message = string_replace(global.UI_texts[$"item heal"].heal, "[X]", _item_data.amount);
 			
-			global.player_hp = min(global.player_hp + _item_data.amount, global.player_max_hp + _overheal_amount);
+			global.player.hp = min(global.player.hp + _item_data.amount, global.player.max_hp + _overheal_amount);
 			
-			if (global.player_hp == _player_hp){ //Hacer que si no hay curacion este se reproduzca
+			if (global.player.hp == _player_hp){ //Hacer que si no hay curacion este se reproduzca
 				_heal_message = global.UI_texts[$"item heal"].unchanged;
 				
 				audio_play_sound(snd_player_eat, 100, false);
-			}else if (global.player_hp < _player_hp){
+			}else if (global.player.hp < _player_hp){
 				_heal_message = string_replace(global.UI_texts[$"item heal"].lost, "[X]", -_item_data.amount);
 				
 				audio_play_sound(snd_player_hurt, 100, false);
-			}else if (global.player_hp == global.player_max_hp){
+			}else if (global.player.hp == global.player.max_hp){
 				_heal_message = global.UI_texts[$"item heal"].maxheal;
 				
 				audio_play_sound(snd_player_heal, 100, false);
-			}else if (global.player_hp > global.player_max_hp){
+			}else if (global.player.hp > global.player.max_hp){
 				_heal_message = global.UI_texts[$"item heal"].overheal;
 				
 				audio_play_sound(snd_player_overheal, 100, false);
@@ -99,46 +99,46 @@ function use_item(_inventory_index){
 				}
 			}
 			
-			array_delete(global.player_inventory, _inventory_index, 1);
+			array_delete(global.player.inventory, _inventory_index, 1);
 		break;
 		case "Weapon":
-			if (is_undefined(global.player_weapon) or global.player_weapon < 0){
-				global.player_weapon = _item_index;
+			if (is_undefined(global.player.weapon) or global.player.weapon < 0){
+				global.player.weapon = _item_index;
 				
-				array_delete(global.player_inventory, _inventory_index, 1);
+				array_delete(global.player.inventory, _inventory_index, 1);
 			}else{
-				global.player_inventory[_inventory_index] = global.player_weapon;
-				global.player_weapon = _item_index;
+				global.player.inventory[_inventory_index] = global.player.weapon;
+				global.player.weapon = _item_index;
 			}
 			
 			audio_play_sound(snd_player_equip, 100, false);
 		break;
 		case "Armor":
-			if (is_undefined(global.player_armor) or global.player_armor < 0){
-				global.player_armor = _item_index;
+			if (is_undefined(global.player.armor) or global.player.armor < 0){
+				global.player.armor = _item_index;
 				
-				array_delete(global.player_inventory, _inventory_index, 1);
+				array_delete(global.player.inventory, _inventory_index, 1);
 			}else{
-				global.player_inventory[_inventory_index] = global.player_armor;
-				global.player_armor = _item_index;
+				global.player.inventory[_inventory_index] = global.player.armor;
+				global.player.armor = _item_index;
 			}
 			
 			audio_play_sound(snd_player_equip, 100, false);
 		break;
 	}
 	
-	return _item_use_dialog;
+	return [_item_use_dialog, _item_index];
 }
 
 function item_info(_inventory_index){
-	var _item_index = global.player_inventory[_inventory_index];
+	var _item_index = global.player.inventory[_inventory_index];
 	var _item_data = variable_clone(global.item_pool[_item_index]);
 	
 	return _item_data[$"info dialog"];
 }
 
 function drop_item(_inventory_index){
-	var _item_index = global.player_inventory[_inventory_index];
+	var _item_index = global.player.inventory[_inventory_index];
 	var _item_data = variable_clone(global.item_pool[_item_index]);
 	
 	var _item_drop_dialog = _item_data[$"drop dialog"];
@@ -146,7 +146,7 @@ function drop_item(_inventory_index){
 		_item_drop_dialog = "You dropped the " + _item_data[$"inventory name"];
 	}
 	
-	array_delete(global.player_inventory, _inventory_index, 1);
+	array_delete(global.player.inventory, _inventory_index, 1);
 	
 	return _item_drop_dialog;
 }

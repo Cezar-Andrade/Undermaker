@@ -20,7 +20,7 @@ interaction = function(){
 }
 
 update = function(){
-	if (!has_changed_dialogs and (x != 480 or y != 540)){
+	if (!has_changed_dialogs and (x != 460 or y != 540)){
 		has_changed_dialogs = true;
 		dialogs = ["[bind_instance:" + string(id) + "]WEEEEEEEEEEEEEEEE![w:10] Faster![w:10] Faster!"];
 	}

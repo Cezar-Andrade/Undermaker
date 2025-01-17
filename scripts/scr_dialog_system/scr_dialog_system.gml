@@ -1,4 +1,92 @@
 /*
+Constants for the commands of the dialog system.
+*/
+enum COMMAND_TYPE{
+	WAIT,
+	WAIT_KEY_PRESS,
+	WAIT_FOR,
+	SKIP_ENABLING,
+	SKIP_DIALOG,
+	STOP_SKIP,
+	DISPLAY_TEXT,
+	PROGRESS_MODE,
+	NEXT_DIALOG,
+	FUNCTION,
+	COLOR_RGB,
+	COLOR_HSV,
+	TEXT_EFFECT,
+	DISABLE_TEXT_EFFECT,
+	SET_TEXT_SPEED,
+	SET_SPRITE,
+	SET_SUBIMAGES,
+	SET_SPRITE_SPEED,
+	PLAY_SOUND,
+	SET_VOICE,
+	VOICE_MUTING,
+	APPLY_TO_ASTERISK,
+	SET_ASTERISK,
+	SET_FONT,
+	SET_WIDTH_SPACING,
+	SET_HEIGHT_SPACING,
+	SET_SPRITE_Y_OFFSET,
+	SET_CONTAINER,
+	SET_CONTAINER_TAIL,
+	SET_CONTAINER_TAIL_MASK,
+	SET_CONTAINER_TAIL_DRAW_MODE,
+	SET_CONTAINER_TAIL_POSITION,
+	SHOW_DIALOG_POP_UP,
+	BIND_INSTANCE
+}
+
+/*
+Constants for the various modes a dialog pop up can appear in a dialog, check the dialog system for more information on the user documentation.
+*/
+enum POP_UP_MODE{
+	NONE,
+	FADE,
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN,
+	INSTANT,
+	LEFT_INSTANT,
+	RIGHT_INSTANT,
+	UP_INSTANT,
+	DOWN_INSTANT,
+}
+
+/*
+Constants for the various effects you can apply on dialog texts.
+*/
+enum EFFECT_TYPE{
+	NONE,
+	TWITCH,
+	SHAKE,
+	OSCILLATE,
+	RAINBOW,
+	SHADOW,
+	MALFUNCTION
+}
+
+/*
+Constants for the different ways of text displaying a dialog can have, only 2.
+*/
+enum DISPLAY_TEXT{
+	LETTERS,
+	WORDS
+}
+
+/*
+Constants for the different draw modes the tail of a container can have, these are used in the dialog system when drawing the container with a tail.
+*/
+enum CONTAINER_TAIL_DRAW_MODE{
+	BELOW,
+	TOP,
+	SPRITE_MASK,
+	INVERTED_SPRITE_MASK
+}
+
+/*
 This constructor/class allows for all types of dialogs to be displayed on screen.
 This can be used separatedly to make dialogs anytime you want, anywhere you want for any use you want.
 Some functionality it lacks that you need can be done by using the [func] command, so you call the functions yourself for whatever purpose you need, it's limited however due to how this system works.
@@ -1026,6 +1114,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	*/
 	set_container_sprite = function(_sprite){
 		container_sprite = _sprite;
+		dialog_x_offset = 0;
+		dialog_y_offset = 0;
 		
 		if (!sprite_exists(container_sprite)){
 			return;
@@ -2089,11 +2179,11 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	This functions calls the add_dialogues(), the difference is that this one deletes all the current dialogues that are loaded and sets the new ones you load in it, making a good reset with new dialogues.
 	This functions is not used by the main code or any commands, so you can modify it as you want, be sure to know what you're doing when modifying the dialog system information, it is meant for you the programmer to be used in code in case you need it.
 	
-	The original code in this makes it so all information of the old dialogues is cleared and handles the new dialogues with the settings the dialog was in the moment this function was called.
+	The original code in this makes it so all information of the old dialogues is cleared and handles the new dialogues with the settings the dialog was in the moment this function was called, except the asterisk, that one gets reset again to true.
 	This means that if you set a [font] through a dialogue and this function is being called before that font is being set in the dialogue, it will keep the previous font instead of the new one, and that info is used to shape the new dialogues.
 	So be careful of when you call this function if you depend on the previous configuration of the dialogues, one way to avoid this is to set your new dialogues with that in mind and reset the settings to not depend on that.
 	The only exception to this is the portrait sprite in the dialog, as that one will be reset/removed when calling this function, you can set the starting one by passing the arguments of it of course.
-	In short, nothing is being reset or removed with this function, except the portrait sprite and the instance that may be binded is unbinded, have that in mind when using it.
+	In short, nothing is being reset or removed with this function, except the portrait sprite, the asterisk configuration and the instance that may be binded is unbinded, have that in mind when using it.
 	
 	ARRAY OF STRINGS / STRING _dialogues --------> Dialogues that will be added to the list of dialogues to be displayed on screen, using the proper format for dialogues.
 	INTEGER _width ------------------------------> Sets a new width for the dialog itself, since all dialogs are cleared, this is helpful to resize the box and new dialog will be affected by the new value.
@@ -2129,7 +2219,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		}
 		
 		//Reset the text_align_x and the final_face_height to recalculate them again with the new assigned face_sprite from this function, which gets reset of course.
-		text_align_x = ASTERISK_SPACING*asterisk;
+		asterisk = true;
+		text_align_x = ASTERISK_SPACING;
 		final_face_height = 0;
 		face_sprite = _face_sprite;
 		face_subimages_cycle = _face_subimages;
@@ -2208,19 +2299,19 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	}
 	
 	/*
-	This function returns the width in pixels the text takes with the dialog portrait if it's available, not taking into account containers, dialog_width variable, just what the text takes in space alongside the portrait sprite.
+	This function returns the width in pixels the current dialog takes with the dialog portrait if it's available, not taking into account containers, dialog_width variable, just what the text takes in space alongside the portrait sprite.
 	Takes into account the xscale factor of the dialog and the asterisk width if it's active.
 	
-	BOOLEAN _current -> If set to true, it will return the current width of the text being displayed with the dialog portrait width included, by default is false, which returns the width of the whole text even if it hasn't shown all of it yet with the dialog portrait width included.
+	BOOLEAN _currently_displaying -> If set to true, it will return the current width of the text being displayed with the dialog portrait width included, by default is false, which returns the width of the whole text even if it hasn't shown all of it yet with the dialog portrait width included.
 	
-	RETURN -> REAL -- Width in pixels of the text either currently or all of it even if not displayed with the dialog portrait width and the asterisk width included.
+	RETURN -> REAL -- Width in pixels of the current dialog either by the amount currently displaying or all of it even if it's not displayed yet fully, with the dialog portrait width and the asterisk width included.
 	*/
-	get_text_width = function(_current=false){
+	get_current_text_width = function(_currently_displaying=false){
 		draw_set_font(font);
 		
 		var _dialog = dialog;
 		
-		if (_current and string_index < dialog_length){
+		if (_currently_displaying and string_index < dialog_length){
 			_dialog = string_copy(dialog, 0, max(string_index, 0));
 		}
 		
@@ -2249,19 +2340,19 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	}
 	
 	/*
-	This function returns the height in pixels the text takes with the dialog portrait if it's available, not taking into account containers, dialog_height variable, just what the text takes in space alongside the portrait sprite.
-	Takes into account the xscale factor of the dialog.
+	This function returns the height in pixels the current dialog takes with the dialog portrait if it's available, not taking into account containers, dialog_height variable, just what the text takes in space alongside the portrait sprite.
+	Takes into account the yscale factor of the dialog.
 	
-	BOOLEAN _current -> If set to true, it will return the current height of the text being displayed with the dialog portrait height included, by default is false, which returns the height of the whole text even if it hasn't shown all of it yet with the dialog portrait height included.
+	BOOLEAN _currently_displaying -> If set to true, it will return the current height of the text being displayed with the dialog portrait height included, by default is false, which returns the height of the whole text even if it hasn't shown all of it yet with the dialog portrait height included.
 	
-	RETURN -> REAL -- Height in pixels of the text either currently or all of it even if not displayed with the dialog portrait height.
+	RETURN -> REAL -- Height in pixels of the current dialog either by the amount currently displaying or all of it even if it's not displayed yet fully, with the dialog portrait height included.
 	*/
-	get_text_height = function(_current=false){
+	get_current_text_height = function(_currently_displaying=false){
 		draw_set_font(font);
 		
 		var _dialog = dialog;
 		
-		if (_current and string_index < dialog_length){
+		if (_currently_displaying and string_index < dialog_length){
 			_dialog = string_copy(dialog, 0, max(string_index, 0));
 		}
 		
@@ -2271,6 +2362,23 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		var _maximum_dialog_height = string_height(_dialog_array[_dialogues_amount - 1]) + (line_jump_height + spacing_height)*string_count(_dialog, "\n");
 		
 		return _maximum_dialog_height;
+	}
+	
+	/*
+	This function returns the number of line jumps that the current dialog has in it.
+	This includes line jumps that have been performed manually and that the dialog system has automatically placed in the dialog.
+	
+	BOOLEAN _currently_displaying -> If set to true, it will return the current height of the text being displayed with the dialog portrait height included, by default is false, which returns the height of the whole text even if it hasn't shown all of it yet with the dialog portrait height included.
+	
+	RETURN -> INTEGER -- Number of line jumps the current dialog has either by the amount currently displaying or all of it even if it's not displayed yet fully.
+	*/
+	get_current_text_line_jumps = function(_currently_displaying=false){
+		var _dialog = dialog;
+		if (_currently_displaying){
+			_dialog = string_copy(dialog, 0, max(string_index, 0));
+		}
+		
+		return string_count("\n", string_replace_all(_dialog, "\r", "\n"));
 	}
 	
 	/*

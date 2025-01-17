@@ -20,7 +20,7 @@ function load_ui_texts(_path){
 }
 
 function cell_use(_cell_index){
-	var _cell_option = global.cell_options[_cell_index];
+	var _cell_option = global.player.cell_options[_cell_index];
 	var _message = "";
 	
 	switch (_cell_option){
@@ -28,13 +28,13 @@ function cell_use(_cell_index){
 			_message = "The man who speaks with the hands is not available right now...";
 		break;
 		case CELL.DIMENTIONAL_BOX_A:
-			start_box_menu(0, true);
+			start_box_menu(0);
 		return;
 		case CELL.DIMENTIONAL_BOX_B:
-			start_box_menu(1, true);
+			start_box_menu(1);
 		return;
 		case CELL.SAVE_GAME:
-			start_save_menu(true);
+			start_save_menu();
 			
 			audio_play_sound(snd_menu_selecting, 100, false);
 		return;

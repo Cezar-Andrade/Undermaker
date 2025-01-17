@@ -2,6 +2,8 @@ event = false;
 
 interaction = function(){
 	var _room_change = function(){
+		room_persistent = true;
+		
 		obj_player_overworld.can_collide = false; //Turn off the collision checking of the player since it can touch one when interacting with this NPC in a certain position that may softlock the game.
 		room_goto(rm_overworld_2_the_void);
 		
@@ -13,6 +15,7 @@ interaction = function(){
 				obj_game.start_room_function = function(){
 					overworld_dialog(["[bind_instance:" + string(inst_scary_kris_dog.id) + "]Hey you still there?[w:20]\nYou should go find some water perhaps."])
 					
+					room_persistent = false;
 					obj_player_overworld.image_alpha = 1;
 				}
 			}

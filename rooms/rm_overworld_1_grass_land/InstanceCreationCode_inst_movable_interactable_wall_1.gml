@@ -5,7 +5,7 @@ if (global.save_data.wall_1_moved){
 interaction = function(){
 	obj_game.state = GAME_STATE.EVENT;
 	
-	if (!global.wall_1_moved){
+	if (!global.save_data.wall_1_moved){
 		move_wall = false;
 	
 		epic_movement = function(){
@@ -48,6 +48,7 @@ interaction = function(){
 				}
 			}
 		}
+		
 		obj_game.event_end_condition = function(){
 			return (obj_game.dialog.is_finished() and (!move_wall or global.save_data.wall_1_moved));
 		}
