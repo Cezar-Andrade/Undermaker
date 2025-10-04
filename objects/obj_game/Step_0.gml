@@ -140,174 +140,233 @@ if (keyboard_check_pressed(ord("V"))){
 	perform_game_load();
 }
 
+//Little system that sets the equipped atk, equipped def and invulnerability frames.
+if (global.player.prev_weapon != global.player.weapon or global.player.prev_armor != global.player.armor){
+	global.player.prev_weapon = global.player.weapon;
+	global.player.prev_armor = global.player.armor;
+	
+	global.player.equipped_atk = 0;
+	global.player.equipped_def = 0;
+	global.player.invulnerability_frames = PLAYER_BASE_INVULNERABILITY_FRAMES;
+	
+	var _weapon = global.item_pool[global.player.weapon];
+
+	global.player.equipped_atk += ((is_undefined(_weapon[$"atk"])) ? 0 : _weapon[$"atk"]);
+	global.player.equipped_def += ((is_undefined(_weapon[$"def"])) ? 0 : _weapon[$"def"]);
+	global.player.invulnerability_frames += ((is_undefined(_weapon[$"inv_frames"])) ? 0 : _weapon[$"inv_frames"]);
+	
+	var _armor = global.item_pool[global.player.armor];
+	
+	global.player.equipped_atk += ((is_undefined(_armor[$"atk"])) ? 0 : _armor[$"atk"]);
+	global.player.equipped_def += ((is_undefined(_armor[$"def"])) ? 0 : _armor[$"def"]);
+	global.player.invulnerability_frames += ((is_undefined(_armor[$"inv_frames"])) ? 0 : _armor[$"inv_frames"]);
+}
+
+if (global.player.hp <= 0 and state != GAME_STATE.GAME_OVER){
+	trigger_game_over();
+}
+
 switch (state){
-	case GAME_STATE.GAME_OVER: {
-		timer++;
-		if (!Dunked){
-			if (state == "Continue"){
-				obj_game.circle = 500*max(timer + 95, 0)/40;
+	case GAME_STATE.BATTLE_END: {
+		anim_timer++;
+		
+		if (anim_timer == 1){
+			_length = array_length(battle_cleared_enemies);
+			for (var _i=0; _i<_length; _i++){
+				array_pop(battle_cleared_enemies);
 			}
-			if (state == "Continue" and timer >= -170 and timer <= -155){
-				if (timer == -155){
-					x = 320;
-					y = 360;
-					image_index = 0;
-					audio_play_sound(snd_heartbreaks, 0, false);
-				}else{
-					x = 320 + irandom_range(-2,2);
-					y = 360 + irandom_range(-2,2);
-				}
-			}else if (state == "Continue" and timer >= -125 and timer <= -95){
-				y = 360 - 60*dsin(3*(timer + 125));
-				if (timer == -95){
-					audio_play_sound(snd_revive, 100, false);
-				}
-			}else if (state == "Continue" and timer >= -80 and timer < -20){
-				image_alpha = (-timer - 20)/60;
-			}else if (state == "Give up" and timer == -100){
-				audio_play_sound(snd_dead, 100, false);
-				audio_play_sound(snd_heartexplotion, 0, false);
-				image_alpha = 0;
-				for (var i=0;i <= 5;i++){
-					Shards[i] = {xpos: x, ypos: y, xspeed: random_range(-4,4), yspeed: random_range(2, -2), frame: 0}
-				}
-			}else if (timer == -20){
-				if (state == "Continue"){
-					Reset(c_white);
-				}else{
-					Player.HP = 92;
-					transition_black([0.02,0.005],45,room_menu,true);
-				}
-				audio_stop_sound(musica);
-				instance_destroy();
-			}else if (timer == 1){
-				audio_stop_all();
-				audio_play_sound(snd_hurt, 0, false);
-			}else if (timer == 15){
-				audio_play_sound(snd_heartbreaks, 0, false);
-				image_index = 75;
-			}else if (timer == 45){
-				if (timer == 45){
-					audio_play_sound(snd_fall, 0, false);
-				}
-				diffX = (320 - x)/2;
-				diffY = (360 - y)/2;
-				diffR = -image_angle/2;
-				holdX = x + diffX;
-				holdY = y + diffY;
-				holdR = image_angle + diffR;
-			}else if (timer > 45 and timer <= 75){
-				var counter = dcos(6*(timer - 45));
-				x = holdX - diffX*counter;
-				y = holdY - diffY*counter;
-				image_angle = holdR - diffR*counter;
-				if (timer == 75){
-					musica = audio_play_sound(mus_gameover, 100, true);
-					audio_sound_gain(musica, 1, 2000);
-				}
-			}else if (timer == 110){
-				GameOverText.Create(160, 380, lanGetText("Game Over"), "[font:" + string(fn_big_8bit) + "][xspace:16][yspace:36]");
-			}else if (timer == 111 and !ds_list_empty(GameOverText.AllTextData)){
-				timer--;
-			}else if (timer == 165){
-				audio_play_sound(snd_pip, 0, false);
-			}else if (timer > 165){
-				if ((keyboard_check_pressed(settings.left[0]) or keyboard_check_pressed(settings.left[1])) and select == 1){
-					select = 0;
-					audio_play_sound(snd_pip, 0, false);
-				}else if ((keyboard_check_pressed(settings.right[0]) or keyboard_check_pressed(settings.right[1])) and select == 0){
-					select = 1;
-					audio_play_sound(snd_pip, 0, false);
-				}
-				if (keyboard_check(settings.confirm[0]) or keyboard_check(settings.confirm[1])){
-					switch (select){
-						case 0:
-							state = "Continue";
-						break;
-						default:
-							state = "Give up";
-						break;
-					}
-					timer = -200;
-					audio_play_sound(snd_pipcheck, 0, false);
-					audio_sound_gain(musica, 0, 2000);
-				}
-			}
-			if (timer == 110){
-				GameOverText.Update();
-			}
-		}else{
-			if (timer == -110){
-				if (state == "Continue"){
-					Reset();
-				}else{
-					Player.HP = 92;
-					transition_black([1,0.005],45,room_menu,true);
-				}
-				audio_stop_sound(musica);
-				instance_destroy();
-			}else if (timer == 1){
-				audio_stop_all();
-				audio_play_sound(snd_hurt, 0, false);
-			}else if (timer == 15){
-				audio_play_sound(snd_heartbreaks, 0, false);
-				image_index = 75;
-			}else if (timer == 60){
-				audio_play_sound(snd_heartexplotion, 0, false);
-				image_alpha = 0;
-				for (var i=0;i <= 5;i++){
-					Shards[i] = {xpos: x, ypos: y, xspeed: random_range(-4,4), yspeed: random_range(2, -2), frame: 0}
-				}
-			}else if (timer == 90){
-				musica = audio_play_sound(mus_getdunked, 100, true);
-			}else if (timer == 160){
-				GameOverText.Create(160, 320, lanGetText("Get Dunked On"), "[font:" + string(fn_big_8bit) + "][xspace:16][yspace:36]");
-			}else if (timer == 161 and !ds_list_empty(GameOverText.AllTextData)){
-				timer--;
-			}else if (timer == 215){
-				audio_play_sound(snd_pip, 0, false);
-			}else if (timer > 215){
-				if ((keyboard_check_pressed(settings.left[0]) or keyboard_check_pressed(settings.left[1])) and select == 1){
-					select = 0;
-					audio_play_sound(snd_pip, 0, false);
-				}else if ((keyboard_check_pressed(settings.right[0]) or keyboard_check_pressed(settings.right[1])) and select == 0){
-					select = 1;
-					audio_play_sound(snd_pip, 0, false);
-				}
-				if (keyboard_check(settings.confirm[0]) or keyboard_check(settings.confirm[1])){
-					switch (select){
-						case 0:
-							state = "Continue";
-						break;
-						default:
-							state = "Give up";
-						break;
-					}
-					timer = -200;
-					audio_play_sound(snd_pipcheck, 0, false);
-					audio_sound_gain(musica, 0, 2000);
-				}
-			}
-			if (timer == 160){
-				GameOverText.Update();
-			}
+		}else if (anim_timer == 20){
+			state = GAME_STATE.PLAYER_CONTROL;
 		}
-		for (var i=0;i<array_length(Shards);i++){
-			Shards[i].xpos += Shards[i].xspeed;
-			Shards[i].yspeed += 0.2;
-			Shards[i].ypos += Shards[i].yspeed;
-			if (abs(timer)%2 == 1){
-				Shards[i].frame++;
-				if (Shards[i].frame > 3){
-					Shards[i].frame = 0;
+	break;}
+	case GAME_STATE.GAME_OVER: {
+		game_over_timer++;
+		
+		switch (game_over_timer){
+			case 75:
+				audio_play_sound(snd_player_heart_break, 100, false);
+			break;
+			case 150:
+				audio_play_sound(snd_player_heart_shatter, 100, false);
+				
+				for (var _i=0; _i<6; _i++){
+					array_push(game_over_shards, {x: game_over_heart_x, y: game_over_heart_y, x_speed: irandom_range(-40, 40), y_speed: irandom(40)});
 				}
+			break;
+			case 225:
+				audio_play_sound(game_over_music, 100, true);
+			break;
+			case 350:
+				dialog.set_dialogues(game_over_dialog, 170);
+				dialog.set_scale(2, 2);
+				dialog.set_container_sprite(undefined);
+				dialog.set_container_tail_sprite(undefined);
+				dialog.set_container_tail_mask_sprite(undefined);
+				dialog.move_to(150, 340);
+			break;
+			case 351:
+				if (!dialog.is_finished()){
+					game_over_timer--;
+				}
+			break;
+			case 352:
+				if (!global.confirm_button){
+					game_over_timer--;	
+				}else{
+					audio_sound_gain(game_over_music, 0, 1333);
+				}
+			break;
+			case 472:
+				if (room == rm_battle){
+					var _length = array_length(global.battle_enemies);
+					for (var _i=0; _i<_length; _i++){
+						array_pop(global.battle_enemies);
+					}
+					
+					_length = array_length(battle_enemies_dialogs);
+					for (var _i=0; _i<_length; _i++){ //This one already got cleared before getting here, but just in case somehow something trigger as you're still in the battle room, clear it again.
+						array_pop(battle_enemies_dialogs);
+					}
+				
+					_length = array_length(battle_cleared_enemies);
+					for (var _i=0; _i<_length; _i++){
+						array_pop(battle_cleared_enemies);
+					}
+				
+					_length = array_length(battle_dust_clouds);
+					for (var _i=0; _i<_length; _i++){
+						array_pop(battle_dust_clouds);
+					}
+					
+					start_room_function = death_reset;
+				
+					room_goto(player_prev_room);
+				}else{
+					perform_game_load();
+				}
+			break;
+			case 492:
+				state = GAME_STATE.PLAYER_CONTROL;
+			break;
+		}
+		
+		var _length = array_length(game_over_shards);
+		for (var _i=0; _i<_length; _i++){
+			var _shard = game_over_shards[_i];
+			
+			_shard.x += _shard.x_speed/10;
+			_shard.y -= _shard.y_speed/10;
+			_shard.y_speed--;
+			
+			if (_shard.y > 490){
+				array_delete(game_over_shards, _i, 1);
+				_i--;
+				_length--;
 			}
 		}
 	break; }
 	case GAME_STATE.BATTLE: //You're already in the battle room when in this state, if not then errors may happen.
+		depth = battle_player_stats.depth;
+		
+		if (battle_state != BATTLE_STATE.START){
+			var _length = array_length(global.battle_enemies);
+			for (var _i=0; _i<_length; _i++){
+				var _enemy = global.battle_enemies[_i];
+				
+				if (is_undefined(_enemy)){
+					array_delete(global.battle_enemies, _i, 1);
+					
+					_i--;
+					_length--;
+					
+					continue;
+				}
+				
+				if (!is_undefined(_enemy.update)){
+					_enemy.update();
+				}
+			}
+			
+			_length = array_length(battle_bullets);
+			for (var _i=0; _i<_length; _i++){
+				var _bullet = battle_bullets[_i];
+				
+				if (!instance_exists(_bullet)){
+					array_delete(battle_bullets, _i, 1);
+					_i--;
+					_length--;
+				}
+			}
+			
+			_length = array_length(battle_cleared_enemies);
+			for (var _i=0; _i<_length; _i++){
+				var _enemy = battle_cleared_enemies[_i];
+			
+				if (!_enemy.spared and _enemy.last_animation_timer < sprite_get_height(_enemy.sprite_killed)){
+					var _dust_pixels = _enemy.last_animation_timer;
+					var _offset_x = sprite_get_xoffset(_enemy.sprite_killed);
+					var _offset_y = sprite_get_yoffset(_enemy.sprite_killed);
+				
+					array_push(battle_enemies_parts, {sprite: _enemy.sprite_killed, sprite_index: _enemy.sprite_killed_index, part: _enemy.last_animation_timer, x: _enemy.x - _offset_x, y: _enemy.y + (_dust_pixels - _offset_y)*_enemy.sprite_yscale, xscale: _enemy.sprite_xscale, yscale: _enemy.sprite_yscale, direction: irandom_range(60, 120), alpha: 1});
+				
+					_enemy.last_animation_timer++;
+				}
+			}
+		
+			_length = array_length(battle_enemies_parts);
+			for (var _i=0; _i<_length; _i++){
+				var _part = battle_enemies_parts[_i];
+			
+				_part.alpha -= 0.05;
+				var _movement = 2 - _part.alpha;
+				_part.x += _movement*dcos(_part.direction);
+				_part.y -= _movement*dsin(_part.direction);
+			
+				if (_part.alpha <= 0){
+					array_delete(battle_enemies_parts, _i, 1);
+				
+					_i--;
+					_length--;
+				}
+			}
+		
+			_length = array_length(battle_dust_clouds);
+			for (var _i=0; _i<_length; _i++){
+				var _dust = battle_dust_clouds[_i];
+			
+				_dust.timer++;
+				_dust.x += 2*_dust.distance*dcos(_dust.direction);
+				_dust.y -= 2*_dust.distance*dsin(_dust.direction);
+			
+				if (_dust.timer >= 15){
+					array_delete(battle_dust_clouds, _i, 1);
+				
+					_i--;
+					_length--;
+				}
+			}
+		
+			_length = array_length(battle_damage_text);
+			for (var _i=0; _i<_length; _i++){
+				var _text = battle_damage_text[_i];
+			
+				_text.timer++;
+			
+				if (_text.timer >= 90){
+					array_delete(battle_damage_text, _i, 1);
+				
+					_i--;
+					_length--;
+				}
+			}
+		}
+		
 		switch (battle_state){
 			case BATTLE_STATE.START:
-				battle_state = BATTLE_STATE.PLAYER_BUTTONS;
+				battle_exp = 0;
+				battle_gold = 0;
+				battle_flee_event_type = FLEE_EVENT.IMPROVED;
+				battle_fled = false;
 				battle_button_order = [btn_fight, btn_act, btn_item, btn_mercy];
 				
 				with (obj_player_battle){
@@ -317,19 +376,52 @@ switch (state){
 				
 				var _length = array_length(global.battle_enemies);
 				var _x = 640/(_length + 1);
+				var _to_check = [];
+				
 				for (var _i=0; _i<_length; _i++){
-					global.battle_enemies[_i] = new enemy(global.battle_enemies[_i], _x*(_i + 1), 240);
+					var _enemy = new enemy(global.battle_enemies[_i], _x*(_i + 1), 240);
+					_enemy.name = string_trim(_enemy.name);
+					
+					array_push(_to_check, _i);
+					
+					global.battle_enemies[_i] = _enemy;
 				}
 				
-				battle_box_dialog(battle_initial_box_dialog);
+				for (var _i=0; _i<_length - 1; _i++){
+					var _count = 0;
+					var _enemy_1 = global.battle_enemies[_to_check[_i]];
+					
+					for (var _j=_i + 1; _j<_length; _j++){
+						var _enemy_2 = global.battle_enemies[_to_check[_j]];
+						
+						if (_enemy_1.name == _enemy_2.name){
+							_enemy_2.name += string_concat(" ", chr(66 + _count)); //Starts at B the chr()
+							_count++;
+							
+							array_delete(_to_check, _j, 1);
+							_j--;
+							_length--;
+						}
+					}
+					
+					if (_count > 0){
+						_enemy_1.name += " A";
+					}
+				}
 				
 				if (!is_undefined(battle_init_function)){
 					battle_init_function();
+					battle_init_function = undefined;
 				}
-				battle_init_function = undefined;
+				
+				battle_go_to_state(BATTLE_STATE.PLAYER_BUTTONS);
 			break;
 			case BATTLE_STATE.PLAYER_BUTTONS:
-				var _options_length = array_length(battle_button_order);
+				_length = array_length(battle_enemies_dialogs);
+				for (var _i=0; _i<_length; _i++){
+					var _dialog = battle_enemies_dialogs[_i];
+					_dialog.step();
+				}
 				
 				if (global.left_button){
 					audio_play_sound(snd_menu_selecting, 0, false);
@@ -337,7 +429,7 @@ switch (state){
 					battle_selection[0]--;
 					
 					if (battle_selection[0] <= -1){
-						battle_selection[0] += _options_length;
+						battle_selection[0] += battle_options_amount;
 					}
 				}
 				
@@ -346,8 +438,8 @@ switch (state){
 					
 					battle_selection[0]++;
 					
-					if (battle_selection[0] >= _options_length){
-						battle_selection[0] -= _options_length;
+					if (battle_selection[0] >= battle_options_amount){
+						battle_selection[0] -= battle_options_amount;
 					}
 				}
 				
@@ -358,146 +450,398 @@ switch (state){
 					
 					switch (_button.button_type){
 						case BUTTON.MERCY:
-							battle_state = BATTLE_STATE.PLAYER_MERCY;
-							
-							var _spare = false;
-							var _length = array_length(global.battle_enemies);
-							for (var _i=0; _i<_length; _i++){
-								if (global.battle_enemies[_i].can_spare){
-									_spare = true;
-									
-									break;
-								}
-							}
-							
-							var _aux = "[skip:false][asterisk:false]";
-							if (_spare){
-								_aux += "   [color_rgb:255,255,0]* Spare[color_rgb:255,255,255]";
-							}else{
-								_aux += "   * Spare";
-							}
-							
-							if (battle_can_flee){
-								_aux += "\r   * Flee";
-							}
-							
-							battle_box_dialog(_aux);
+							battle_go_to_state(BATTLE_STATE.PLAYER_MERCY);
 						break;
 						case BUTTON.ITEM:
-							battle_state = BATTLE_STATE.PLAYER_ITEM;
-							
-							var _aux = "[skip:false][asterisk:false]";
-							var _amountItems = array_length(global.player.inventory);
-							if (_amountItems <= 4 and battle_item_page == 2){
-								battle_item_page = 1;
-							}
-							
-							var _page_index = battle_item_page - 1;
-							if (_amountItems > 0){
-								for (var _i=4*_page_index; _i<min(_amountItems, 4 + 4*_page_index); _i++){
-									var _item_name;
-									if (global.battle_serious_mode){
-										_item_name = global.item_pool[global.player.inventory[_i]][$"serious name"];
-									}else{
-										_item_name = global.item_pool[global.player.inventory[_i]][$"short name"];
-									}
-									
-									_aux += "   * " + _item_name + string_repeat(" ", max(11 - string_length(_item_name), 0));
-									
-									if ((_i + 1)%2 == 0){
-										_aux += "\n";
-									}
-								}
-								
-								_aux += string_repeat("\n", ceil((4 - (min(_amountItems, 4 + 4*_page_index) - 4*_page_index))/2)) + string_repeat(" ", 21) + "PAGE " + string(battle_item_page);
-								
-								battle_box_dialog(_aux);
-							}else{
-								var _randmsg = global.UI_texts[$"no items"];
-								if (global.battle_serious_mode){
-									_randmsg = _randmsg.serious;
-								}else{
-									_randmsg = _randmsg.normal;
-								}
-								
-								var _msg = _randmsg[irandom(array_length(_randmsg) - 1)];
-								_aux = "[skip:false][color_rgb:127,127,127][apply_to_asterisk]" + _msg;
-								
-								battle_box_dialog(_aux, 48);
-							}
+							battle_go_to_state(BATTLE_STATE.PLAYER_ITEM);
 						break;
 						case BUTTON.ACT:
-							battle_state = BATTLE_STATE.PLAYER_ENEMY_SELECT;
-							
-							var _aux = "[skip:false][asterisk:false]";
-							var _length = array_length(global.battle_enemies);
-							for (var _i=0; _i<_length; _i++){
-								if (global.battle_enemies[_i].can_spare){
-									_aux += "   [color_rgb:255,255,0]* " + global.battle_enemies[_i].name + "[color_rgb:255,255,255]";
-								}else{
-									_aux += "   * " + global.battle_enemies[_i].name;
-								}
-								
-								if (_i + 1 < _length){
-									_aux += "\r";
-								}
-							}
-							
-							battle_box_dialog(_aux);
+							battle_go_to_state(BATTLE_STATE.PLAYER_ENEMY_SELECT);
 						break;
 						case BUTTON.FIGHT:
-							battle_state = BATTLE_STATE.PLAYER_ENEMY_SELECT;
-							
-							var _aux = "[skip:false][asterisk:false]";
-							var _length = array_length(global.battle_enemies);
-							for (var _i=0; _i<_length; _i++){
-								if (global.battle_enemies[_i].can_spare){
-									_aux += "   [color_rgb:255,255,0]* " + global.battle_enemies[_i].name + "[color_rgb:255,255,255]";
-								}else{
-									_aux += "   * " + global.battle_enemies[_i].name;
-								}
-								
-								if (_i + 1 < _length){
-									_aux += "\r";
-								}
-							}
-							
-							battle_box_dialog(_aux);
+							battle_go_to_state(BATTLE_STATE.PLAYER_ENEMY_SELECT);
 						break;
 					}	
 				}
 				
 				with (obj_player_battle){
+					image_alpha = 1;
 					x = _button.x + _button.heart_button_position_x;
 					y = _button.y + _button.heart_button_position_y;
 				}
 			break;
 			case BATTLE_STATE.PLAYER_ENEMY_SELECT: case BATTLE_STATE.PLAYER_MERCY:
+				_length = array_length(battle_enemies_dialogs);
+				for (var _i=0; _i<_length; _i++){
+					var _dialog = battle_enemies_dialogs[_i];
+					_dialog.step();
+				}
+				
+				if (battle_options_amount > 0){
+					if (global.up_button){
+						audio_play_sound(snd_menu_selecting, 0, false);
+					
+						battle_selection[1]--;
+					
+						if (battle_selection[1] <= -1){
+							battle_selection[1] += battle_options_amount;
+						}
+					}
+				
+					if (global.down_button){
+						audio_play_sound(snd_menu_selecting, 0, false);
+					
+						battle_selection[1]++;
+					
+						if (battle_selection[1] >= battle_options_amount){
+							battle_selection[1] -= battle_options_amount;
+						}
+					}
+				
+					if (global.confirm_button){
+						audio_play_sound(snd_menu_confirm, 0, false);
+					
+						if (battle_state == BATTLE_STATE.PLAYER_ENEMY_SELECT){
+							var _enemy = battle_selectable_enemies[battle_selection[1]];
+							switch (battle_button_order[battle_selection[0]].button_type){
+								case BUTTON.FIGHT:
+									battle_go_to_state(BATTLE_STATE.PLAYER_ATTACK, _enemy);
+								break;
+								case BUTTON.ACT:
+									battle_go_to_state(BATTLE_STATE.PLAYER_ACT, _enemy);
+								break;
+							}
+						}else{
+							switch (battle_selection[1]){
+								case 0: //Spare
+									battle_go_to_state(BATTLE_STATE.PLAYER_DIALOG_RESULT, undefined, battle_state);
+								break;
+								case 1: //Flee
+									battle_go_to_state(BATTLE_STATE.PLAYER_FLEE);
+								break;
+							}
+						}
+					}
+				}
+				
+				if (global.cancel_button){
+					audio_play_sound(snd_menu_selecting, 0, false);
+					
+					battle_go_to_state(BATTLE_STATE.PLAYER_BUTTONS);
+				}
+				
 				with (obj_player_battle){
 					x = 72;
 					y = 286 + 32*other.battle_selection[1];
 				}					
 			break;
-			case BATTLE_STATE.PLAYER_ACT: case BATTLE_STATE.PLAYER_ITEM:
+			case BATTLE_STATE.PLAYER_ITEM:
+				var _amount_items = array_length(global.player.inventory);
+				var _page = battle_item_page;
+				
+				if (global.left_button){
+					if (battle_selection[2]%2 == 1){
+						audio_play_sound(snd_menu_selecting, 0, false);
+						
+						battle_selection[2]--;
+					}else if (battle_selection[2]%2 == 0 and battle_item_page > 1){
+						audio_play_sound(snd_menu_selecting, 0, false);
+						
+						battle_selection[2]++;
+						battle_item_page--;
+					}
+				}
+				
+				if (global.right_button){
+					if (battle_selection[2]%2 == 0 and _amount_items > battle_selection[2] + 4*(battle_item_page - 1) + 1){
+						audio_play_sound(snd_menu_selecting, 0, false);
+						
+						battle_selection[2]++;
+					}else if (battle_selection[2]%2 == 1 and _amount_items > 4*battle_item_page){
+						audio_play_sound(snd_menu_selecting, 0, false);
+						
+						if (_amount_items > 4*battle_item_page + 2 and battle_selection[2] == 3){
+							battle_selection[2] = 2;
+						}else{
+							battle_selection[2] = 0;
+						}
+						
+						battle_item_page++;
+					}
+				}
+				
+				if (global.up_button){
+					if (battle_selection[2] < 2 and _amount_items > battle_selection[2] + 2 + 4*(battle_item_page - 1)){
+						audio_play_sound(snd_menu_selecting, 0, false);
+						
+						battle_selection[2] += 2;
+					}else if (battle_selection[2] > 1){
+						audio_play_sound(snd_menu_selecting, 0, false);
+						
+						battle_selection[2] -= 2;
+					}
+				}
+				
+				if (global.down_button){
+					if (battle_selection[2] < 2 and _amount_items > battle_selection[2] + 2 + 4*(battle_item_page - 1)){
+						audio_play_sound(snd_menu_selecting, 0, false);
+						
+						battle_selection[2] += 2;
+					}else if (battle_selection[2] > 1){
+						audio_play_sound(snd_menu_selecting, 0, false);
+						
+						battle_selection[2] -= 2;
+					}
+				}
+				
+				if (_page != battle_item_page){
+					var _text = "[skip:false][asterisk:false]";
+					var _page_index = battle_item_page - 1;
+					
+					for (var _i=4*_page_index; _i<min(_amount_items, 4*battle_item_page); _i++){
+						var _item_name = undefined;
+						if (global.battle_serious_mode){
+							_item_name = global.item_pool[global.player.inventory[_i]][$"serious name"];
+							
+							if (is_undefined(_item_name)){
+								_item_name = global.item_pool[global.player.inventory[_i]][$"short name"];
+							}
+						}else{
+							_item_name = global.item_pool[global.player.inventory[_i]][$"short name"];
+						}
+						
+						if (is_undefined(_item_name)){
+							_item_name = global.item_pool[global.player.inventory[_i]][$"inventory name"];
+						}
+						
+						_text += "   * " + _item_name + string_repeat(" ", max(11 - string_length(_item_name), 0));
+						
+						if ((_i + 1)%2 == 0){
+							_text += "\n";
+						}
+					}
+					
+					_text += string_repeat("\n", ceil((4 - (min(_amount_items, 4 + 4*_page_index) - 4*_page_index))/2)) + string_repeat(" ", 21) + "PAGE " + string(battle_item_page);
+					
+					battle_box_dialog(_text);
+				}
+				
+				if (global.confirm_button and _amount_items > 0){
+					audio_play_sound(snd_menu_confirm, 100, false);
+					
+					battle_go_to_state(BATTLE_STATE.PLAYER_DIALOG_RESULT,, battle_state);
+				}
+				
+				if (global.cancel_button){
+					audio_play_sound(snd_menu_selecting, 100, false);
+					
+					battle_go_to_state(BATTLE_STATE.PLAYER_BUTTONS);
+				}
+				
+				with (obj_player_battle){
+					x = 72 + 256*(other.battle_selection[2]%2);
+					y = 286 + 32*floor(other.battle_selection[2]/2);
+				}
+			break;
+			case BATTLE_STATE.PLAYER_ATTACK:
+				_length = array_length(battle_enemies_dialogs);
+				for (var _i=0; _i<_length; _i++){
+					var _dialog = battle_enemies_dialogs[_i];
+					_dialog.step();
+				}
+				
+				battle_player_attack.update();
+			break;
+			case BATTLE_STATE.PLAYER_WON:
+				if (global.confirm_button and obj_game.dialog.is_done_displaying()){
+					battle_go_to_state(BATTLE_STATE.END);
+				}
+			break;
+			case BATTLE_STATE.PLAYER_FLEE:
+				_length = array_length(battle_enemies_dialogs);
+				for (var _i=0; _i<_length; _i++){
+					var _dialog = battle_enemies_dialogs[_i];
+					_dialog.step();
+				}
+				
+				battle_flee_event.update();
+				
+				if (battle_flee_event.is_finished){
+					if (battle_flee_event.success){
+						battle_fled = true;
+						
+						battle_go_to_state(BATTLE_STATE.END);
+					}else{
+						battle_go_to_state(BATTLE_STATE.ENEMY_DIALOG);
+					}
+				}
+			break;
+			case BATTLE_STATE.PLAYER_ACT:
+				_length = array_length(battle_enemies_dialogs);
+				for (var _i=0; _i<_length; _i++){
+					var _dialog = battle_enemies_dialogs[_i];
+					_dialog.step();
+				}
+				
+				if (battle_options_amount > 0){
+					if (global.left_button){
+						if (battle_selection[2]%2 == 1){
+							audio_play_sound(snd_menu_selecting, 0, false);
+						
+							battle_selection[2]--;
+						}else if (battle_selection[2]%2 == 0 and battle_options_amount > battle_selection[2] + 1){
+							audio_play_sound(snd_menu_selecting, 0, false);
+						
+							battle_selection[2]++;
+						}
+					}
+				
+					if (global.right_button){
+						if (battle_selection[2]%2 == 0 and battle_options_amount > battle_selection[2] + 1){
+							audio_play_sound(snd_menu_selecting, 0, false);
+						
+							battle_selection[2]++;
+						}else if (battle_selection[2]%2 == 1){
+							audio_play_sound(snd_menu_selecting, 0, false);
+						
+							battle_selection[2]--;
+						}
+					}
+				
+					if (global.up_button){
+						if (battle_selection[2] > 1){
+							audio_play_sound(snd_menu_selecting, 0, false);
+						
+							battle_selection[2] -= 2;
+						}else{
+							audio_play_sound(snd_menu_selecting, 0, false);
+						
+							battle_selection[2] = battle_options_amount + battle_options_amount%2 + battle_selection[2]*(1 - 2*(battle_options_amount%2)) - 2;
+						}
+					}
+				
+					if (global.down_button){
+						if (battle_options_amount <= battle_selection[2] + 2){
+							audio_play_sound(snd_menu_selecting, 0, false);
+						
+							battle_selection[2] = battle_selection[2]%2;
+						}else{
+							audio_play_sound(snd_menu_selecting, 0, false);
+						
+							battle_selection[2] += 2;
+						}
+					}
+				
+					if (global.confirm_button){
+						audio_play_sound(snd_menu_confirm, 0, false);
+					
+						battle_go_to_state(BATTLE_STATE.PLAYER_DIALOG_RESULT, battle_selectable_enemies[battle_selection[1]], battle_state);
+					}
+				}
+				
+				if (global.cancel_button){
+					audio_play_sound(snd_menu_selecting, 0, false);
+					
+					battle_go_to_state(BATTLE_STATE.PLAYER_ENEMY_SELECT, undefined, BATTLE_STATE.PLAYER_ACT);
+				}
+				
 				with (obj_player_battle){
 					x = 72 + 256*(other.battle_selection[2]%2);
 					y = 286 + 32*floor(other.battle_selection[2]/2);
 				}
 			break;
 			case BATTLE_STATE.PLAYER_DIALOG_RESULT:
-				//TODO
+				_length = array_length(battle_enemies_dialogs);
+				for (var _i=0; _i<_length; _i++){
+					var _dialog = battle_enemies_dialogs[_i];
+					_dialog.step();
+				}
+				
+				if (obj_game.dialog.is_finished()){
+					battle_go_to_state(BATTLE_STATE.ENEMY_DIALOG);
+				}
 			break;
 			case BATTLE_STATE.ENEMY_DIALOG:
+				_length = array_length(battle_enemies_dialogs);
+				var _dialog_finished = true;
+				for (var _i=0; _i<_length; _i++){
+					var _dialog = battle_enemies_dialogs[_i];
+					_dialog.step();
+					
+					if (!_dialog.is_finished()){
+						_dialog_finished = false;
+					}
+				}
+				
+				if (_dialog_finished){
+					battle_go_to_state(BATTLE_STATE.ENEMY_ATTACK);
+				}
+				
 				with (obj_player_battle){
 					x = obj_box.x;
 					y = obj_box.y - round(obj_box.height)/2 - 5;
 				}
 			break;
 			case BATTLE_STATE.ENEMY_ATTACK:
-				//TODO
+				_length = array_length(battle_enemies_attacks);
+				var _attacks_done = true;
+				for (var _i=0; _i<_length; _i++){
+					var _attack = battle_enemies_attacks[_i];
+					_attack.update();
+					
+					if (_attacks_done and !_attack.attack_done){
+						_attacks_done = false;
+					}
+				}
+				
+				if (_attacks_done){
+					for (var _i=0; _i<_length; _i++){
+						battle_enemies_attacks[_i].cleanup();
+					}
+					
+					battle_go_to_state(BATTLE_STATE.TURN_END);
+				}
 			break;
 			case BATTLE_STATE.TURN_END:
-				//TODO
+				_length = array_length(battle_enemies_dialogs);
+				var _dialog_finished = true;
+				for (var _i=0; _i<_length; _i++){
+					var _dialog = battle_enemies_dialogs[_i];
+					_dialog.step();
+					
+					if (!_dialog.is_finished()){
+						_dialog_finished = false;
+					}
+				}
+				
+				if (obj_game.dialog.is_finished() and _dialog_finished){
+					battle_go_to_state(BATTLE_STATE.PLAYER_BUTTONS);
+				}
+			break;
+			case BATTLE_STATE.END:
+				anim_timer++;
+				if (anim_timer == 20){
+					obj_player_overworld.image_alpha = 1;
+					
+					while (!dialog.is_finished()){
+						dialog.next_dialog();
+					}
+					
+					_length = array_length(battle_enemies_dialogs);
+					for (var _i=0; _i<_length; _i++){
+						array_pop(battle_enemies_dialogs);
+					}
+					
+					_length = array_length(battle_dust_clouds);
+					for (var _i=0; _i<_length; _i++){
+						array_pop(battle_dust_clouds);
+					}
+					
+					anim_timer = 0;
+					state = GAME_STATE.BATTLE_END;
+					
+					room_goto(player_prev_room);
+				}
 			break;
 		}
 	break;
@@ -521,8 +865,11 @@ switch (state){
 			break;
 			case 48:
 				state = GAME_STATE.BATTLE;
-				player_prev_room = room;
 				obj_player_overworld.image_alpha = 0;
+				
+				if (room != rm_battle){
+					player_prev_room = room;
+				}
 				
 				room_persistent = true;
 				
@@ -899,7 +1246,33 @@ if (keyboard_check_pressed(ord("D"))){
 }
 
 if (keyboard_check_pressed(ord("Q"))){
-	start_battle(ENEMY.MAD_DUMMY_DRAWN, "The heroine appears.")
+	var _end_function = function(_enemies_left, _enemies_killed, _enemies_spared, _battle_fled){
+		var _text = "";
+		
+		var _length = array_length(_enemies_left);
+		for (var _i=0; _i<_length; _i++){
+			var _enemy = _enemies_left[_i];
+			_text += string_concat(_enemy.name, " was left alive.\n");
+		}
+		
+		_length = array_length(_enemies_killed);
+		for (var _i=0; _i<_length; _i++){
+			var _enemy = _enemies_killed[_i];
+			_text += string_concat(_enemy.name, " was killed.\n");
+		}
+		
+		_length = array_length(_enemies_spared);
+		for (var _i=0; _i<_length; _i++){
+			var _enemy = _enemies_spared[_i];
+			_text += string_concat(_enemy.name, " was spared.\n");
+		}
+		
+		_text += string_concat("You ", ((_battle_fled) ? "fled" : "didn't flee"), " the battle.");
+		
+		overworld_dialog(_text, (obj_player_overworld.y > 210));
+	}
+	
+	start_battle([ENEMY.MAD_DUMMY_DRAWN, ENEMY.MAD_DUMMY_SPRITED], "Oh no, two dummies...[w:20]\nAnd they are mad!",,, _end_function);
 }
 
 if (keyboard_check_pressed(ord("R"))){

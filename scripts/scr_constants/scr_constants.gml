@@ -12,6 +12,8 @@ It doesn't count the asterisk's size.
 */
 #macro ASTERISK_SPACING 15
 
+#macro PLAYER_BASE_INVULNERABILITY_FRAMES 90
+
 /*
 Constant that determinates custom craeted fonts, following the same name syntax that fonts use to keep consistency between fonts.
 DO NOT UNDER ANY CIRCUMSTANCE PUT THE FUNCTION TO ADD FONTS DIRECTLY IN THE MACRO, USE A GLOBAL VARIABLE TO PASS THE INDEX.
@@ -25,6 +27,7 @@ global.custom_fnt_hachiko = font_add_sprite(spr_fnt_hachiko, 32, true, 4);
 
 */
 enum PLAYER_STATUS_EFFECT{
+	NONE,
 	KARMIC_RETRIBUTION //Because it's the most used of course you sans freaks!!!
 }
 
@@ -67,6 +70,9 @@ enum BATTLE_STATE{
 	PLAYER_ACT,
 	PLAYER_ITEM,
 	PLAYER_MERCY,
+	PLAYER_FLEE,
+	PLAYER_WON,
+	END,
 	PLAYER_DIALOG_RESULT,
 	ENEMY_DIALOG,
 	ENEMY_ATTACK,
@@ -146,6 +152,7 @@ enum GAME_STATE{
 	EVENT,
 	BATTLE_START_ANIMATION,
 	BATTLE,
+	BATTLE_END,
 	DIALOG_CHOICE,
 	GAME_OVER
 }

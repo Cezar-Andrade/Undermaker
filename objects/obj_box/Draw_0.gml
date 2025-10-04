@@ -6,12 +6,17 @@ draw_rectangle_colour(x - round(width)/2, y - 5, x + round(width)/2 - 1, y - rou
 switch (obj_game.battle_state){
 	case BATTLE_STATE.PLAYER_ENEMY_SELECT:
 		if (obj_game.battle_button_order[obj_game.battle_selection[0]].button_type == BUTTON.FIGHT){
-			//for (var i=0;i<array_length(Enemies);i++){ //modify
-				//draw_healthbar(x - 33, y - 93, x + 67, y - 111, Enemies[i].HP/Enemies[i].maxHP*100, c_red, c_yellow, c_yellow, 0, true, false);
-			//}
+			var _length = array_length(obj_game.battle_selectable_enemies);
+			for (var _i=0; _i<_length; _i++){
+				var _enemie = obj_game.battle_selectable_enemies[_i];
+				
+				if (_enemie.show_hp){
+					draw_healthbar(x + 46, y - 93 + 36*_i, x + 46 + _enemie.hp_bar_width, y - 111 + 36*_i, 100*_enemie.hp/_enemie.max_hp, c_red, _enemie.hp_bar_color, _enemie.hp_bar_color, 0, true, false);
+				}
+			}
 		}
 	break;
 	case BATTLE_STATE.PLAYER_ATTACK:
-		//obj_Encounter.PlayerFight.Draw();
+		obj_game.battle_player_attack.draw();
 	break;
 }

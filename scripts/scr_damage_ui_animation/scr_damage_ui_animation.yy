@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"scr_damage_ui_animation",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"scr_damage_ui_animation",
+  "parent":{
+    "name":"Battle",
+    "path":"folders/Scripts/Utils/Battle.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

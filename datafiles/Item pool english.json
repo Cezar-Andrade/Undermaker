@@ -4,7 +4,7 @@
         "short name": "EdDirt",
         "serious name": "E.Dirt",
         "type": "Consumable",
-        "use dialog": "You can't believe you just ate dirt...\n[HEAL]",
+        "use dialog": "You can't believe you just ate dirt...\n[HealMessage]",
         "info dialog": ["Edible Dirt - Hurts by 10 HP.\nFresh dirt dug from the earth.","There's no way this is healthy in any way..."],
         "drop dialog": "(You decided to not risk your health.)",
         "amount": -10
@@ -15,7 +15,7 @@
         "serious name": "I.Noodles",
         "type": "Consumable",
         "use dialog": {
-            "overworld": "You ate the Instant Noodles.\n[HEAL]",
+            "overworld": "You ate the Instant Noodles.\n[HealMessage]",
             "battle": ["You remove the Instant Noodles from their packaging.",
                 "You put some water in the pot and place it on the heat.",
                 "You wait for the water to boil...",
@@ -31,8 +31,8 @@
                 "You add the flavor packet.",
                 "That's better.",
                 "Not great[w:10], but better.",
-                "You ate the Instant Noodles.\n[HEAL]"],
-            "serious": "They're better dry.\n[HEAL]"
+                "You ate the Instant Noodles.\n[HealMessage]"],
+            "serious": "They're better dry.\n[HealMessage]"
         },
         "info dialog": ["Instant Noodles - Heals 15 HP.\nComes with everything you need for a quick meal!"],
         "drop dialog": "(You decide to stay healthy.)",
@@ -49,7 +49,7 @@
         "type": "Weapon",
         "use dialog": "You equipped the Wilted Vine.\nIt has a rather sticky touch...\nEw.",
         "info dialog": "Wilted Vine - AT 2.\nIt may be wilted but it still has some spines on it.",
-        "drop dialog": "You dropped the Wildted Vine.\nA spine was left in your hand...\n[HURT]Ouch.",
+        "drop dialog": ["You dropped the Wildted Vine.[w:30]\nA spine was left in your hand...","[CustomFunction]Ouch."],
         "atk": 2
     },
     {
@@ -71,14 +71,14 @@
     {
         "inventory name": "Bandage",
         "type": "Consumable",
-        "use dialog": "You reapplied the Bandage.\n[HEAL]",
+        "use dialog": "You reapplied the Bandage.\n[HealMessage]",
         "info dialog": "Bandage - Heals 10 HP.\nIt has a sticker of a cute kitty on it.",
         "amount": 10
     },
     {
         "inventory name": "Chocolate",
         "type": "Consumable",
-        "use dialog": "You ate the Chocolate.\nIt fills you with energy.\n[HEAL]",
+        "use dialog": "You ate the Chocolate.\nIt fills you with energy.\n[HealMessage]",
         "info dialog": "Chocolate - Heals 20 HP.\nIt can overheal your HP by 10!",
         "amount": 20
     }

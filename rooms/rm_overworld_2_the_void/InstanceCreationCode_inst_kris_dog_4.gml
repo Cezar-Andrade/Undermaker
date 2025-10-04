@@ -5,11 +5,11 @@ become_pushable = function(){
 	inst_kris_dog_4.can_player_push = true;
 	inst_kris_dog_4.can_entities_push = true;
 	inst_kris_dog_4.image_blend = c_yellow;
-	inst_kris_dog_4.dialogs = ["[bind_instance:" + string(inst_kris_dog_4.id) + "]Come on![w:10] Push me!"];
+	inst_kris_dog_4.dialogs = ["[bind_instance:" + string(real(inst_kris_dog_4.id)) + "]Come on![w:10] Push me!"];
 }
 
 has_changed_dialogs = false;
-dialogs = ["[bind_instance:" + string(id) + "]You can also push me around[w:10], I'm an entity after all.","Oh wait[w:10], you can't push me right now.","I will make myself pushable then[w:10][func:" + string(method_get_index(become_pushable)) + "], give it a try now!"];
+dialogs = ["[bind_instance:" + string(real(id)) + "]You can also push me around[w:10], I'm an entity after all.","Oh wait[w:10], you can't push me right now.","I will make myself pushable then[w:10][func:" + string(method_get_index(become_pushable)) + "], give it a try now!"];
 
 sprite_index = spr_kris_dog;
 
@@ -22,6 +22,6 @@ interaction = function(){
 update = function(){
 	if (!has_changed_dialogs and (x != 460 or y != 540)){
 		has_changed_dialogs = true;
-		dialogs = ["[bind_instance:" + string(id) + "]WEEEEEEEEEEEEEEEE![w:10] Faster![w:10] Faster!"];
+		dialogs = ["[bind_instance:" + string(real(id)) + "]WEEEEEEEEEEEEEEEE![w:10] Faster![w:10] Faster!"];
 	}
 }

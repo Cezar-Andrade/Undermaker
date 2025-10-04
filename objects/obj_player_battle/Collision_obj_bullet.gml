@@ -1,48 +1,20 @@
 /// @description Bullet handling
 
-if (other.CanDamage and other.AllowToDamage and image_alpha == 1 and Player.Invulnerable <= 0){
-	if (((Cyan.Dimension < 0.67 and !other.Fondo) or (Cyan.Dimension > 0.33 and other.Fondo)) and ((other.Type == "Blue" and (xprevious != x or yprevious != y)) or (other.Type == "Orange" and xprevious == x and yprevious == y) or (other.Type != "Blue" and other.Type != "Orange"))){
-		Player.HP = max(min(Player.HP - other.Damage, Player.maxHP), (State != "Defending"));
-		if (variable_instance_exists(other, "Head")){
-			if (other.Type == "Green"){
-				other.Borrar = true;
-			}
-			if (is_struct(other.Head)){
-				other.Head.Top.AllowToDamage = false;
-				other.Head.Bottom.AllowToDamage = false;
-			}else{
-				other.Head.AllowToDamage = false;
-			}
-			Player.KR = min(max(Player.KR + other.Karma, 0), Player.HP - 1, 40);
-			other.Karma = min(other.Karma, 1);
-		}else{ if (variable_instance_exists(other, "Body")){
-			if (other.Type == "Green"){
-				other.Body.Borrar = true;
-			}
-			other.Body.AllowToDamage = false;
-			if (is_struct(other.Body.Head)){
-				other.Body.Head.Top.AllowToDamage = false;
-				other.Body.Head.Bottom.AllowToDamage = false;
-			}else{
-				other.Body.Head.AllowToDamage = false;
-			}
-			Player.KR = min(max(Player.KR + other.Body.Karma, 0), Player.HP - 1, 40);
-			other.Body.Karma = min(other.Body.Karma, 1);
+if (other.can_damage and image_alpha == 1 and invulnerability_frames <= 0){
+	if ((other.type == BULLET_TYPE.CYAN and (xprevious != x or yprevious != y)) or (other.type == BULLET_TYPE.ORANGE and xprevious == x and yprevious == y) or (other.type != BULLET_TYPE.CYAN and other.type != BULLET_TYPE.ORANGE)){
+		global.player.hp = max(min(global.player.hp - other.damage, global.player.max_hp), (obj_game.battle_state != BATTLE_STATE.ENEMY_ATTACK));
+		
+		if (global.player.status_effect.type == PLAYER_STATUS_EFFECT.KARMIC_RETRIBUTION){
+			global.player.status_effect.value = min(global.player.status_effect.value + other.karma, global.player.hp - 1, 40);
+			other.karma = min(other.karma, 1); //There are more steps to karmic retribution but I'm doing it the simple way really.
+		}
+		
+		if (other.type == BULLET_TYPE.GREEN){
+			audio_play_sound(snd_player_heal, 0, false);
 		}else{
-			Player.KR = min(Player.KR + other.Karma, Player.HP - 1, 40);
-			other.Karma = min(other.Karma, 1);
-		}}
-		if (!Audio and other.Damage >= 0){
-			audio_play_sound(snd_hurt, 0, false);
-			Audio = true;
-			IgnoreDamage++;
-			GotHit = true;
+			audio_play_sound(snd_player_hurt, 0, false);
 		}
-		if (!Heal and other.Damage < 0){
-			audio_play_sound(snd_heal, 0, false);
-			Heal = true;
-		}
-		var totalINV = Player.armor.INV + Player.weapon.INV;
-		Player.Invulnerable = other.Invulnerability + ((IgnoreDamage%5 == 0 and totalINV == 6) or (IgnoreDamage%4 == 0 and totalINV == 9) or (IgnoreDamage%3 == 0 and totalINV == 15));
+		
+		invulnerability_frames = global.player.invulnerability_frames;
 	}
 }

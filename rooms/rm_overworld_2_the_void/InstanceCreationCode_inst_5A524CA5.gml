@@ -12,7 +12,7 @@ trigger_function = function(){
 				
 				entity.interaction = function(){
 					obj_game.state = GAME_STATE.EVENT;
-					overworld_dialog(["[bind_instance:" + string(id) + "][effect:malfunction,100,true][apply_to_asterisk]NOOOOO!!![w:20]\nI'M A ROCK NOW!!!![w:20]\nHOW AM I GONNA WALK NOW?!"]);
+					overworld_dialog(["[bind_instance:" + string(real(entity)) + "][effect:malfunction,100,true][apply_to_asterisk]NOOOOO!!![w:20]\nI'M A ROCK NOW!!!![w:20]\nHOW AM I GONNA WALK NOW?!"]);
 					obj_game.event_end_condition = obj_game.dialog.is_finished;
 				}
 				
@@ -38,7 +38,8 @@ trigger_function = function(){
 					}else if (timer == 61){
 						_entity.image_index = 0;
 					}else if (timer == 120){
-						overworld_dialog("[bind_instance:" + string(_entity.id) + "][effect:oscillate][apply_to_asterisk]It's so fricking hot...[w:20]\nI can't bear it anymore...");
+						//It works as well if you bind the instance itself directly, cause it holds the id directly that.
+						overworld_dialog("[bind_instance:" + string(real(_entity)) + "][effect:oscillate][apply_to_asterisk]It's so fricking hot...[w:20]\nI can't bear it anymore...");
 					}else if (timer == 121){
 						if (!dialog.is_finished()){
 							timer--;
@@ -56,7 +57,7 @@ trigger_function = function(){
 							}else if (timer == 361){
 								_entity.image_index = 0;
 							}else if (timer == 420){
-								overworld_dialog("[bind_instance:" + string(_entity.id) + "][effect:shake][apply_to_asterisk][talk_speed:4]Please...[w:20]\nHelp...");
+								overworld_dialog("[bind_instance:" + string(real(_entity.id)) + "][effect:shake][apply_to_asterisk][talk_speed:4]Please...[w:20]\nHelp...");
 								camera_set_view_target(view_camera[0], -1);
 							}else if (timer == 421){
 								if (!dialog.is_finished()){

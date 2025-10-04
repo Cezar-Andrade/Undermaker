@@ -4,7 +4,7 @@ sprite_index = spr_kris_dog;
 
 interaction = function(_direction){
 	obj_game.state = GAME_STATE.EVENT;
-	overworld_dialog(["[bind_instance:" + string(id) + "]Try to not get in the way of our rock ball.","Things might get...[w:20] weird with collisions."]);
+	overworld_dialog(["[bind_instance:" + string(real(id)) + "]Try to not get in the way of our rock ball.","Things might get...[w:20] weird with collisions."]);
 	obj_game.event_end_condition = obj_game.dialog.is_finished;
 }
 

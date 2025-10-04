@@ -3,6 +3,7 @@
 room_persistent = false;
 
 if (!is_undefined(start_room_function)){
-	start_room_function();
-	start_room_function = undefined;
+	if (is_undefined(start_room_function())){
+		start_room_function = undefined;
+	}
 }

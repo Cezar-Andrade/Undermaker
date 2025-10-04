@@ -173,7 +173,7 @@ if (obj_game.state == GAME_STATE.PLAYER_CONTROL){
 		}
 	}
 	
-	if (!_is_interacting and can_open_menu and global.menu_button){
+	if (!_is_interacting and can_open_menu and global.menu_button and obj_game.dialog.is_finished()){
 		obj_game.state = GAME_STATE.PLAYER_MENU_CONTROL;
 		obj_game.player_menu_state = PLAYER_MENU_STATE.INITIAL;
 		obj_game.player_menu_selection[0] = 0;

@@ -51,7 +51,7 @@
   "resourceType":"GMSprite",
   "resourceVersion":"2.0",
   "sequence":{
-    "$GMSequence":"",
+    "$GMSequence":"v1",
     "%Name":"spr_bubble_normal",
     "autoRecord":true,
     "backdropHeight":768,
@@ -95,7 +95,7 @@
     "visibleRange":null,
     "volume":1.0,
     "xorigin":-30,
-    "yorigin":31,
+    "yorigin":36,
   },
   "swatchColours":null,
   "swfPrecision":0.5,

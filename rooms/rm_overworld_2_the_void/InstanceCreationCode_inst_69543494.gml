@@ -15,7 +15,7 @@ detect_movement = function(){
 interaction = function(){
 	if (timer > 0 and obj_game.dialog.is_finished()){
 		timer = -300;
-		overworld_dialog(["[progress_mode:none][bind_instance:" + string(id) + "]Don't interrupt me.[w:20]\nI'm trying to annoy the dog on the left.[w:120][next]"]);
+		overworld_dialog(["[progress_mode:none][bind_instance:" + string(real(id)) + "]Don't interrupt me.[w:20]\nI'm trying to annoy the dog on the left.[w:120][next]"]);
 		dialog_1.bind_instance(undefined);
 		dialog_2.bind_instance(undefined);
 		dialog_3.bind_instance(undefined);
@@ -28,19 +28,19 @@ update = function(){
 	//You will flow and slow your game if you keep using add_dialogues constantly and stay in the same room, eventually the array becomes too big to handle and we get somewhat of a memory leak, use instead set_dialogues.
 	//You can debug the data of these with add_dialogues and set_dialogues so you see the difference.
 	if (timer%180 == 61){
-		dialog_1.set_dialogues(["[no_voice][no_skip][bind_instance:" + string(id) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Bark.[w:60][next]"]);
+		dialog_1.set_dialogues(["[no_voice][no_skip][bind_instance:" + string(real(id)) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Bark.[w:60][next]"]);
 		//dialog_1.add_dialogues(["[no_voice][no_skip][bind_instance:" + string(id) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Bark.[w:60][next]"]);
 		dialog_3.bind_instance(undefined);
 	}
 	
 	if (timer%180 == 121){
-		dialog_2.set_dialogues(["[no_voice][no_skip][bind_instance:" + string(id) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Woof.[w:60][next]"]);
+		dialog_2.set_dialogues(["[no_voice][no_skip][bind_instance:" + string(real(id)) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Woof.[w:60][next]"]);
 		//dialog_2.add_dialogues(["[no_voice][no_skip][bind_instance:" + string(id) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Woof.[w:60][next]"]);
 		dialog_1.bind_instance(undefined);
 	}
 	
 	if (timer%180 == 1){
-		dialog_3.set_dialogues(["[no_voice][no_skip][bind_instance:" + string(id) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Meow.[w:60][next]"]);
+		dialog_3.set_dialogues(["[no_voice][no_skip][bind_instance:" + string(real(id)) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Meow.[w:60][next]"]);
 		//dialog_3.add_dialogues(["[no_voice][no_skip][bind_instance:" + string(id) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Meow.[w:60][next]"]);
 		dialog_2.bind_instance(undefined);
 	}

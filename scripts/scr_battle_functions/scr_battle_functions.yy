@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"scr_battle_functions",
   "parent":{
-    "name":"Utils",
-    "path":"folders/Scripts/Utils.yy",
+    "name":"Battle",
+    "path":"folders/Scripts/Utils/Battle.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -28,149 +28,16 @@ switch (State)
 		
 	break;
 	case "EnemySelect":
-		if ((keyboard_check_pressed(settings.up[0]) or keyboard_check_pressed(settings.up[1]))){
-			audio_play_sound(snd_pip, 0, false);
-			Selecting[1]--;
-			if (Selecting[1] <= -1){
-				Selecting[1] += array_length(Enemies);
-			}
-		}
-		if ((keyboard_check_pressed(settings.down[0]) or keyboard_check_pressed(settings.down[1]))){
-			audio_play_sound(snd_pip, 0, false);
-			Selecting[1]++;
-			if (Selecting[1] >= array_length(Enemies)){
-				Selecting[1] -= array_length(Enemies);
-			}
-		}
-		if ((keyboard_check_pressed(settings.confirm[0]) or keyboard_check_pressed(settings.confirm[1]))){
-			audio_play_sound(snd_pipcheck, 0, false);
-			switch (BtOrder[Selecting[0]]){
-				case "FIGHT":
-					obj_PlayerH.image_alpha = 0;
-					State = "Attacking";
-					PlayerFight = new PlayerAttack(Player.weapon.name);
-					PlayerFight.Initial();
-				break;
-				case "ACT":
-					State = "ActMenu";
-					var aux = "";
-					for (var i=0;i<array_length(Enemies[Selecting[1]].ActComms);i++){
-						aux += "   * " + Enemies[Selecting[1]].ActComms[i] + string_repeat(" ", max(11 - string_length(Enemies[Selecting[1]].ActComms[i]), 0));
-						if ((i + 1)%2 == 0){
-							aux += "\r";
-						}
-					}
-					obj_Box.CurrentText.editActText(["[instant][novoice]" + aux]);
-				break;
-			}
-		}
-		if ((keyboard_check_pressed(settings.cancel[0]) or keyboard_check_pressed(settings.cancel[1]))){
-			audio_play_sound(snd_pip, 0, false);
-			obj_Box.CurrentText.editActText([obj_Box.Dialogs[obj_Box.Text]]);
-			Selecting[1] = 0;
-			State = "ActionSelect";
-		}
+		
 	break;
 	case "Attacking":
 		PlayerFight.Update();
 	break;
 	case "ActMenu":
-		var amountAct = array_length(Enemies[Selecting[1]].ActComms)
-		if ((keyboard_check_pressed(settings.left[0]) or keyboard_check_pressed(settings.left[1]))){
-			if (Selecting[2]%2 == 1){
-				audio_play_sound(snd_pip, 0, false);
-				Selecting[2] -= 1;
-			}else{ if (Selecting[2]%2 == 0 and amountAct > Selecting[2] + 1){
-				audio_play_sound(snd_pip, 0, false);
-				Selecting[2] += 1;
-			}}
-		}
-		if ((keyboard_check_pressed(settings.right[0]) or keyboard_check_pressed(settings.right[1]))){
-			if (Selecting[2]%2 == 0 and amountAct > Selecting[2] + 1){
-				audio_play_sound(snd_pip, 0, false);
-				Selecting[2] += 1;
-			}else{ if (Selecting[2]%2 == 1){
-				audio_play_sound(snd_pip, 0, false);
-				Selecting[2] -= 1;
-			}}
-		}
-		if ((keyboard_check_pressed(settings.up[0]) or keyboard_check_pressed(settings.up[1]))){
-			if (Selecting[2] > 1){
-				audio_play_sound(snd_pip, 0, false);
-				Selecting[2] -= 2;
-			}else{
-				audio_play_sound(snd_pip, 0, false);
-				Selecting[2] = amountAct + amountAct%2 + Selecting[2]*(1 - 2*(amountAct%2)) - 2;
-			}
-		}
-		if ((keyboard_check_pressed(settings.down[0]) or keyboard_check_pressed(settings.down[1]))){
-			if (amountAct <= Selecting[2] + 2){
-				audio_play_sound(snd_pip, 0, false);
-				Selecting[2] = Selecting[2]%2;
-			}else{
-				audio_play_sound(snd_pip, 0, false);
-				Selecting[2] += 2;
-			}
-		}
-		if ((keyboard_check_pressed(settings.confirm[0]) or keyboard_check_pressed(settings.confirm[1]))){
-			obj_PlayerH.image_alpha = 0;
-			State = "DialogResult"
-			audio_play_sound(snd_pipcheck, 0, false);
-			obj_Box.CurrentText.editActText(Enemies[Selecting[1]].ACT(Enemies[Selecting[1]].ActComms[Selecting[2]]), "[font:" + string(fn_big_8bit) + "][voice:" + string(snd_ui) + "][xspace:16][yspace:32]");
-		}
-		if ((keyboard_check_pressed(settings.cancel[0]) or keyboard_check_pressed(settings.cancel[1]))){
-			audio_play_sound(snd_pip, 0, false);
-			var aux = "";
-			for (var i=0;i<array_length(Enemies);i++){
-				aux += "   * " + Enemies[i].Name;
-				if (i + 1 < array_length(Enemies)){
-					aux += "\r";
-				}
-			}
-			obj_Box.CurrentText.editActText(["[instant][novoice]" + aux]);
-			Selecting[2] = 0;
-			State = "EnemySelect";
-		}
+		
 	break;
 	case "MercyMenu":
-		if ((keyboard_check_pressed(settings.up[0]) or keyboard_check_pressed(settings.up[1]))){
-			audio_play_sound(snd_pip, 0, false);
-			Selecting[1]--;
-			if (Selecting[1] <= -1){
-				Selecting[1] += 1 + canFlee;
-			}
-		}
-		if ((keyboard_check_pressed(settings.down[0]) or keyboard_check_pressed(settings.down[1]))){
-			audio_play_sound(snd_pip, 0, false);
-			Selecting[1]++;
-			if (Selecting[1] >= 1 + canFlee){
-				Selecting[1] -= 1 + canFlee;
-			}
-		}
-		if ((keyboard_check_pressed(settings.confirm[0]) or keyboard_check_pressed(settings.confirm[1]))){
-			audio_play_sound(snd_pipcheck, 0, false);
-			switch (Selecting[1]){
-				case 0:
-					State = "EnemyDialogue";
-					for (var i=0;i<array_length(Enemies);i++){
-						Enemies[i].Spare();
-					}
-				break;
-				case 1:
-					State = "Flee";
-					for (var i=0;i<array_length(Enemies);i++){
-						Enemies[i].Flee();
-					}
-					FleeType.Initial();
-				break;
-			}
-		}
-		if ((keyboard_check_pressed(settings.cancel[0]) or keyboard_check_pressed(settings.cancel[1]))){
-			audio_play_sound(snd_pip, 0, false);
-			obj_Box.CurrentText.editActText([obj_Box.Dialogs[obj_Box.Text]]);
-			Selecting[1] = 0;
-			State = "ActionSelect";
-		}
+		
 	break;
 	case "ItemMenu":
 		var amountItems = ds_list_size(Player.inventory);

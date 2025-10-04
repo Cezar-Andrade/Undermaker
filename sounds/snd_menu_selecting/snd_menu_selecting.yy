@@ -12,8 +12,8 @@
   "duration":0.023401,
   "name":"snd_menu_selecting",
   "parent":{
-    "name":"Sounds",
-    "path":"folders/Audio/Sounds.yy",
+    "name":"General",
+    "path":"folders/Audio/Sounds/General.yy",
   },
   "preload":false,
   "resourceType":"GMSound",

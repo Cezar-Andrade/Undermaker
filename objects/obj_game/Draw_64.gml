@@ -1,6 +1,6 @@
 var _screen_height = resolutions_height[resolution_active];
 var _game_width = _screen_height*(4/3);
-var _ui_not_showing = (state == GAME_STATE.PLAYER_MENU_CONTROL or state == GAME_STATE.ROOM_CHANGE or state == GAME_STATE.BATTLE_START_ANIMATION or !dialog.is_finished());
+var _ui_not_showing = (state == GAME_STATE.PLAYER_MENU_CONTROL or state == GAME_STATE.BATTLE_END or state == GAME_STATE.GAME_OVER or state == GAME_STATE.ROOM_CHANGE or state == GAME_STATE.BATTLE_START_ANIMATION or !dialog.is_finished());
 
 if (_ui_not_showing){
 	if (!surface_exists(ui_surface)){
@@ -10,14 +10,45 @@ if (_ui_not_showing){
 	
 	draw_clear_alpha(c_black, 0);
 	
+	switch (state){
+		case GAME_STATE.GAME_OVER:
+			var _number = 255*(clamp(game_over_timer - 225, 0, 75) - clamp(game_over_timer - 352, 0, 75))/75;
+			var _color = make_colour_rgb(_number, _number, _number);
+			
+			draw_clear_alpha(c_black, 1 - max(game_over_timer - 472, 0)/20);
+			draw_sprite_ext(spr_game_over, 0, 320, 160, 1, 1, 0, _color, 1 - clamp(game_over_timer - 472, 0, 1));
+			
+			if (game_over_timer < 75){
+				draw_sprite_ext(spr_player_heart, game_over_heart_index, game_over_heart_x, game_over_heart_y, game_over_heart_xscale, game_over_heart_yscale, game_over_heart_angle, game_over_heart_color, 1);
+			}else if (game_over_timer < 150){
+				draw_sprite_ext(spr_player_heart_broken, game_over_heart_index, game_over_heart_x, game_over_heart_y, game_over_heart_xscale, game_over_heart_yscale, game_over_heart_angle, game_over_heart_color, 1);
+			}
+			
+			var _length = array_length(game_over_shards);
+			for (var _i=0; _i<_length; _i++){
+				var _shard = game_over_shards[_i];
+				
+				draw_sprite_ext(spr_player_heart_shard, floor(game_over_timer/6), _shard.x, _shard.y, 1, 1, 0, game_over_heart_color, 1);
+			}
+		break;
+	}
+	
 	dialog.draw();
 	
 	switch (state){
-		case GAME_STATE.ROOM_CHANGE:
-			draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, (min(anim_timer, room_change_fade_in_time) - max(anim_timer - room_change_wait_time, 0))/20);
+		case GAME_STATE.BATTLE_END:
+			draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, 1 - anim_timer/20);
 		break;
 		case GAME_STATE.BATTLE:
-			//Special effects of the battle.
+			//Special effects of the battle can be placed here.
+			switch (battle_state){
+				case BATTLE_STATE.END:
+					draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, anim_timer/20);
+				break;
+			}
+		break;
+		case GAME_STATE.ROOM_CHANGE:
+			draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, (min(anim_timer, room_change_fade_in_time) - max(anim_timer - room_change_wait_time, 0))/20);
 		break;
 		case GAME_STATE.BATTLE_START_ANIMATION:
 			if (anim_timer >= 0){
@@ -189,26 +220,20 @@ if (_ui_not_showing){
 								_box_height = 418;
 								var _player_weapon = global.UI_texts.none;
 								var _player_armor = global.UI_texts.none;
-								var _player_added_atk = 0;
-								var _player_added_def = 0;
-						
+								
 								if (!is_undefined(global.player.weapon) and global.player.weapon >= 0){
 									var _weapon = global.item_pool[global.player.weapon];
 									_player_weapon = _weapon[$"inventory name"];
-									_player_added_atk += ((is_undefined(_weapon[$"atk"])) ? 0 : _weapon[$"atk"]);
-									_player_added_def += ((is_undefined(_weapon[$"def"])) ? 0 : _weapon[$"def"]);
 								}
-						
+								
 								if (!is_undefined(global.player.armor) and global.player.armor >= 0){
 									var _armor = global.item_pool[global.player.armor];
 									_player_armor = _armor[$"inventory name"];
-									_player_added_atk += ((is_undefined(_armor[$"atk"])) ? 0 : _armor[$"atk"]);
-									_player_added_def += ((is_undefined(_armor[$"def"])) ? 0 : _armor[$"def"]);
 								}
 						
 								draw_text_transformed(216, 84, "\"" + global.player.name + "\"", 2, 2, 0);
-								draw_text_ext_transformed(216, 144, string_concat(global.UI_texts.lv ,"  ", global.player.lv, "\n", global.UI_texts.hp, "  ", global.player.hp, " / ", global.player.max_hp, "\n\n", global.UI_texts[$"stat attack"], "  ", global.player.atk, " (", _player_added_atk, ")\n", global.UI_texts[$"stat defense"], "  ", global.player.def, " (", _player_added_def, ")\n\n", global.UI_texts[$"stat weapon"], ": ", _player_weapon, "\n", global.UI_texts[$"stat armor"], ": ", _player_armor), 16, 400, 2, 2, 0);
-								draw_text_ext_transformed(384, 240, string_concat(global.UI_texts[$"stat exp"], ": ", global.player.exp, "\n", global.UI_texts[$"stat next"], ": ", global.player.next_exp), 16, 400, 2, 2, 0);
+								draw_text_ext_transformed(216, 144, string_concat(global.UI_texts.lv ,"  ", global.player.lv, "\n", global.UI_texts.hp, "  ", global.player.hp, " / ", global.player.max_hp, "\n\n", global.UI_texts[$"stat attack"], "  ", global.player.atk, " (", global.player.equipped_atk, ")\n", global.UI_texts[$"stat defense"], "  ", global.player.def, " (", global.player.equipped_def, ")\n\n", global.UI_texts[$"stat weapon"], ": ", _player_weapon, "\n", global.UI_texts[$"stat armor"], ": ", _player_armor), 16, 400, 2, 2, 0);
+								draw_text_ext_transformed(384, 240, string_concat(global.UI_texts[$"stat exp"], ": ", global.player.exp, "\n", global.UI_texts[$"stat next"], ": ", (is_infinity(global.player.next_exp) ? global.UI_texts.none : global.player.next_exp)), 16, 400, 2, 2, 0);
 								draw_text_transformed(216, 408, string_concat(global.UI_texts[$"stat gold"], ": ", global.player.gold), 2, 2, 0);
 							break;
 							case PLAYER_MENU_STATE.INVENTORY: case PLAYER_MENU_STATE.ITEM_SELECTED:
@@ -268,13 +293,13 @@ if (_ui_not_showing){
 
 if (with_border){
 	if (window_get_fullscreen()){
+		_game_width /= 1.125;
+		
 		var _screen_width = resolutions_width[resolution_active];
 		var _game_height = _screen_height/1.125;
 		var _border_width = _screen_height*(16/9);
 		var _x = (_screen_width - _game_width)/2;
 		var _y = _screen_height*0.0625/1.125;
-		
-		_game_width /= 1.125;
 		
 		var _x_scale = _game_width/GAME_WIDTH;
 		var _y_scale = _game_height/GAME_HEIGHT;

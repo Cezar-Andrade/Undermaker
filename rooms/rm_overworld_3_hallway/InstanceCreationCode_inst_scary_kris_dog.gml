@@ -13,14 +13,14 @@ interaction = function(){
 				room_goto(rm_overworld_3_hallway);
 				
 				obj_game.start_room_function = function(){
-					overworld_dialog(["[bind_instance:" + string(inst_scary_kris_dog.id) + "]Hey you still there?[w:20]\nYou should go find some water perhaps."])
+					overworld_dialog(["[bind_instance:" + string(real(inst_scary_kris_dog.id)) + "]Hey you still there?[w:20]\nYou should go find some water perhaps."])
 					
 					room_persistent = false;
 					obj_player_overworld.image_alpha = 1;
 				}
 			}
 			
-			overworld_dialog(["[bind_instance:" + string(inst_kris_dog_angy.id) + "]Achoo![w:20]\nI feel like someone is talking about me...","[func:" + string(method_get_index(inst_kris_dog_angy.room_unchange)) + "]"]);
+			overworld_dialog(["[bind_instance:" + string(real(inst_kris_dog_angy.id)) + "]Achoo![w:20]\nI feel like someone is talking about me...","[func:" + string(method_get_index(inst_kris_dog_angy.room_unchange)) + "]"]);
 			camera_set_view_target(view_camera[0], inst_kris_dog_angy);
 			
 			obj_player_overworld.image_alpha = 0;
@@ -38,6 +38,6 @@ interaction = function(){
 	}
 	
 	obj_game.state = GAME_STATE.EVENT;
-	overworld_dialog(["[bind_instance:" + string(id) + "]Boo![w:20]\nDid I scare you?","No?[w:20][func:" + string(method_get_index(_sprite_change)) + "]\nHow about now?","Too scary?[w:20] Alright alright.[w:20][func:" + string(method_get_index(_sprite_unchange)) + "]\nThere[w:20], easy.","It's so easy to do that I don't understand how anyone could get stuck doing that.","[func:" + string(method_get_index(_room_change)) + "]"]);
+	overworld_dialog(["[bind_instance:" + string(real(id)) + "]Boo![w:20]\nDid I scare you?","No?[w:20][func:" + string(method_get_index(_sprite_change)) + "]\nHow about now?","Too scary?[w:20] Alright alright.[w:20][func:" + string(method_get_index(_sprite_unchange)) + "]\nThere[w:20], easy.","It's so easy to do that I don't understand how anyone could get stuck doing that.","[func:" + string(method_get_index(_room_change)) + "]"]);
 	obj_game.event_end_condition = obj_game.dialog.is_finished;
 }

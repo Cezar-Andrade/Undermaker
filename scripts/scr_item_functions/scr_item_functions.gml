@@ -61,7 +61,7 @@ function use_item(_inventory_index){
 	//Any type not handled in this switch will simply do nothing, like the "Object" type of item in the example project that just displays the dialogs, yet it does nothing, doesn't even get removed from the inventory.
 	switch (_item_data[$"type"]){
 		case "Consumable":
-			var _heal_message = string_replace(global.UI_texts[$"item heal"].heal, "[X]", _item_data.amount);
+			var _heal_message = string_replace(global.UI_texts[$"item heal"].heal, "[HealAmount]", _item_data.amount);
 			
 			global.player.hp = min(global.player.hp + _item_data.amount, global.player.max_hp + _overheal_amount);
 			
@@ -70,7 +70,7 @@ function use_item(_inventory_index){
 				
 				audio_play_sound(snd_player_eat, 100, false);
 			}else if (global.player.hp < _player_hp){
-				_heal_message = string_replace(global.UI_texts[$"item heal"].lost, "[X]", -_item_data.amount);
+				_heal_message = string_replace(global.UI_texts[$"item heal"].lost, "[HurtAmount]", -_item_data.amount);
 				
 				audio_play_sound(snd_player_hurt, 100, false);
 			}else if (global.player.hp == global.player.max_hp){
@@ -86,13 +86,13 @@ function use_item(_inventory_index){
 			}
 			
 			if (typeof(_item_use_dialog) == "string"){ //You can avoid this check if all your items are lists, in that case remove it.
-				_item_use_dialog = string_replace(_item_use_dialog, "[HEAL]", _heal_message);
+				_item_use_dialog = string_replace(_item_use_dialog, "[HealMessage]", _heal_message);
 			}else{ //It is expected to be an array if it's not a string the _item_use_dialog, otherwise it will fail, make sure to handle any other format of the dialog in the previous switch.
 				var _dialog_length = array_length(_item_use_dialog);
 				
 				for (var _i = 0; _i < _dialog_length; _i++){
-					if (string_pos("[HEAL]", _item_use_dialog[_i])){
-						_item_use_dialog[_i] = string_replace(_item_use_dialog[_i], "[HEAL]", _heal_message);
+					if (string_pos("[HealMessage]", _item_use_dialog[_i])){
+						_item_use_dialog[_i] = string_replace(_item_use_dialog[_i], "[HealMessage]", _heal_message);
 						
 						break;
 					}
@@ -144,6 +144,12 @@ function drop_item(_inventory_index){
 	var _item_drop_dialog = _item_data[$"drop dialog"];
 	if (is_undefined(_item_drop_dialog)){
 		_item_drop_dialog = "You dropped the " + _item_data[$"inventory name"];
+	}
+	
+	switch (_item_index){
+		case ITEM.WILTED_VINE:
+			_item_drop_dialog[1] = string_replace(_item_drop_dialog[1], "[CustomFunction]", "[func:" + string(custom_functions) + ",HurtWiltedVineItem]");
+		break;
 	}
 	
 	array_delete(global.player.inventory, _inventory_index, 1);

@@ -20,9 +20,9 @@
     "item info": "INFO",
     "item drop": "DROP",
     "item heal": {
-        "lost": "You lost [X] HP.",
+        "lost": "You lost [HurtAmount] HP.",
         "unchanged": "Your HP remains unchanged.",
-        "heal": "You recovered [X] HP.",
+        "heal": "You recovered [HealAmount] HP.",
         "maxheal": "Your HP is maxed out!",
         "overheal": "Your HP has overflowed!"
     },
@@ -32,6 +32,28 @@
     "save empty player name": "EMPTY",
     "save save": "Save",
     "save return": "Return",
+    "battle spare": "Spare",
+    "battle flee": "Flee",
+    "battle won": "YOU WON!\nYou earned [ExpWon] EXP and [GoldWon] Gold.",
+    "battle love up": "Your LOVE incrased.",
+    "battle flee earning": "Got [ExpWon] EXP and [GoldWon] Gold with you.",
+    "battle no enemy": "No one",
+    "battle no acts": "Can't act",
+    "battle acts": [
+        "Check"
+    ],
+    "battle flee dialogs": [
+        "I'm outta here.",
+        "Catch me if you can!",
+        "You will never take me alive!",
+        "Okay bye.",
+        "I'm late for dinner."
+    ],
+    "game over dialogs": [
+        ["You can't give up just yet.", "[PlayerName].[w:60]\nStay determined."],
+        ["Don't lose hope!", "[PlayerName].[w:60]\nStay determined."],
+        ["Our future is in your hands.", "[PlayerName].[w:60]\nStay determined."]
+    ],
     "cell options": [
         "Call Gaster",
         "Dimentional Box A",

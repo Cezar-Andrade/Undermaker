@@ -1,21 +1,25 @@
 /// @description Soul modes, menu handling
 
-if (invulnerability_time > 0){
-	invulnerability_time--;
+if (invulnerability_frames > 0){
+	invulnerability_frames--;
+	
+	if (obj_game.battle_state != BATTLE_STATE.TURN_END and obj_game.battle_state != BATTLE_STATE.PLAYER_ATTACK and obj_game.battle_state != BATTLE_STATE.PLAYER_DIALOG_RESULT and obj_game.battle_state != BATTLE_STATE.PLAYER_FLEE and obj_game.battle_state != BATTLE_STATE.PLAYER_WON){ //Change it so only flickers only when it's on the player's control and not displaying text or dialog, etc.
+		image_alpha = 1 - floor((invulnerability_frames%10)/5);
+	}
 }
 
 switch (obj_game.battle_state){
 	case BATTLE_STATE.ENEMY_ATTACK:
 		switch (mode){
 			case HEART_MODE.NORMAL:
-				var _current_speed = (movement_speed + movement_speed*global.cancel_hold_button)/2;
+				var _current_speed = (movement_speed*(2 - global.cancel_hold_button))/2;
 				
-				x = movement_speed*(global.right_hold_button - global.left_hold_button);
-				y = movement_speed*(global.down_hold_button - global.up_hold_button);
+				x += _current_speed*(global.right_hold_button - global.left_hold_button);
+				y += _current_speed*(global.down_hold_button - global.up_hold_button);
 				
 				if (instance_exists(obj_box)){ ////PROBABLY CHANGE THE WAY THIS IS DONE
-					x = min(max(x, obj_box.x - round(obj_box.width)/2 + 8), obj_box.x + round(obj_box.width)/2 - 8);
-					y = min(max(y, obj_box.y - round(obj_box.height) + 3), obj_box.y - 13);
+					x = clamp(x, obj_box.x - round(obj_box.width)/2 + 8, obj_box.x + round(obj_box.width)/2 - 8);
+					y = clamp(y, obj_box.y - round(obj_box.height) + 3, obj_box.y - 13);
 				}
 				
 				image_blend = c_red;

@@ -3,7 +3,7 @@ angle = 0;
 
 interaction = function(){
 	obj_game.state = GAME_STATE.EVENT;
-	overworld_dialog(["[bind_instance:" + string(id) + "]I'm floating!","However I'm scared of heights![w:10]\nPlease help me get down!"], false);
+	overworld_dialog(["[bind_instance:" + string(real(id)) + "]I'm floating!","However I'm scared of heights![w:10]\nPlease help me get down!"], false);
 	obj_game.event_end_condition = obj_game.dialog.is_finished;
 }
 

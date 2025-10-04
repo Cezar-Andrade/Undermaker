@@ -128,8 +128,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	asterisk = true; //Asterisk can be changed the same way as fonts.
 	dialog = "";
 	dialog_length = 0;
-	dialog_x = _x; //X and Y coordinates of the dialog itself, can be moved around!
-	dialog_y = _y;
+	x = _x; //X and Y coordinates of the dialog itself, can be moved around!
+	y = _y;
 	dialog_width = max(_width, 1); //Width cannot be 0 or negative, minimum of 1.
 	dialog_height = 0; //This will be calculated.
 	dialog_minimum_height = max(_height, 0); //Same as width, cannot be negative, except this time it can be 0.
@@ -354,7 +354,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 					}
 				break;
 			} //If there's not waiting in process, then if the player is pressing the cancel button, dialog may be skipped.
-		}else if (string_index < dialog_length and skipeable and (global.cancel_button or global.menu_hold_button)){ //Same property with global.cancel_button from the others.
+		}else if (string_index < dialog_length and skipeable and ((global.cancel_button and string_index != -asterisk) or global.menu_hold_button)){ //Same property with global.cancel_button from the others.
 			skip_dialog();
 		}
 		//It is important to note that skip condition is checked after the next dialog condition, so text is shown on screen for the current frame and not just emptiness.
@@ -566,8 +566,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 			return;
 		}
 		
-		var _initial_x = dialog_x + dialog_x_offset*xscale; //Calculate the X and Y position where the text with/without portrait origin is located.
-		var _initial_y = dialog_y + dialog_y_offset*yscale;
+		var _initial_x = x + dialog_x_offset*xscale; //Calculate the X and Y position where the text with/without portrait origin is located.
+		var _initial_y = y + dialog_y_offset*yscale;
 		var _reset_point_x = _initial_x + text_align_x*xscale; //Set the X point where it resets the X position for every line jump with text_aling_x to make extra space for the portrait and asterisk.
 		var _letter_x = _reset_point_x; //Start the variables to position each letter.
 		var _letter_y = _initial_y;
@@ -578,12 +578,12 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		
 		//Draw the tail first if the draw mode is bottom.
 		if (sprite_exists(container_tail_sprite) and !is_undefined(container_x_origin) and !is_undefined(container_y_origin) and container_tail_draw_mode == CONTAINER_TAIL_DRAW_MODE.BELOW){
-			draw_sprite_ext(container_tail_sprite, 0, dialog_x + container_x_origin*xscale, dialog_y + container_y_origin*yscale, container_tail_width*xscale, container_tail_height*yscale, container_tail_angle, c_white, 1);
+			draw_sprite_ext(container_tail_sprite, 0, x + container_x_origin*xscale, y + container_y_origin*yscale, container_tail_width*xscale, container_tail_height*yscale, container_tail_angle, c_white, 1);
 		}
 		
 		//Draw the container that will hold the text.
 		if (sprite_exists(container_sprite)){
-			draw_sprite_ext(container_sprite, 0, dialog_x + container_x_offset*xscale, dialog_y + container_y_offset*yscale, container_width*xscale, container_height*yscale, 0, c_white, 1);
+			draw_sprite_ext(container_sprite, 0, x + container_x_offset*xscale, y + container_y_offset*yscale, container_width*xscale, container_height*yscale, 0, c_white, 1);
 		}
 		
 		//Draw the tail on top of the container instead of draw mode is not below.
@@ -618,7 +618,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 				
 				surface_reset_target();
 				
-				draw_surface(surface, dialog_x + min(-_offset_x, 0), dialog_y + min(-_offset_y, 0));
+				draw_surface(surface, x + min(-_offset_x, 0), y + min(-_offset_y, 0));
 				
 				gpu_set_blendmode(bm_normal);
 			}else{
@@ -629,7 +629,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 					
 					//This shader allows for masks with alpha to be used for effects you may want, if by any chance you or your end users cannot run this shader, you will have to use masks with full alpha only, no transparency allowed.
 					shader_set(sh_alpha_masking);
-					draw_sprite_ext(container_tail_mask_sprite, 0, dialog_x, dialog_y, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
+					draw_sprite_ext(container_tail_mask_sprite, 0, x, y, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
 					shader_reset();
 					
 					gpu_set_blendenable(true);
@@ -638,14 +638,14 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 				}
 				
 				//Draw the tail with its corresponding data.
-				draw_sprite_ext(container_tail_sprite, 0, dialog_x + container_x_origin*xscale, dialog_y + container_y_origin*yscale, container_tail_width*xscale, container_tail_height*yscale, container_tail_angle, c_white, 1);
+				draw_sprite_ext(container_tail_sprite, 0, x + container_x_origin*xscale, y + container_y_origin*yscale, container_tail_width*xscale, container_tail_height*yscale, container_tail_angle, c_white, 1);
 				
 				//Remove all changes made with the masking sprite if it exists.
 				if (container_tail_draw_mode == CONTAINER_TAIL_DRAW_MODE.SPRITE_MASK){
 					gpu_set_blendenable(false);
 					gpu_set_colorwriteenable(false, false, false, true);
 					
-					draw_sprite_ext(container_tail_mask_sprite, 0, dialog_x, dialog_y, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
+					draw_sprite_ext(container_tail_mask_sprite, 0, x, y, container_tail_mask_width*xscale, container_tail_mask_height*yscale, 0, c_white, 1);
 					
 					gpu_set_blendenable(true);
 					gpu_set_colorwriteenable(true, true, true, true);
@@ -938,9 +938,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 				}
 				
 				//Draw the pop up on the proper place.
-				draw_surface_ext(surface, dialog_x + (_dialog.x + _x_offset)*xscale, dialog_y + (_dialog.y + _y_offset)*yscale, 1, 1, 0, c_white, _alpha);
+				draw_surface_ext(surface, x + (_dialog.x + _x_offset)*xscale, y + (_dialog.y + _y_offset)*yscale, 1, 1, 0, c_white, _alpha);
 			}else{ //If the mode is NONE, just draw the pop up as is, and it's like a tiny dialog functioning inside a dialog basically.
-				_dialog.system.move_to(dialog_x + _dialog.x*xscale, dialog_y + _dialog.y*yscale);
+				_dialog.system.move_to(x + _dialog.x*xscale, y + _dialog.y*yscale);
 				_dialog.system.draw();
 			}
 		}
@@ -1429,7 +1429,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 						case "bind_instance":
 							_command_data.type = COMMAND_TYPE.BIND_INSTANCE;
 							_command_data.value = string_split(_command_content[1], ",");
-							_command_data.inst = handle_parse(_command_data.value[0]);
+							_command_data.inst = real(_command_data.value[0]);
 							
 							array_delete(_command_data.value, 0, 1);
 							_command_arguments_length = array_length(_command_data.value);
@@ -1929,12 +1929,13 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 						break;
 						case "font":
 							_command_arguments = string_split(_command_content[1], ",");
+							_command_arguments[0] = int64(_command_arguments[0]);
 						
-							if (_j == 1 and _command_value != final_font){
-								final_font = _command_value;
+							if (_j == 1 and _command_arguments[0] != final_font){
+								final_font = _command_arguments[0];
 							
 								_command_data.type = COMMAND_TYPE.SET_FONT;
-								_command_data.value = _command_arguments[0];
+								_command_data.value = final_font;
 								
 								if (array_length(_command_arguments) > 1){
 									_command_data.bool = bool(_command_arguments[1]);
@@ -1942,7 +1943,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 									_command_data.bool = true;
 								}
 							
-								draw_set_font(_command_value);
+								draw_set_font(final_font);
 							}else{
 								continue;
 							}
@@ -2282,8 +2283,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	REAL _y -> Position Y to move the dialog to.
 	*/
 	move_to = function(_x, _y){
-		dialog_x = _x;
-		dialog_y = _y;
+		x = _x;
+		y = _y;
 	}
 	set_position = move_to;
 	
@@ -2294,8 +2295,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	REAL _y -> Amount in Y to move the dialog to.
 	*/
 	move = function(_x, _y){
-		dialog_x += _x;
-		dialog_y += _y;
+		x += _x;
+		y += _y;
 	}
 	
 	/*
@@ -2472,12 +2473,22 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	
 	/*
 	This function can be used for you to make your characters in overworld move and perform a talking animation, make specific animations when the dialog is "talking", etc.
-	The posibilities are endless, it's up to you if you want to use it, I don't have a way to know what sprite you want to animate in specific moments when this dialog is "talking", so this is the most I can provide to you, maybe in a future update that gets added, but until then, you have this :3.
+	The posibilities are endless, it's up to you if you want to use it, there's already a way to bind just 1 single sprite and make it talk as the dialog progresses until it's done printing more letters using the [bind_instance], doesn't work for layer_sprites sadly.
+	It's affected by the wait commands, will return false when a [w] has run and is waiting for its time to run out to continue "talking".
 	
 	RETURNS -> BOOLEAN. --True if the text is advacing normally, which means it is talking, false if a stop is made, either by any of the [wait] commands and its variants or other commands that can do that.
 	*/
 	is_talking = function(){
-		return (face_animation and string_index < dialog_length);
+		return (face_animation and !is_done_displaying());
+	}
+	
+	/*
+	This function can be used for checking if the dialog is done displaying the current text.
+	
+	RETURNS -> BOOLEAN. --True if the text has been displayed fully, which means there's no more text to display on the current dialog, false if the current dialog has not been displayed fully yet.
+	*/
+	is_done_displaying = function(){
+		return (string_index >= dialog_length);
 	}
 	
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------

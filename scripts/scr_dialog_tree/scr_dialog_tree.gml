@@ -5,7 +5,7 @@ function DialogTree() constructor{
 	
     //The first struct has no content cause it's the start.
     create_dialog = function(_text){
-        push(dialogs, {content:_text, ids:[0,0,0,0,0,0,0,0]});
+        array_push(dialogs, {content:_text, ids:[0,0,0,0,0,0,0,0]});
         return (array_lenght(dialogs) - 1);
     }
 	

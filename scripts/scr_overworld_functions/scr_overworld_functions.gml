@@ -529,12 +529,14 @@ function start_save_menu(_spawn_point_inst=undefined){
 }
 
 function overworld_dialog(_dialogues, _top=true, _width=261, _height=56, _face_sprite=undefined, _face_subimages=undefined, _box=spr_box_normal, _tail=-1, _tail_mask=-1){
-	obj_game.dialog.set_dialogues(_dialogues, _width, _height, _face_sprite, _face_subimages);
-	obj_game.dialog.set_scale(2, 2);
-	obj_game.dialog.set_container_sprite(_box);
-	obj_game.dialog.set_container_tail_sprite(_tail);
-	obj_game.dialog.set_container_tail_mask_sprite(_tail_mask);
-	obj_game.dialog.move_to(292 - _width, 320 - 310*_top);
+	with (obj_game){
+		dialog.set_dialogues(_dialogues, _width, _height, _face_sprite, _face_subimages);
+		dialog.set_scale(2, 2);
+		dialog.set_container_sprite(_box);
+		dialog.set_container_tail_sprite(_tail);
+		dialog.set_container_tail_mask_sprite(_tail_mask);
+		dialog.move_to(292 - _width, 320 - 310*_top);
+	}
 }
 
 function change_room(_room_id, _spawn_point_instance, _room_change_fade_in_time=20, _room_change_wait_time=0, _room_change_fade_out_time=20, _end_room_func=undefined, _start_room_func=undefined, _after_transition_func=undefined){
@@ -581,7 +583,6 @@ function perform_game_save(_rm, _x, _y, _direction){
 		global.player.next_exp,
 		global.player.weapon,
 		global.player.armor,
-		global.player.invulnerability_time,
 		global.player.cell,
 		_items_amount,
 	];
@@ -631,16 +632,20 @@ function perform_game_save(_rm, _x, _y, _direction){
 
 function perform_game_load(){
 	var _save_data = load_save_info();
-	var _items_amount = _save_data[17];
-	var _cell_amount = _save_data[19 + _items_amount] + _items_amount;
-	var _box_count = _save_data[20 + _cell_amount];
+	var _items_amount = _save_data[16];
+	var _cell_amount = _save_data[18 + _items_amount] + _items_amount;
+	var _box_count = _save_data[19 + _cell_amount];
 	
 	room_goto(asset_get_index(_save_data[0]));
-	obj_game.start_room_function = function(){
+	
+	obj_game.start_room_function = function(){ //I need to avoid doing this, but I'm too lazy to change it now, if I don't forget, you won't see this message... maybe
 		obj_player_overworld.x = obj_player_x;
 		obj_player_overworld.y = obj_player_y;
+		obj_player_overworld.image_alpha = 1;
 		obj_player_overworld.player_sprite_reset(obj_player_direction);
+		alarm[1] = 60;
 	}
+	
 	obj_game.obj_player_x = _save_data[1];
 	obj_game.obj_player_y = _save_data[2];
 	obj_game.obj_player_direction = _save_data[3];
@@ -656,37 +661,36 @@ function perform_game_load(){
 	global.player.next_exp = _save_data[12];
 	global.player.weapon = _save_data[13];
 	global.player.armor = _save_data[14]; //Yeah a consumable can be equipped as armor, even weapon.
-	global.player.invulnerability_time = _save_data[15];
-	global.player.cell = _save_data[16];
+	global.player.cell = _save_data[15];
 	global.player.inventory = [];
 	
 	for (var _i = 0; _i < _items_amount; _i++){
-		array_push(global.player.inventory, _save_data[18 + _i]);
+		array_push(global.player.inventory, _save_data[17 + _i]);
 	}
 	
-	global.player.inventory_size = _save_data[19 + _items_amount];
+	global.player.inventory_size = _save_data[18 + _items_amount];
 	global.player.cell_options = [];
 	
 	for (var _i = _items_amount; _i < _cell_amount; _i++){
-		array_push(global.player.cell_options, _save_data[20 + _i]);
+		array_push(global.player.cell_options, _save_data[19 + _i]);
 	}
 	
 	for (var _i = 0; _i < _box_count; _i++){
 		global.box.inventory[_i] = [];
-		global.box.inventory_size[_i] = _save_data[22 + _cell_amount];
+		global.box.inventory_size[_i] = _save_data[21 + _cell_amount];
 		
-		var _box_amount = _cell_amount + _save_data[21 + _cell_amount];
+		var _box_amount = _cell_amount + _save_data[20 + _cell_amount];
 		
 		for (var _j = _cell_amount; _j < _box_amount; _j++){
-			array_push(global.box.inventory[_i], _save_data[23 + _j]);
+			array_push(global.box.inventory[_i], _save_data[22 + _j]);
 		}
 		
 		_cell_amount = _box_amount + 2;
 	}
 
-	global.minutes = _save_data[21 + _cell_amount];
-	global.seconds = _save_data[22 + _cell_amount];
-	global.save_data = json_parse(_save_data[23 + _cell_amount]);
+	global.minutes = _save_data[20 + _cell_amount];
+	global.seconds = _save_data[21 + _cell_amount];
+	global.save_data = json_parse(_save_data[22 + _cell_amount]);
 }
 
 function load_save_info(){
@@ -727,19 +731,23 @@ function load_save_info(){
 	return _save_info;
 }
 
-function start_battle(_enemies, _initial_dialog, _animation=BATTLE_START_ANIMATION.NORMAL, _init_function=undefined, _heart_x=48, _heart_y=453){ //By default points to where the FIGHT button would be
+function start_battle(_enemies, _initial_dialog, _animation=BATTLE_START_ANIMATION.NORMAL, _init_function=undefined, _end_function=undefined, _heart_x=48, _heart_y=453){ //By default points to where the FIGHT button would be
 	if (typeof(_enemies) != "array"){
 		global.battle_enemies = [_enemies];
+	}else{
+		global.battle_enemies = _enemies;
 	}
 	
 	with (obj_game){
 		state = GAME_STATE.BATTLE_START_ANIMATION;
 		battle_state = BATTLE_STATE.START;
 		battle_init_function = _init_function;
+		battle_end_function = _end_function;
 		battle_start_animation_type = _animation;
 		battle_start_animation_player_heart_x = _heart_x;
 		battle_start_animation_player_heart_y = _heart_y;
-		battle_initial_box_dialog = _initial_dialog;
+		battle_current_box_dialog = _initial_dialog;
+		battle_selection[0] = 0;
 		
 		if (_animation == BATTLE_START_ANIMATION.NORMAL or _animation == BATTLE_START_ANIMATION.FAST){
 			anim_timer = -36;
@@ -749,6 +757,65 @@ function start_battle(_enemies, _initial_dialog, _animation=BATTLE_START_ANIMATI
 			anim_timer = 0;
 			
 			audio_play_sound(snd_switch_flip, 100, false); //Plays here since it doesn't play in the main time
+		}
+	}
+}
+
+function trigger_game_over(_music=mus_game_over, _dialog=undefined){ //This function is also used for the battle room, so it has a condition to separate both cases.
+	with (obj_game){
+		game_over_timer = 0;
+		game_over_music = _music;
+		state = GAME_STATE.GAME_OVER;
+		
+		if (is_undefined(_dialog)){
+			var _dialog2 = global.UI_texts[$"game over dialogs"];
+			game_over_dialog = _dialog2[irandom(array_length(_dialog2) - 1)];
+		}else{
+			game_over_dialog = _dialog;
+		}
+		
+		var _length = array_length(game_over_dialog);
+		for (var _i=0; _i<_length; _i++){
+			var _dialog2 = game_over_dialog[_i];
+			if (string_pos("[PlayerName]", _dialog2)){
+				game_over_dialog[_i] = string_replace(_dialog2, "[PlayerName]", global.player.name);
+			}
+		}
+		
+		audio_stop_all();
+		audio_play_sound(snd_player_hurt, 0, false);
+		
+		while (!dialog.is_finished()){
+			dialog.next_dialog();
+		}
+		
+		if (room == rm_battle){
+			game_over_heart_index = obj_player_battle.image_index;
+			game_over_heart_x = obj_player_battle.x;
+			game_over_heart_y = obj_player_battle.y;
+			game_over_heart_xscale = obj_player_battle.image_xscale;
+			game_over_heart_yscale = obj_player_battle.image_yscale;
+			game_over_heart_angle = obj_player_battle.image_angle;
+			game_over_heart_color = obj_player_battle.image_blend;
+			
+			var _length = array_length(battle_enemies_dialogs);
+			for (var _i=0; _i<_length; _i++){
+				array_pop(battle_enemies_dialogs);
+			}
+			
+			_length = array_length(battle_bullets);
+			for (var _i=0; _i<_length; _i++){
+				instance_destroy(battle_bullets[0]);
+				array_delete(battle_bullets, 0, 1);
+			}
+		}else{
+			game_over_heart_index = 0;
+			game_over_heart_x = obj_player_overworld.x + obj_player_overworld.image_xscale;
+			game_over_heart_y = obj_player_overworld.y - 15*obj_player_overworld.image_yscale;
+			game_over_heart_xscale = 1;
+			game_over_heart_yscale = 1;
+			game_over_heart_angle = 0;
+			game_over_heart_color = c_red;
 		}
 	}
 }

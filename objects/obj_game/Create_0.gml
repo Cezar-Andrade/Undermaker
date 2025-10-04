@@ -1,5 +1,5 @@
-depth = -1;
 alarm[0] = 1;
+alarm[1] = 60; //Temporary timer startup, this should be moved to the menu stuff and reset stuff too
 
 /*
 This function starts the sequence to assign the controller's button to the confirm, cancel and menu actions of the game.
@@ -175,8 +175,24 @@ battle_button_order = [];
 battle_selection = [0, 0, 0]; //Buttons, enemy/spare/flee selection, act/item selection
 battle_can_flee = true;
 battle_item_page = 1; //For the items in battle
-battle_initial_box_dialog = "";
-battle_player_stats = {x: 70, y: 415, health_size: 110, aux: 0, timer: 0};
+battle_current_box_dialog = "";
+battle_player_stats = {x: 30, y: 415, depth: 300};
+battle_player_attack = undefined;
+battle_dialog_x_offset = 0;
+battle_flee_chance = 100; //In Undertale Hardmode this is 0, normally it's 50 and increases by winning battles, decreases by fleeing battles.
+battle_flee_event_type = undefined;
+battle_options_amount = 0; //Used for the menus
+battle_cleared_enemies = []; //Cleared as if either killed or spared.
+battle_enemies_dialogs = []; //Here all the enemy dialogs are created if they have any.
+battle_enemies_attacks = [];
+battle_enemies_parts = [];
+battle_selectable_enemies = [];
+battle_dust_clouds = [];
+battle_damage_text = [];
+battle_bullets = []; //An array of all the bullets, that gets cleared after an attack.
+battle_exp = 0;
+battle_gold = 0;
+battle_fled = false;
 
 goto_room = undefined;
 event_update = undefined;
@@ -185,12 +201,22 @@ after_transition_function = undefined;
 start_room_function = undefined;
 end_room_function = undefined;
 battle_init_function = undefined;
+battle_end_function = undefined;
 
 options = [undefined, undefined, undefined, undefined, undefined, undefined]; //left, down, right, up, the other 2 are used for the grid choices (the previous 4 too as well as the direction choices).
 options_x = 0;
 options_y = 0;
 choice_sprite = spr_player_heart;
 choice_index = 0;
+
+game_over_timer = 0;
+game_over_heart_x = 0;
+game_over_heart_y = 0;
+game_over_heart_color = 0;
+game_over_dialog = undefined;
+game_over_music = undefined;
+game_over_dialog = [];
+game_over_shards = [];
 
 player_heart_subimage = 0; //The index of the sprite heart to use for menus, you can have another one for the battle one if you want, just change this variable when accessing the states.
 player_heart_color = c_red;
