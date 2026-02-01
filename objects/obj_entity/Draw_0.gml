@@ -1,7 +1,7 @@
 /// @description Draw event
 
 if (!is_undefined(draw)){
-	draw();
+	draw()
 }else{
-	draw_self();
+	draw_self()
 }

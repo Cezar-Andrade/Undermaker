@@ -1,89 +1,87 @@
 trigger_function = function(){
-	var _end_room = undefined;
-	var _start_room = undefined;
-	var _after_transition = undefined;
+	var _end_room = undefined
+	var _start_room = undefined
+	var _after_transition = undefined
 	
 	if (!global.save_data.cutscene_1){
 		_start_room = function(){
 			with (inst_trigger_hall_right){
-				entity = instance_create_layer(1480, obj_player_overworld.y - 190, "Collisions", obj_kris_dog_group);
-				entity.image_xscale = -2;
-				entity.image_yscale = 2;
+				entity = instance_create_layer(1480, obj_player_overworld.y - 190, "Collisions", obj_kris_dog_group)
+				entity.image_xscale = -2
+				entity.image_yscale = 2
 				
 				entity.interaction = function(){
-					obj_game.state = GAME_STATE.EVENT;
-					overworld_dialog(["[bind_instance:" + string(real(entity)) + "][effect:malfunction,100,true][apply_to_asterisk]NOOOOO!!![w:20]\nI'M A ROCK NOW!!!![w:20]\nHOW AM I GONNA WALK NOW?!"]);
-					obj_game.event_end_condition = obj_game.dialog.is_finished;
+					overworld_dialog(["[bind_instance:" + string(real(entity)) + "][effect:malfunction,100,true][apply_to_asterisk]NOOOOO!!![w:20]\nI'M A ROCK NOW!!!![w:20]\nHOW AM I GONNA WALK NOW?!"])
 				}
 				
-				camera_set_view_target(view_camera[0], entity);
-				camera_set_view_border(view_camera[0], 300, 999);
+				camera_set_view_target(view_camera[0], entity)
+				camera_set_view_border(view_camera[0], 300, 999)
 			}
 		}
 		
 		_after_transition = function(){
 			with (obj_game){
-				timer = -60;
+				timer = -60
 				
 				state = GAME_STATE.EVENT
 			
 				event_update = function(){
-					timer++;
+					timer++
 					
-					var _entity = inst_trigger_hall_right.entity;
+					var _entity = inst_trigger_hall_right.entity
 					
 					if (timer > 0 and timer <= 60){
-						_entity.image_index = 1;
-						_entity.x++;
+						_entity.image_index = 1
+						_entity.x++
 					}else if (timer == 61){
-						_entity.image_index = 0;
+						_entity.image_index = 0
 					}else if (timer == 120){
 						//It works as well if you bind the instance itself directly, cause it holds the id directly that.
-						overworld_dialog("[bind_instance:" + string(real(_entity)) + "][effect:oscillate][apply_to_asterisk]It's so fricking hot...[w:20]\nI can't bear it anymore...");
+						overworld_dialog("[bind_instance:" + string(real(_entity)) + "][effect:oscillate][apply_to_asterisk]It's so fricking hot...[w:20]\nI can't bear it anymore...")
 					}else if (timer == 121){
 						if (!dialog.is_finished()){
-							timer--;
+							timer--
 						}
 					}else if (timer > 180){
 						if (timer <= 240){
-							_entity.image_index = 1;
-							_entity.x += 0.5;
+							_entity.image_index = 1
+							_entity.x += 0.5
 						}else if (timer == 241){
-							_entity.image_index = 0;
+							_entity.image_index = 0
 						}else if (timer > 300){
 							if (timer <= 360){
-								_entity.image_index = 1;
-								_entity.x += 0.5;
+								_entity.image_index = 1
+								_entity.x += 0.5
 							}else if (timer == 361){
-								_entity.image_index = 0;
+								_entity.image_index = 0
 							}else if (timer == 420){
-								overworld_dialog("[bind_instance:" + string(real(_entity.id)) + "][effect:shake][apply_to_asterisk][talk_speed:4]Please...[w:20]\nHelp...");
-								camera_set_view_target(view_camera[0], -1);
+								overworld_dialog("[bind_instance:" + string(real(_entity.id)) + "][effect:shake][apply_to_asterisk][talk_speed:4]Please...[w:20]\nHelp...")
+								camera_set_view_target(view_camera[0], -1)
 							}else if (timer == 421){
 								if (!dialog.is_finished()){
-									timer--;
+									timer--
 								}
 							}else if (timer > 480 and timer <= 600){
-								_entity.x = irandom_range(1598, 1602);
-								_entity.y = obj_player_overworld.y + irandom_range(-2, 2);
+								_entity.x = irandom_range(1598, 1602)
+								_entity.y = obj_player_overworld.y + irandom_range(-2, 2)
 							}else if (timer == 601){
-								audio_play_sound(snd_switch_flip, 100, false);
+								audio_play_sound(snd_switch_flip, 100, false)
 								
-								_entity.sprite_index = spr_rock;
-								_entity.image_xscale = 2;
-								_entity.x = 1560;
-								_entity.y = obj_player_overworld.y;
+								_entity.sprite_index = spr_rock
+								_entity.image_xscale = 2
+								_entity.x = 1560
+								_entity.y = obj_player_overworld.y
 							}else if (timer >= 661){
-								camera_set_view_target(view_camera[0], obj_player_overworld);
-								camera_set_view_border(view_camera[0], 999, 999);
-								camera_set_view_speed(view_camera[0], 0.5, 0.5);
+								camera_set_view_target(view_camera[0], obj_player_overworld)
+								camera_set_view_border(view_camera[0], 999, 999)
+								camera_set_view_speed(view_camera[0], 0.5, 0.5)
 								
 								if (camera_get_view_x(view_camera[0]) == 1280){
-									camera_set_view_speed(view_camera[0], -1, -1);
+									camera_set_view_speed(view_camera[0], -1, -1)
 									
-									obj_player_overworld.player_sprite_reset();
+									obj_player_overworld.player_sprite_reset()
 									
-									global.save_data.cutscene_1 = true;
+									global.save_data.cutscene_1 = true
 								}
 							}
 						}
@@ -91,11 +89,11 @@ trigger_function = function(){
 				}
 				
 				event_end_condition = function(){
-					return (timer >= 661 and camera_get_view_x(view_camera[0]) == 1280);
+					return (timer >= 661 and camera_get_view_x(view_camera[0]) == 1280)
 				}
 			}
 		}
 	}
 	
-	change_room(rm_overworld_3_hallway, inst_spawn_point_hall_0,,,, _end_room, _start_room, _after_transition);
+	change_room(rm_overworld_3_hallway, inst_spawn_point_hall_0,,,, _end_room, _start_room, _after_transition)
 }

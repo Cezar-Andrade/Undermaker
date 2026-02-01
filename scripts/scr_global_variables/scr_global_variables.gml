@@ -23,7 +23,7 @@ global.stat_levels = [
 	{atk: 0, def: 0, max_hp: 88, hp_bar_width: 106, next_exp: 25000}, //Level 18
 	{atk: 0, def: 0, max_hp: 92, hp_bar_width: 110, next_exp: 49999}, //Level 19
 	{atk: 0, def: 0, max_hp: 99, hp_bar_width: 119, next_exp: infinity} //Level 20 (Last level, when next_exp is infinity, in the game is actually displayed as "None")
-];
+]
 
 global.player = {
 	max_hp: 20,
@@ -53,43 +53,43 @@ global.player = {
 		color: make_color_rgb(232, 0, 255),
 		value: 0
 	}
-};
+}
 
 global.box = {
 	inventory: [[ITEM.CHOCOLATE, ITEM.BANDAGE], []], //For multiple box inventories, like multi-dimensional box B or more.
 	inventory_size: [10, 10]
-};
+}
 
-global.minutes = 0;
-global.seconds = 0;
+global.minutes = 0
+global.seconds = 0
 
 global.save_data = {
 	wall_1_moved: true,
 	puzzle_1: true,
 	cutscene_1: true
-};
+}
 
-global.confirm_button = 0;
-global.cancel_button = 0;
-global.menu_button = 0;
-global.up_button = 0;
-global.down_button = 0;
-global.left_button = 0;
-global.right_button = 0;
-global.escape_button = 0;
+global.confirm_button = 0
+global.cancel_button = 0
+global.menu_button = 0
+global.up_button = 0
+global.down_button = 0
+global.left_button = 0
+global.right_button = 0
+global.escape_button = 0
 
-global.confirm_hold_button = 0;
-global.cancel_hold_button = 0;
-global.menu_hold_button = 0;
-global.up_hold_button = 0;
-global.down_hold_button = 0;
-global.left_hold_button = 0;
-global.right_hold_button = 0;
-global.escape_hold_button = 0;
+global.confirm_hold_button = 0
+global.cancel_hold_button = 0
+global.menu_hold_button = 0
+global.up_hold_button = 0
+global.down_hold_button = 0
+global.left_hold_button = 0
+global.right_hold_button = 0
+global.escape_hold_button = 0
 
-global.battle_enemies = [];
-global.battle_serious_mode = false;
+global.battle_enemies = []
+global.battle_serious_mode = false
 
-global.item_pool = [];
-global.UI_texts = {};
-global.last_save = {};
+global.item_pool = []
+global.UI_texts = {}
+global.last_save = {}

@@ -50,7 +50,6 @@
     {"name":"obj_battle_button","order":5,"path":"objects/obj_battle_button/obj_battle_button.yy",},
     {"name":"obj_bullet","order":2,"path":"objects/obj_bullet/obj_bullet.yy",},
     {"name":"obj_collision","order":1,"path":"objects/obj_collision/obj_collision.yy",},
-    {"name":"obj_encounter","order":3,"path":"objects/obj_encounter/obj_encounter.yy",},
     {"name":"obj_game","order":4,"path":"objects/obj_game/obj_game.yy",},
     {"name":"obj_interaction","order":2,"path":"objects/obj_interaction/obj_interaction.yy",},
     {"name":"obj_kris_dog_group","order":5,"path":"objects/obj_kris_dog_group/obj_kris_dog_group.yy",},

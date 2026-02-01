@@ -1,3 +1,3 @@
 /// @description Variable definition
 
-update = undefined;
+update = undefined

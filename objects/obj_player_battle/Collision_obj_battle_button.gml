@@ -1,3 +1,3 @@
 /// @description Button handling
 
-other.selected = true;
+other.selected = true

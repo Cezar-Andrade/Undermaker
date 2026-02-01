@@ -1,1 +1,1 @@
-button_type = BUTTON.ITEM;
+button_type = BUTTON.ITEM

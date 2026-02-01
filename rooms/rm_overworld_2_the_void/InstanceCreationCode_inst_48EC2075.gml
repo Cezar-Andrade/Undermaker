@@ -1,8 +1,8 @@
-array_pop(collision_ids); //Remove the collision on id 0 so it doesn't collide with that one, but the player does.
-array_push(collision_ids, 1); //Add collision to the 1.
+array_pop(collision_ids) //Remove the collision on id 0 so it doesn't collide with that one, but the player does.
+array_push(collision_ids, 1) //Add collision to the 1.
 
-can_entities_push = true;
-can_push_entities = true;
-round_collision_behavior = true;
+can_entities_push = true
+can_push_entities = true
+round_collision_behavior = true
 
-sprite_index = spr_round_rock;
+sprite_index = spr_round_rock

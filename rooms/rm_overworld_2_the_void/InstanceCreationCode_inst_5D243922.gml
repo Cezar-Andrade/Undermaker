@@ -1,5 +1,5 @@
-sprite_index = spr_save_point;
+sprite_index = spr_save_point
 
 interaction = function(){
-	start_save_menu(inst_spawn_point_the_void);
+	start_save_menu(inst_spawn_point_the_void)
 }

@@ -1,1 +1,1 @@
-button_type = BUTTON.MERCY;
+button_type = BUTTON.MERCY

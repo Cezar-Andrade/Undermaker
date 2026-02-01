@@ -1,1 +1,1 @@
-button_type = BUTTON.ACT;
+button_type = BUTTON.ACT

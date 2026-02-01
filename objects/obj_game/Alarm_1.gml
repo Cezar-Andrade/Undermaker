@@ -1,10 +1,10 @@
 /// @description Increases the game time.
 
-global.seconds++;
+global.seconds++
 
 if (global.seconds >= 60){
-	global.seconds -= 60;
-	global.minutes++;
+	global.seconds -= 60
+	global.minutes++
 }
 
-alarm[1] = 60;
+alarm[1] = 60

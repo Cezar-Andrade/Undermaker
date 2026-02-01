@@ -1,1 +1,1 @@
-collision_id = 1;
+collision_id = 1

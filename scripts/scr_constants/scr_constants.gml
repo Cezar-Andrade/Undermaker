@@ -19,7 +19,7 @@ Constant that determinates custom craeted fonts, following the same name syntax 
 DO NOT UNDER ANY CIRCUMSTANCE PUT THE FUNCTION TO ADD FONTS DIRECTLY IN THE MACRO, USE A GLOBAL VARIABLE TO PASS THE INDEX.
 Otherwise it will create the font everytime you call the macro, potentially causing memory leak.
 */
-global.custom_fnt_hachiko = font_add_sprite(spr_fnt_hachiko, 32, true, 4);
+global.custom_fnt_hachiko = font_add_sprite(spr_fnt_hachiko, 32, true, 4)
 
 #macro fnt_hachiko global.custom_fnt_hachiko
 
@@ -64,6 +64,7 @@ enum BATTLE_START_ANIMATION{
 */
 enum BATTLE_STATE{
 	START,
+	ATTACK_START,
 	PLAYER_BUTTONS,
 	PLAYER_ENEMY_SELECT,
 	PLAYER_ATTACK,
@@ -73,6 +74,7 @@ enum BATTLE_STATE{
 	PLAYER_FLEE,
 	PLAYER_WON,
 	END,
+	ATTACK_END,
 	PLAYER_DIALOG_RESULT,
 	ENEMY_DIALOG,
 	ENEMY_ATTACK,
