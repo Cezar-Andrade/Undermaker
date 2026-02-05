@@ -762,7 +762,7 @@ function start_battle(_enemies, _initial_dialog, _animation=BATTLE_START_ANIMATI
 function start_attack(_attacks, _animation=BATTLE_START_ANIMATION.NO_WARNING_FAST, _init_function=undefined, _end_function=undefined, _heart_x=GAME_WIDTH/2, _heart_y=2*GAME_HEIGHT/3){
 	with (obj_game){
 		state = GAME_STATE.BATTLE_START_ANIMATION
-		battle_state = BATTLE_STATE.ATTACK_START
+		battle_state = BATTLE_STATE.START_DODGE_ATTACK
 		battle_only_attack = _attacks
 		
 		set_battle_scene(_animation, _init_function, _end_function, _heart_x, _heart_y)

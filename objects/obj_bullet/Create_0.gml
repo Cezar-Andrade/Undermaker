@@ -1,6 +1,10 @@
 /// @description Initial variables
 
-//Do use the functions to spawn bullets as there are variables set in there that are not set here and it will cause errors if you don't set them yourself manually, handle with care.
+update = undefined
+draw_begin = undefined
+draw = draw_self
+draw_end = undefined
+on_destroy = undefined
 
 type = BULLET_TYPE.WHITE
 can_damage = true

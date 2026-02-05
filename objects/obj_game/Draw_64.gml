@@ -1,6 +1,6 @@
 var _screen_height = resolutions_height[resolution_active]
 var _game_width = _screen_height*(4/3)
-var _ui_not_showing = (state == GAME_STATE.PLAYER_MENU_CONTROL or state == GAME_STATE.BATTLE_END or (state == GAME_STATE.BATTLE and battle_state == BATTLE_STATE.ATTACK_END) or state == GAME_STATE.GAME_OVER or state == GAME_STATE.ROOM_CHANGE or state == GAME_STATE.BATTLE_START_ANIMATION or !dialog.is_finished())
+var _ui_not_showing = (state == GAME_STATE.PLAYER_MENU_CONTROL or state == GAME_STATE.BATTLE_END or (state == GAME_STATE.BATTLE and battle_state == BATTLE_STATE.END_DODGE_ATTACK) or state == GAME_STATE.GAME_OVER or state == GAME_STATE.ROOM_CHANGE or state == GAME_STATE.BATTLE_START_ANIMATION or !dialog.is_finished())
 
 if (_ui_not_showing){
 	if (!surface_exists(ui_surface)){
@@ -42,7 +42,7 @@ if (_ui_not_showing){
 		case GAME_STATE.BATTLE:
 			//Special effects of the battle can be placed here.
 			switch (battle_state){
-				case BATTLE_STATE.ATTACK_END:
+				case BATTLE_STATE.END_DODGE_ATTACK:
 				case BATTLE_STATE.END:
 					draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, anim_timer/20)
 				break

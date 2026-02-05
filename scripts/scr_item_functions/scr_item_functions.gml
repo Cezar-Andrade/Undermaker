@@ -146,11 +146,13 @@ function drop_item(_inventory_index){
 		_item_drop_dialog = "You dropped the " + _item_data[$"inventory name"]
 	}
 	
+	/*
 	switch (_item_index){
 		case ITEM.WILTED_VINE:
-			_item_drop_dialog[1] = string_replace(_item_drop_dialog[1], "[CustomFunction]", "[func:" + string(custom_functions) + ",HurtWiltedVineItem]")
+			//Do stuff before passing the dialog out.
 		break
 	}
+	*/
 	
 	array_delete(global.player.inventory, _inventory_index, 1)
 	

@@ -5,15 +5,76 @@ enum BULLET_TYPE{
 	GREEN
 }
 
-function spawn_bullet(_sprite, _x, _y, _depth=0, _damage=3, _update=undefined, _draw_begin=undefined, _draw=draw_self, _draw_end=undefined, _destroy=undefined){
+function spawn_bullet(_sprite, _x, _y, _direction, _depth=0, _damage=3, _type=BULLET_TYPE.WHITE){
 	var _bullet = instance_create_depth(_x + obj_box.x, _y + obj_box.y - obj_box.height/2, _depth, obj_bullet)
-	_bullet.sprite_index = _sprite
-	_bullet.update = _update
-	_bullet.draw_begin = _draw_begin
-	_bullet.draw = _draw
-	_bullet.draw_end = _draw_end
-	_bullet.on_destroy = _destroy
-	_bullet.damage = _damage
+	with (_bullet){
+		sprite_index = _sprite
+		damage = _damage
+		direction = _direction
+		
+		timer = 0
+		can_damage = false
+		color_value = 64
+		type = _type
+		
+		switch (type){
+			case BULLET_TYPE.WHITE:{
+				image_blend = c_dkgrey
+			break}
+			case BULLET_TYPE.CYAN:{
+				image_blend = make_colour_rgb(64*33/255, 64*195/255, 64)
+			break}
+			case BULLET_TYPE.ORANGE:{
+				image_blend = make_colour_rgb(64, 64*150/255, 0)
+			break}
+			case BULLET_TYPE.GREEN:{
+				image_blend = make_colour_rgb(64*18/255, 64*64/255, 0)
+			break}
+		}
+		
+		update = function(){
+			timer++
+		
+			if (timer == 60){
+				depth = 0
+			}else if (timer > 160){
+				image_alpha -= 0.05
+			}
+					
+			var _movement = 5*pi*dcos(1.5*min(timer, 120))/6
+					
+			if (!can_damage and _movement <= 0){
+				can_damage = true
+			}
+					
+			if (_movement < 1 and color_value < 255){
+				color_value = min(color_value + 5, 255)
+				var _number = color_value
+				
+				switch (type){
+					case BULLET_TYPE.WHITE:{
+						image_blend = make_colour_rgb(_number, _number, _number)
+					break}
+					case BULLET_TYPE.CYAN:{
+						image_blend = make_colour_rgb(_number*33/255, _number*195/255, _number)
+					break}
+					case BULLET_TYPE.ORANGE:{
+						image_blend = make_colour_rgb(_number, _number*150/255, 0)
+					break}
+					case BULLET_TYPE.GREEN:{
+						image_blend = make_colour_rgb(_number*18/255, _number*64/255, 0)
+					break}
+				}
+			}
+					
+			x += _movement*dcos(direction)
+			y -= _movement*dsin(direction)
+					
+			if (image_alpha <= 0){
+				instance_destroy()
+			}
+		}
+	}
 	
 	array_push(obj_game.battle_bullets, _bullet)
 	

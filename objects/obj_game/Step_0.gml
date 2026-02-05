@@ -69,10 +69,18 @@ switch (control_type){
 		global.menu_hold_button = (keyboard_check(ord("C")) or keyboard_check(vk_control))
 	break
 	case CONTROL_TYPE.CONTROLLER:
-		var _up_button = max(-gamepad_axis_value(controller_id, gp_axislv), gamepad_button_check(controller_id, gp_padd), 0)
-		var _left_button = max(-gamepad_axis_value(controller_id, gp_axislh), gamepad_button_check(controller_id, gp_padl), 0)
-		var _down_button = max(gamepad_axis_value(controller_id, gp_axislv), gamepad_button_check(controller_id, gp_padu), 0)
-		var _right_button = max(gamepad_axis_value(controller_id, gp_axislh), gamepad_button_check(controller_id, gp_padr), 0)
+		var _axislv = gamepad_axis_value(controller_id, gp_axislv)
+		var _axislh = gamepad_axis_value(controller_id, gp_axislh)
+		var _axislv_round = round(_axislv)
+		var _axislh_round = round(_axislh)
+		var _padd = gamepad_button_check(controller_id, gp_padd)
+		var _padl = gamepad_button_check(controller_id, gp_padl)
+		var _padu = gamepad_button_check(controller_id, gp_padu)
+		var _padr = gamepad_button_check(controller_id, gp_padr)
+		var _up_button = max(-_axislv_round, _padd, 0)
+		var _left_button = max(-_axislh_round, _padl, 0)
+		var _down_button = max(_axislv_round, _padu, 0)
+		var _right_button = max(_axislh_round, _padr, 0)
 		
 		if (temp_up_button == _up_button){
 			global.up_button = 0
@@ -106,10 +114,10 @@ switch (control_type){
 			global.right_button = _right_button
 		}
 		
-		global.up_hold_button = max(-gamepad_axis_value(controller_id, gp_axislv), gamepad_button_check(controller_id, gp_padd), 0)
-		global.left_hold_button = max(-gamepad_axis_value(controller_id, gp_axislh), gamepad_button_check(controller_id, gp_padl), 0)
-		global.down_hold_button = max(gamepad_axis_value(controller_id, gp_axislv), gamepad_button_check(controller_id, gp_padu), 0)
-		global.right_hold_button = max(gamepad_axis_value(controller_id, gp_axislh), gamepad_button_check(controller_id, gp_padr), 0)
+		global.up_hold_button = max(-_axislv, _padd, 0)
+		global.left_hold_button = max(-_axislh, _padl, 0)
+		global.down_hold_button = max(_axislv, _padu, 0)
+		global.right_hold_button = max(_axislh, _padr, 0)
 		
 		if (controller_mapping_state == CONTROLLER_MAPPING.DONE){
 			global.confirm_button = gamepad_button_check_pressed(controller_id, controller_confirm_button)
@@ -256,7 +264,7 @@ switch (state){
 	case GAME_STATE.BATTLE: { //You're already in the battle room when in this state, if not then errors may happen.
 		depth = battle_player_stats.depth
 		
-		if (battle_state != BATTLE_STATE.START and battle_state != BATTLE_STATE.ATTACK_START){
+		if (battle_state != BATTLE_STATE.START and battle_state != BATTLE_STATE.START_DODGE_ATTACK){
 			if (battle_only_attack_undefined){
 				var _length = array_length(global.battle_enemies)
 				for (var _i=0; _i<_length; _i++){
@@ -352,7 +360,7 @@ switch (state){
 		}
 		
 		switch (battle_state){
-			case BATTLE_STATE.START:
+			case BATTLE_STATE.START:{
 				battle_exp = 0
 				battle_gold = 0
 				battle_flee_event_type = FLEE_EVENT.IMPROVED
@@ -393,7 +401,8 @@ switch (state){
 						_enemy_1.name += " A"
 					}
 				}
-			case BATTLE_STATE.ATTACK_START:
+			}
+			case BATTLE_STATE.START_DODGE_ATTACK:{
 				with (obj_player_battle){
 					x = other.battle_start_animation_player_heart_x
 					y = other.battle_start_animation_player_heart_y
@@ -415,7 +424,7 @@ switch (state){
 					}
 					
 					//Just in case you decided to populate these, won't allow it
-					_length = array_length(battle_enemies_dialogs)
+					var _length = array_length(battle_enemies_dialogs)
 					if (_length){
 						array_delete(battle_enemies_dialogs, 0, _length)
 					}
@@ -437,10 +446,15 @@ switch (state){
 						x = obj_box.x
 						y = obj_box.y - round(obj_box.height)/2 - 5
 					}
+					
+					with (obj_box){
+						width = box_size.x
+						height = box_size.y
+					}
 				}
-			break
-			case BATTLE_STATE.PLAYER_BUTTONS:
-				_length = array_length(battle_enemies_dialogs)
+			break}
+			case BATTLE_STATE.PLAYER_BUTTONS:{
+				var _length = array_length(battle_enemies_dialogs)
 				for (var _i=0; _i<_length; _i++){
 					var _dialog = battle_enemies_dialogs[_i]
 					_dialog.step()
@@ -492,9 +506,9 @@ switch (state){
 					x = _button.x + _button.heart_button_position_x
 					y = _button.y + _button.heart_button_position_y
 				}
-			break
-			case BATTLE_STATE.PLAYER_ENEMY_SELECT: case BATTLE_STATE.PLAYER_MERCY:
-				_length = array_length(battle_enemies_dialogs)
+			break}
+			case BATTLE_STATE.PLAYER_ENEMY_SELECT: case BATTLE_STATE.PLAYER_MERCY:{
+				var _length = array_length(battle_enemies_dialogs)
 				for (var _i=0; _i<_length; _i++){
 					var _dialog = battle_enemies_dialogs[_i]
 					_dialog.step()
@@ -557,8 +571,8 @@ switch (state){
 					x = 72
 					y = 286 + 32*other.battle_selection[1]
 				}					
-			break
-			case BATTLE_STATE.PLAYER_ITEM:
+			break}
+			case BATTLE_STATE.PLAYER_ITEM:{
 				var _amount_items = array_length(global.player.inventory)
 				var _page = battle_item_page
 				
@@ -665,23 +679,23 @@ switch (state){
 					x = 72 + 256*(other.battle_selection[2]%2)
 					y = 286 + 32*floor(other.battle_selection[2]/2)
 				}
-			break
-			case BATTLE_STATE.PLAYER_ATTACK:
-				_length = array_length(battle_enemies_dialogs)
+			break}
+			case BATTLE_STATE.PLAYER_ATTACK:{
+				var _length = array_length(battle_enemies_dialogs)
 				for (var _i=0; _i<_length; _i++){
 					var _dialog = battle_enemies_dialogs[_i]
 					_dialog.step()
 				}
 				
 				battle_player_attack.update()
-			break
-			case BATTLE_STATE.PLAYER_WON:
+			break}
+			case BATTLE_STATE.PLAYER_WON:{
 				if (global.confirm_button and obj_game.dialog.is_done_displaying()){
 					battle_go_to_state(BATTLE_STATE.END)
 				}
-			break
-			case BATTLE_STATE.PLAYER_FLEE:
-				_length = array_length(battle_enemies_dialogs)
+			break}
+			case BATTLE_STATE.PLAYER_FLEE:{
+				var _length = array_length(battle_enemies_dialogs)
 				for (var _i=0; _i<_length; _i++){
 					var _dialog = battle_enemies_dialogs[_i]
 					_dialog.step()
@@ -698,9 +712,9 @@ switch (state){
 						battle_go_to_state(BATTLE_STATE.ENEMY_DIALOG)
 					}
 				}
-			break
-			case BATTLE_STATE.PLAYER_ACT:
-				_length = array_length(battle_enemies_dialogs)
+			break}
+			case BATTLE_STATE.PLAYER_ACT:{
+				var _length = array_length(battle_enemies_dialogs)
 				for (var _i=0; _i<_length; _i++){
 					var _dialog = battle_enemies_dialogs[_i]
 					_dialog.step()
@@ -772,9 +786,9 @@ switch (state){
 					x = 72 + 256*(other.battle_selection[2]%2)
 					y = 286 + 32*floor(other.battle_selection[2]/2)
 				}
-			break
-			case BATTLE_STATE.PLAYER_DIALOG_RESULT:
-				_length = array_length(battle_enemies_dialogs)
+			break}
+			case BATTLE_STATE.PLAYER_DIALOG_RESULT:{
+				var _length = array_length(battle_enemies_dialogs)
 				for (var _i=0; _i<_length; _i++){
 					var _dialog = battle_enemies_dialogs[_i]
 					_dialog.step()
@@ -783,9 +797,9 @@ switch (state){
 				if (obj_game.dialog.is_finished()){
 					battle_go_to_state(BATTLE_STATE.ENEMY_DIALOG)
 				}
-			break
-			case BATTLE_STATE.ENEMY_DIALOG:
-				_length = array_length(battle_enemies_dialogs)
+			break}
+			case BATTLE_STATE.ENEMY_DIALOG:{
+				var _length = array_length(battle_enemies_dialogs)
 				var _dialog_finished = true
 				for (var _i=0; _i<_length; _i++){
 					var _dialog = battle_enemies_dialogs[_i]
@@ -804,10 +818,10 @@ switch (state){
 					x = obj_box.x
 					y = obj_box.y - round(obj_box.height)/2 - 5
 				}
-			break
-			case BATTLE_STATE.TURN_END:
-				_length = array_length(battle_enemies_dialogs)
-				_dialog_finished = true
+			break}
+			case BATTLE_STATE.TURN_END:{
+				var _length = array_length(battle_enemies_dialogs)
+				var _dialog_finished = true
 				for (var _i=0; _i<_length; _i++){
 					var _dialog = battle_enemies_dialogs[_i]
 					_dialog.step()
@@ -820,10 +834,10 @@ switch (state){
 				if (obj_game.dialog.is_finished() and _dialog_finished){
 					battle_go_to_state(BATTLE_STATE.PLAYER_BUTTONS)
 				}
-			break
-			case BATTLE_STATE.ATTACK_END:
-			case BATTLE_STATE.ENEMY_ATTACK:
-				_length = array_length(battle_enemies_attacks)
+			break}
+			case BATTLE_STATE.END_DODGE_ATTACK:
+			case BATTLE_STATE.ENEMY_ATTACK:{
+				var _length = array_length(battle_enemies_attacks)
 				var _attacks_done = true
 				for (var _i=0; _i<_length; _i++){
 					var _attack = battle_enemies_attacks[_i]
@@ -838,12 +852,15 @@ switch (state){
 					if (_attacks_done){
 						if (battle_only_attack_undefined){
 							for (var _i=0; _i<_length; _i++){
-								battle_enemies_attacks[_i].cleanup()
+								var _attack = battle_enemies_attacks[_i]
+								if (!is_undefined(_attack)){
+									_attack.cleanup()
+								}
 							}
 						
 							battle_go_to_state(BATTLE_STATE.TURN_END)
 						}else{
-							battle_state = BATTLE_STATE.ATTACK_END
+							battle_state = BATTLE_STATE.END_DODGE_ATTACK
 						
 							if (!is_undefined(battle_end_function)){
 								start_room_function = function(){
@@ -857,7 +874,8 @@ switch (state){
 					}
 					break
 				}
-			case BATTLE_STATE.END:
+			}
+			case BATTLE_STATE.END:{
 				anim_timer++
 				if (anim_timer == 20){
 					obj_player_overworld.image_alpha = 1
@@ -866,7 +884,7 @@ switch (state){
 						dialog.next_dialog()
 					}
 					
-					_length = array_length(battle_enemies_dialogs)
+					var _length = array_length(battle_enemies_dialogs)
 					for (var _i=0; _i<_length; _i++){
 						array_pop(battle_enemies_dialogs)
 					}
@@ -892,28 +910,28 @@ switch (state){
 					
 					room_goto(player_prev_room)
 				}
-			break
+			break}
 		}
-	break }
-	case GAME_STATE.BATTLE_START_ANIMATION:
+	break}
+	case GAME_STATE.BATTLE_START_ANIMATION:{
 		//Depending on the animation the animation timer may go faster or start early, either way, it stops counting at 100.
 		switch (battle_start_animation_type){
-			case BATTLE_START_ANIMATION.NORMAL: case BATTLE_START_ANIMATION.NO_WARNING:
+			case BATTLE_START_ANIMATION.NORMAL: case BATTLE_START_ANIMATION.NO_WARNING:{
 				anim_timer++
-			break
-			default: //BATTLE_START_ANIMATION.FAST or BATTLE_START_ANIMATION.NO_WARNING_FAST.
+			break}
+			default:{ //BATTLE_START_ANIMATION.FAST or BATTLE_START_ANIMATION.NO_WARNING_FAST.
 				anim_timer += 2
-			break
+			break}
 		}
 		
 		switch (anim_timer){
-			case 0: case 8: case 16:
+			case 0: case 8: case 16:{
 				audio_play_sound(snd_switch_flip, 100, false)
-			break
-			case 24:
+			break}
+			case 24:{
 				audio_play_sound(snd_battle_start, 100, false)
-			break
-			case 48:
+			break}
+			case 48:{
 				state = GAME_STATE.BATTLE
 				obj_player_overworld.image_alpha = 0
 				
@@ -924,12 +942,15 @@ switch (state){
 				room_persistent = true
 				
 				room_goto(rm_battle)
-			break
+			break}
 		}
-	break
-	case GAME_STATE.PLAYER_MENU_CONTROL:
+	break}
+	case GAME_STATE.PLAYER_CONTROL:{
+		//Nothing, in this state the control is given to the player, an obj_player_overworld handles the logic now with movement and interactions, and triggers all sorts of events in here from there, if you need to do something while the player can move around, here is the place to do it.
+	break}
+	case GAME_STATE.PLAYER_MENU_CONTROL:{
 		switch (player_menu_state){
-			case PLAYER_MENU_STATE.INITIAL:
+			case PLAYER_MENU_STATE.INITIAL:{
 				if (global.up_button and player_menu_selection[0] > 0){
 					player_menu_selection[0]--
 					
@@ -965,15 +986,15 @@ switch (state){
 				}else if (global.cancel_button){
 					state = GAME_STATE.PLAYER_CONTROL
 				}
-			break
-			case PLAYER_MENU_STATE.STATS:
+			break}
+			case PLAYER_MENU_STATE.STATS:{
 				if (global.cancel_button){
 					player_menu_state = PLAYER_MENU_STATE.INITIAL
 					
 					audio_play_sound(snd_menu_selecting, 0, false)
 				}
-			break
-			case PLAYER_MENU_STATE.INVENTORY:
+			break}
+			case PLAYER_MENU_STATE.INVENTORY:{
 				if (global.up_button and player_menu_selection[1] > 0){
 					player_menu_selection[1]--
 					
@@ -994,8 +1015,8 @@ switch (state){
 					
 					audio_play_sound(snd_menu_selecting, 0, false)
 				}
-			break
-			case PLAYER_MENU_STATE.ITEM_SELECTED:
+			break}
+			case PLAYER_MENU_STATE.ITEM_SELECTED:{
 				if (global.left_button and player_menu_selection[2] > 0){
 					player_menu_selection[2]--
 					
@@ -1032,8 +1053,8 @@ switch (state){
 					
 					audio_play_sound(snd_menu_selecting, 0, false)
 				}
-			break
-			case PLAYER_MENU_STATE.CELL:
+			break}
+			case PLAYER_MENU_STATE.CELL:{
 				if (global.up_button and player_menu_selection[1] > 0){
 					player_menu_selection[1]--
 					
@@ -1058,8 +1079,8 @@ switch (state){
 					
 					audio_play_sound(snd_menu_selecting, 0, false)
 				}
-			break
-			case PLAYER_MENU_STATE.BOX:
+			break}
+			case PLAYER_MENU_STATE.BOX:{
 				var _box = global.box.inventory[player_box_index]
 				var _box_amount = array_length(_box)
 				var _inventory_amount = array_length(global.player.inventory)
@@ -1117,8 +1138,8 @@ switch (state){
 					
 					audio_play_sound(snd_menu_selecting, 0, false)
 				}
-			break
-			case PLAYER_MENU_STATE.SAVE:
+			break}
+			case PLAYER_MENU_STATE.SAVE:{
 				if (global.left_button and player_save_cursor == 1){
 					player_save_cursor--
 					
@@ -1184,13 +1205,13 @@ switch (state){
 						state = GAME_STATE.PLAYER_CONTROL
 					}
 				}
-			break
-			case PLAYER_MENU_STATE.WAITING_DIALOG_END:
+			break}
+			case PLAYER_MENU_STATE.WAITING_DIALOG_END:{
 				if (dialog.is_finished()){
 					player_menu_state = player_menu_prev_state
 					
 					switch (player_menu_state){
-						case PLAYER_MENU_STATE.INVENTORY:
+						case PLAYER_MENU_STATE.INVENTORY:{
 							var _items_remaining = array_length(global.player.inventory)
 							
 							if (_items_remaining == 0){
@@ -1198,13 +1219,13 @@ switch (state){
 							}else{
 								player_menu_selection[1] = min(player_menu_selection[1], array_length(global.player.inventory) - 1)
 							}
-						break
+						break}
 					}
 				}
-			break
+			break}
 		}
-	break
-	case GAME_STATE.ROOM_CHANGE:
+	break}
+	case GAME_STATE.ROOM_CHANGE:{
 		anim_timer++
 		
 		if (anim_timer == room_change_fade_in_time){
@@ -1217,8 +1238,8 @@ switch (state){
 				after_transition_function = undefined
 			}
 		}
-	break
-	case GAME_STATE.BATTLE_END:
+	break}
+	case GAME_STATE.BATTLE_END:{
 		anim_timer++
 		
 		var _is_undefined = is_undefined(event_end_condition)
@@ -1235,7 +1256,8 @@ switch (state){
 		if (_is_undefined){
 			break
 		}
-	case GAME_STATE.EVENT:
+	}
+	case GAME_STATE.EVENT:{
 		if (!is_undefined(event_update)){
 			event_update()
 		}
@@ -1248,8 +1270,8 @@ switch (state){
 			event_update = undefined
 			event_end_condition = undefined
 		}
-	break
-	case GAME_STATE.DIALOG_CHOICE:
+	break}
+	case GAME_STATE.DIALOG_CHOICE:{
 		var _prev_selection = selection
 		
 		if (!is_undefined(event_update)){
@@ -1301,7 +1323,7 @@ switch (state){
 			
 			options[selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false][color_rgb:255,255,0]" + options[selection][2])
 		}
-	break
+	break}
 }
 
 //Fullscreen toggle

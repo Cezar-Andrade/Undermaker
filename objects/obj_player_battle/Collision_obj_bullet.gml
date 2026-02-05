@@ -1,20 +1,28 @@
 /// @description Bullet handling
 
 if (other.can_damage and image_alpha == 1 and invulnerability_frames <= 0){
-	if ((other.type == BULLET_TYPE.CYAN and (xprevious != x or yprevious != y)) or (other.type == BULLET_TYPE.ORANGE and xprevious == x and yprevious == y) or (other.type != BULLET_TYPE.CYAN and other.type != BULLET_TYPE.ORANGE)){
-		global.player.hp = max(min(global.player.hp - other.damage, global.player.max_hp), (obj_game.battle_state != BATTLE_STATE.ENEMY_ATTACK))
-		
-		if (global.player.status_effect.type == PLAYER_STATUS_EFFECT.KARMIC_RETRIBUTION){
-			global.player.status_effect.value = min(global.player.status_effect.value + other.karma, global.player.hp - 1, 40)
-			other.karma = min(other.karma, 1) //There are more steps to karmic retribution but I'm doing it the simple way really.
+	switch (mode){
+		case SOUL_MODE.GRAVITY:{
+			var _bullet = other
+			with (gravity_data){
+				if (orange_mode){
+					if (_bullet.type == BULLET_TYPE.ORANGE){
+						if ((get_up_button(false) and direction == GRAVITY_SOUL.DOWN) or (get_down_button(false) and direction == GRAVITY_SOUL.UP) or (get_right_button(false) and direction == GRAVITY_SOUL.LEFT) or (get_left_button(false) and direction == GRAVITY_SOUL.RIGHT)){
+							jump.speed = (2*jump.max_height/power(jump.duration, 2))*jump.duration*0.75
+						
+							instance_destroy(_bullet)
+						}
+					}else{
+						damage_player_bullet_instance(_bullet, other)
+					}
+					break
+				}
+			}
 		}
-		
-		if (other.type == BULLET_TYPE.GREEN){
-			audio_play_sound(snd_player_heal, 0, false)
-		}else{
-			audio_play_sound(snd_player_hurt, 0, false)
-		}
-		
-		invulnerability_frames = global.player.invulnerability_frames
+		default:{
+			if ((other.type == BULLET_TYPE.CYAN and is_player_moving(self)) or (other.type == BULLET_TYPE.ORANGE and !is_player_moving(self)) or (other.type != BULLET_TYPE.CYAN and other.type != BULLET_TYPE.ORANGE)){
+				damage_player_bullet_instance(other, self)
+			}
+		break}
 	}
 }
