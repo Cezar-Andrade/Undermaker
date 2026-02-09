@@ -15,13 +15,15 @@ switch (obj_game.battle_state){
 		
 		switch (mode){
 			case SOUL_MODE.NORMAL:{
-				x += _current_movement_speed*get_horizontal_button_force()
-				y += _current_movement_speed*get_vertical_button_force()
+				move_x = _current_movement_speed*get_horizontal_button_force()
+				move_y = _current_movement_speed*get_vertical_button_force()
 				
 				image_blend = c_red
 			break}
 			case SOUL_MODE.GRAVITY:{
 				with (gravity_data){
+					var _gravity = 2*jump.max_height/power(jump.duration, 2)
+					
 					switch (direction){
 						case GRAVITY_SOUL.DOWN: case GRAVITY_SOUL.UP:{
 							if (orange_mode){
@@ -42,55 +44,27 @@ switch (obj_game.battle_state){
 								var _speed_delta = movement.direction*movement.direction_change.speed/movement.direction_change.time
 								var _new_speed = clamp(movement.speed + _speed_delta, -other.movement_speed, other.movement_speed)
 								var _time = (_new_speed - movement.speed)/_speed_delta
-								other.x += (movement.speed + _new_speed)*_time/2 + (1 - _time)*_new_speed
+								other.move_x = (movement.speed + _new_speed)*_time/2 + (1 - _time)*_new_speed
 								movement.speed = _new_speed
 							}else{
-								other.x += _current_movement_speed*get_horizontal_button_force()
+								other.move_x = _current_movement_speed*get_horizontal_button_force()
 							}
 							
-							var _gravity = 2*jump.max_height/power(jump.duration, 2)
-							
-							other.y += (direction - 1)*(jump.speed - _gravity/2)
+							other.move_y = (direction - 1)*(jump.speed - _gravity/2)
 							
 							if (box_bound){
-								other.x += obj_box.x - obj_box.xprevious
-								other.y -= obj_box.y - obj_box.yprevious
+								other.move_x += obj_box.x - obj_box.xprevious
+								other.move_y -= obj_box.y - obj_box.yprevious
 							}
 							
 							jump.speed -= _gravity
 							
-							if (other.x <= get_box_left() + 8 or other.x >= get_box_right() - 8){
-								movement.speed = 0
-							}
-							
-							var _box_bottom = get_box_bottom() - 8
-							var _box_top = get_box_top() + 8
-							if ((other.y >= _box_bottom and direction == GRAVITY_SOUL.DOWN) or (other.y <= _box_top and direction == GRAVITY_SOUL.UP)){
-								if (orange_mode){
-									jump.speed = _gravity*jump.duration
-								}else{
-									jump.speed = 0
-								}
-								
-								if (slam){
-									audio_play_sound(snd_player_slam, 0, false)
-									
-									slam = false
-								}
-							}else if ((other.y <= _box_top and direction == GRAVITY_SOUL.DOWN) or (other.y >= _box_bottom and direction == GRAVITY_SOUL.UP)){
-								jump.speed = 0
-							}
-							
 							if (orange_mode){
-								if (((get_down_button(false) and other.y < _box_bottom and direction == GRAVITY_SOUL.DOWN) or (get_up_button(false) and other.y > _box_top and direction == GRAVITY_SOUL.UP)) and jump.speed > 0){
+								if (((get_down_button(false) and direction == GRAVITY_SOUL.DOWN) or (get_up_button(false) and direction == GRAVITY_SOUL.UP)) and jump.speed > 0){
 									jump.speed = 0
 								}
-							}else{
-								if ((get_up_button() and other.y >= _box_bottom and direction == GRAVITY_SOUL.DOWN) or (get_down_button() and other.y <= _box_top and direction == GRAVITY_SOUL.UP)){
-									jump.speed = _gravity*jump.duration
-								}else if (((!get_up_button() and direction == GRAVITY_SOUL.DOWN) or (!get_down_button() and direction == GRAVITY_SOUL.UP)) and jump.speed > 4*_gravity){
-									jump.speed = 4*_gravity
-								}
+							}else if (((!get_up_button() and direction == GRAVITY_SOUL.DOWN) or (!get_down_button() and direction == GRAVITY_SOUL.UP)) and jump.speed > 4*_gravity){
+								jump.speed = 4*_gravity
 							}
 						break}
 						default:{ //GRAVITY_SOUL.LEFT, GRAVITY_SOUL.RIGHT
@@ -112,58 +86,28 @@ switch (obj_game.battle_state){
 								var _speed_delta = movement.direction*movement.direction_change.speed/movement.direction_change.time
 								var _new_speed = clamp(movement.speed + _speed_delta, -other.movement_speed, other.movement_speed)
 								var _time = (_new_speed - movement.speed)/_speed_delta
-								other.y += (movement.speed + _new_speed)*_time/2 + (1 - _time)*_new_speed
+								other.move_y = (movement.speed + _new_speed)*_time/2 + (1 - _time)*_new_speed
 								movement.speed = _new_speed
 							}else{
-								other.y += _current_movement_speed*get_vertical_button_force()
+								other.move_y = _current_movement_speed*get_vertical_button_force()
 							}
 							
-							var _gravity = 2*jump.max_height/power(jump.duration, 2)
-							
-							other.x += (direction - 2)*(jump.speed - _gravity/2)
+							other.move_x = (direction - 2)*(jump.speed - _gravity/2)
 							
 							if (box_bound){
-								other.x += obj_box.x - obj_box.xprevious
-								other.y -= obj_box.y - obj_box.yprevious
+								other.move_x += obj_box.x - obj_box.xprevious
+								other.move_y -= obj_box.y - obj_box.yprevious
 							}
 							
 							jump.speed -= _gravity
 							
-							if (other.y <= get_box_top() - 8 or other.y >= get_box_bottom() + 8){
-								movement.speed = 0
-							}
-							
-							var _box_left = get_box_left() + 8
-							var _box_right = get_box_right() - 8
-							if ((other.x <= _box_left and direction == GRAVITY_SOUL.LEFT) or (other.x >= _box_right and direction == GRAVITY_SOUL.RIGHT)){
-								if (orange_mode){
-									jump.speed = _gravity*jump.duration
-								}else{
-									jump.speed = 0
-								}
-								
-								if (slam){
-									audio_play_sound(snd_player_slam, 0, false)
-									
-									slam = false
-								}
-							}else if ((other.x >= _box_right and direction == GRAVITY_SOUL.LEFT) or (other.x <= _box_left and direction == GRAVITY_SOUL.RIGHT)){
-								jump.speed = 0
-							}
-							
 							if (orange_mode){
-								if (((get_left_button(false) and other.x > _box_left and direction == GRAVITY_SOUL.LEFT) or (get_right_button(false) and other.x < _box_right and direction == GRAVITY_SOUL.RIGHT)) and jump.speed > 0){
+								if (((get_left_button(false) and direction == GRAVITY_SOUL.LEFT) or (get_right_button(false) and direction == GRAVITY_SOUL.RIGHT)) and jump.speed > 0){
 									jump.speed = 0
 								}
-							}else{
-								if ((get_right_button() and other.x <= _box_left and direction == GRAVITY_SOUL.LEFT) or (get_left_button() and other.x >= _box_right and direction == GRAVITY_SOUL.RIGHT)){
-									jump.speed = _gravity*jump.duration
-								}else if (((!get_right_button() and direction == GRAVITY_SOUL.LEFT) or (!get_left_button() and direction == GRAVITY_SOUL.RIGHT)) and jump.speed > 4*_gravity){
-									jump.speed = 4*_gravity
-								}
+							}else if (((!get_right_button() and direction == GRAVITY_SOUL.LEFT) or (!get_left_button() and direction == GRAVITY_SOUL.RIGHT)) and jump.speed > 4*_gravity){
+								jump.speed = 4*_gravity
 							}
-							
-							other.image_angle = 0
 						break}
 					}
 					
@@ -218,8 +162,8 @@ switch (obj_game.battle_state){
 										other.x += platform.vel.x
 										other.y += platform.vel.y
 										other.xprevious += platform.vel.x
-										if (prev_platform.plat.Type[1] <= 0){
-											prev_platform.plat.Type[1] = 1
+										if (prev_platform.platform.anim_timer <= 0){
+											prev_platform.platform.anim_timer = 1
 										}
 									}
 								}else{
@@ -281,8 +225,8 @@ switch (obj_game.battle_state){
 										other.x += platform.vel.x
 										other.y += platform.vel.y
 										other.yprevious += platform.vel.y
-										if (prev_platform.plat.Type[1] <= 0){
-											prev_platform.plat.Type[1] = 1
+										if (prev_platform.platform.anim_timer <= 0){
+											prev_platform.platform.anim_timer = 1
 										}
 									}
 								}else{
@@ -344,8 +288,8 @@ switch (obj_game.battle_state){
 										other.x += platform.vel.x
 										other.y += platform.vel.y
 										other.xprevious += platform.vel.x
-										if (prev_platform.plat.Type[1] <= 0){
-											prev_platform.plat.Type[1] = 1
+										if (prev_platform.platform.anim_timer <= 0){
+											prev_platform.platform.anim_timer = 1
 										}
 									}
 								}else{
@@ -408,8 +352,8 @@ switch (obj_game.battle_state){
 										other.x += platform.vel.x
 										other.y += platform.vel.y
 										other.yprevious += platform.vel.y
-										if (prev_platform.plat.Type[1] <= 0){
-											prev_platform.plat.Type[1] = 1
+										if (prev_platform.platform.anim_timer <= 0){
+											prev_platform.platform.anim_timer = 1
 										}
 									}
 								}else{
@@ -441,25 +385,25 @@ switch (obj_game.battle_state){
 					}
 					cannot_jump = false
 					on_platform = false
-					if (prev_platform.found and prev_platform.plat.image_alpha >= 0.5 and (!other.place_meeting(other.x - prev_platform.plat.hspeed, other.y - prev_platform.plat.vspeed, prev_platform.plat) or (prev_platform.plat.Fragile[0] > 0 and prev_platform.plat.Fragile[2] != 0))){
-						if (prev_platform.plat.Type[0] == "Sticky"){
-							prev_platform.plat.Type[1] = 0
+					if (prev_platform.found and prev_platform.platform.image_alpha >= 0.5 and (!other.place_meeting(other.x - prev_platform.platform.hspeed, other.y - prev_platform.platform.vspeed, prev_platform.platform) or (prev_platform.platform.fragile.duration_time > 0 and prev_platform.platform.fragile.state != 0))){
+						if (prev_platform.platform.type == PLATFORM_TYPE.STICKY){
+							prev_platform.platform.anim_timer = 0
 						}
 						prev_platform.found = false
-						prev_platform.plat = undefined
+						prev_platform.platform = undefined
 					}
 					other.x = min(max(other.x, obj_box.x - round(obj_box.width)/2 + 8), obj_box.x + round(obj_box.width)/2 - 8)
 					other.y = min(max(other.y, obj_box.y - round(obj_box.height) + 3), obj_box.y - 13)
 					if (!prev_platform.found and jump <= 0){
 						with (obj_platform){
-							if (image_alpha >= 0.5 and (Fragile[0] <= 0 or Fragile[2] == 0) and other.other.image_angle == image_angle){
-								if (image_angle == 0 and other.other.y <= y - 8 - other.other.jump/5 + vspeed and other.other.x > x - Length/2 - 4 and other.other.x < x + Length/2 + 4){
+							if (image_alpha >= 0.5 and (fragile.duration_time <= 0 or fragile.state == 0) and other.other.image_angle == image_angle){
+								if (image_angle == 0 and other.other.y <= y - 8 - other.other.jump/5 + vspeed and other.other.x > x - length/2 - 4 and other.other.x < x + length/2 + 4){
 									other.other.y = min(other.other.y, y - 8 + vspeed)
-								}else{ if (image_angle == 90 and other.other.x <= x - 8 - other.other.jump/5 + hspeed and other.other.y > y - Length/2 - 4 and other.other.y < y + Length/2 + 4){
+								}else{ if (image_angle == 90 and other.other.x <= x - 8 - other.other.jump/5 + hspeed and other.other.y > y - length/2 - 4 and other.other.y < y + length/2 + 4){
 									other.other.x = min(other.other.x, x - 8 + hspeed)
-								}else{ if (image_angle == 180 and other.other.y >= y + 8 + other.other.jump/5 + vspeed and other.other.x > x - Length/2 - 4 and other.other.x < x + Length/2 + 4){
+								}else{ if (image_angle == 180 and other.other.y >= y + 8 + other.other.jump/5 + vspeed and other.other.x > x - length/2 - 4 and other.other.x < x + length/2 + 4){
 									other.other.y = max(other.other.y, y + 8 + vspeed)
-								}else{ if (image_angle == 270 and other.other.x >= x + 8 + other.other.jump/5 + hspeed and other.other.y > y - Length/2 - 4 and other.other.y < y + Length/2 + 4){
+								}else{ if (image_angle == 270 and other.other.x >= x + 8 + other.other.jump/5 + hspeed and other.other.y > y - length/2 - 4 and other.other.y < y + length/2 + 4){
 									other.other.x = max(other.other.x, x + 8 + hspeed)
 								}}}}
 							}
@@ -470,15 +414,11 @@ switch (obj_game.battle_state){
 			break}
 		}
 		
-		if (instance_exists(obj_box)){ ////PROBABLY CHANGE THE WAY THIS IS DONE
-			x = clamp(x, get_box_left() + 8, get_box_right() - 8)
-			y = clamp(y, get_box_top() + 8, get_box_bottom() - 8)
-		}
-		
-		if (is_player_moving() and image_alpha == 1){
+		if (is_player_soul_moving() and image_alpha == 1){
 			var _trail = layer_sprite_create(layer_trail, x, y, sprite_index)
 			layer_sprite_speed(_trail, 0)
 			layer_sprite_blend(_trail, make_colour_hsv(colour_get_hue(image_blend), colour_get_saturation(image_blend), 91.8))
+			layer_sprite_angle(_trail, image_angle)
 			array_push(trail_sprites, _trail)
 		}
 		

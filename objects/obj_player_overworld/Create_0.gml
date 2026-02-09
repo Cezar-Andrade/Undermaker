@@ -11,7 +11,7 @@ player_anim_stop = function(){
 
 frisk_dance = true //Allow the player to do the frisk dance?
 moon_walk = true //Let the player do a moon walk?
-can_run = false //Player can run?
+can_run = true //Player can run?
 round_collision_behavior = false
 can_collide = true
 can_open_menu = true
@@ -28,6 +28,8 @@ animation_frames = sprite_get_number(walk_sprite)/4 //Amount of frames the walki
 
 //-------------------------
 
+player_previous_positions = []
+
 state_none_function = undefined
 
 spawn_point_reference = noone
@@ -35,3 +37,7 @@ spawn_point_offset = 0
 
 timer = 2 //For replicating that 30 FPS feel on the 60 FPS, that means the variable player_speed is doubled for that reason, needed for the frisk_dance consistency.
 animation_timer = 5 //Starts at animation_speed - 1, so it walks immediatelly when the button is pressed.
+move_x = 0 //Used to move the player pixel by pixel
+move_y = 0
+move_to_x = x
+move_to_y = y

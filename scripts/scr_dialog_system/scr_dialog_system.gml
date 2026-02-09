@@ -1381,6 +1381,12 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 					var _command_action = true //Flag for command being an action.
 					var _command_data = {index: _j}
 					
+					//Convert to lowercase the commands
+					var _length = array_length(_command_content)
+					for (var _k=0; _k<_length; _k++){
+						_command_content[_k] = string_lower(_command_content[_k])
+					}
+					
 					//Delete the command from the dialog itself, as it won't be displayed on the game.
 					_dialog = string_delete(_dialog, _j, _command_length)
 					
@@ -2039,7 +2045,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 			//From here starts the auto line jump algorithm for the dialog, that is why the width of the dialog is asked.
 			
 			var _word_ender_chars_array = [" ", "\n", "\r", "-", "/", "\\", "|"] //Characters that are marked as word enders, usually all words end in one of these at least.
-			var _length = 7 //Length of the _word_ender_chars_array, always is 7.
+			var _length = 7 //length of the _word_ender_chars_array, always is 7.
 			var _current_action_commands_array = action_commands[_i] //During the process of the automatic line jump, some line jumps are inserted, making it increase by 1 and offsetting the commands's indexes.
 			var _current_action_commands_length = array_length(_current_action_commands_array)
 			var _current_visual_commands_array = visual_commands[_i] //These variables are to keep a short reference to the commands of the current dialog and their length, if needed when inserting line jumps.
@@ -2169,6 +2175,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 			//------------------------------------------------------------------------------------------------------------------------------------------------------------
 			//Variables that get the current information of the current dialog to display it on screen properly.
 			
+			draw_set_font(font)
 			variable_reset()
 			line_jump_height = string_height("Ag'") + spacing_height
 			
@@ -3113,13 +3120,11 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		visual_command_length = array_length(visual_commands[0])
 		dialog = dialogues[0]
 		text_timer = 0 //Starts at 0 so initial commands execute.
-		text_speed = 2 //Speed also gets reset.
 		effect_timer = 0
 		string_index = -asterisk
 		dialog_length = string_length(dialog)
 		skipeable = true //Player input checking is restored.
 		can_progress = true
-		reproduce_voice = true //Voice gets unmuted.
 		wait_for_key = undefined
 		wait_for_function = undefined
 		function_arguments = undefined

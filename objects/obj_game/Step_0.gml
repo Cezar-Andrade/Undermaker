@@ -853,7 +853,7 @@ switch (state){
 						if (battle_only_attack_undefined){
 							for (var _i=0; _i<_length; _i++){
 								var _attack = battle_enemies_attacks[_i]
-								if (!is_undefined(_attack)){
+								if (!is_undefined(_attack.cleanup)){
 									_attack.cleanup()
 								}
 							}

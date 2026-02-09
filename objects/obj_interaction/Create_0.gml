@@ -10,3 +10,4 @@ previous_angle_of_this_instance = image_angle //The purpose of this is to have a
 update = undefined
 interaction = undefined
 when_colliding = undefined
+has_collided = false

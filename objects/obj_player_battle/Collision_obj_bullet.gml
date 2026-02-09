@@ -20,7 +20,7 @@ if (other.can_damage and image_alpha == 1 and invulnerability_frames <= 0){
 			}
 		}
 		default:{
-			if ((other.type == BULLET_TYPE.CYAN and is_player_moving(self)) or (other.type == BULLET_TYPE.ORANGE and !is_player_moving(self)) or (other.type != BULLET_TYPE.CYAN and other.type != BULLET_TYPE.ORANGE)){
+			if ((other.type == BULLET_TYPE.CYAN and is_player_soul_moving(self)) or (other.type == BULLET_TYPE.ORANGE and !is_player_soul_moving(self)) or (other.type != BULLET_TYPE.CYAN and other.type != BULLET_TYPE.ORANGE)){
 				damage_player_bullet_instance(other, self)
 			}
 		break}

@@ -73,6 +73,7 @@
   "resources":[
     {"id":{"name":"fnt_battle_status","path":"fonts/fnt_battle_status/fnt_battle_status.yy",},},
     {"id":{"name":"fnt_crypt_of_tomorrow","path":"fonts/fnt_crypt_of_tomorrow/fnt_crypt_of_tomorrow.yy",},},
+    {"id":{"name":"fnt_determination_mono_1","path":"fonts/fnt_determination_mono_1/fnt_determination_mono_1.yy",},},
     {"id":{"name":"fnt_determination_mono","path":"fonts/fnt_determination_mono/fnt_determination_mono.yy",},},
     {"id":{"name":"fnt_determination_sans","path":"fonts/fnt_determination_sans/fnt_determination_sans.yy",},},
     {"id":{"name":"fnt_mars_needs_cunnilingus","path":"fonts/fnt_mars_needs_cunnilingus/fnt_mars_needs_cunnilingus.yy",},},
@@ -97,6 +98,7 @@
     {"id":{"name":"rm_overworld_1_grass_land","path":"rooms/rm_overworld_1_grass_land/rm_overworld_1_grass_land.yy",},},
     {"id":{"name":"rm_overworld_2_the_void","path":"rooms/rm_overworld_2_the_void/rm_overworld_2_the_void.yy",},},
     {"id":{"name":"rm_overworld_3_hallway","path":"rooms/rm_overworld_3_hallway/rm_overworld_3_hallway.yy",},},
+    {"id":{"name":"rm_void","path":"rooms/rm_void/rm_void.yy",},},
     {"id":{"name":"scr_battle_functions","path":"scripts/scr_battle_functions/scr_battle_functions.yy",},},
     {"id":{"name":"scr_cell_functions","path":"scripts/scr_cell_functions/scr_cell_functions.yy",},},
     {"id":{"name":"scr_constants","path":"scripts/scr_constants/scr_constants.yy",},},
@@ -169,6 +171,7 @@
     {"id":{"name":"spr_mad_dummy_torso","path":"sprites/spr_mad_dummy_torso/spr_mad_dummy_torso.yy",},},
     {"id":{"name":"spr_papyrus","path":"sprites/spr_papyrus/spr_papyrus.yy",},},
     {"id":{"name":"spr_pixel","path":"sprites/spr_pixel/spr_pixel.yy",},},
+    {"id":{"name":"spr_platform_arrow","path":"sprites/spr_platform_arrow/spr_platform_arrow.yy",},},
     {"id":{"name":"spr_player_bubble_warning_sign","path":"sprites/spr_player_bubble_warning_sign/spr_player_bubble_warning_sign.yy",},},
     {"id":{"name":"spr_player_buttons","path":"sprites/spr_player_buttons/spr_player_buttons.yy",},},
     {"id":{"name":"spr_player_heart_broken","path":"sprites/spr_player_heart_broken/spr_player_heart_broken.yy",},},
@@ -192,6 +195,7 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
+    {"roomId":{"name":"rm_void","path":"rooms/rm_void/rm_void.yy",},},
     {"roomId":{"name":"rm_overworld_1_grass_land","path":"rooms/rm_overworld_1_grass_land/rm_overworld_1_grass_land.yy",},},
     {"roomId":{"name":"rm_overworld_2_the_void","path":"rooms/rm_overworld_2_the_void/rm_overworld_2_the_void.yy",},},
     {"roomId":{"name":"rm_overworld_3_hallway","path":"rooms/rm_overworld_3_hallway/rm_overworld_3_hallway.yy",},},

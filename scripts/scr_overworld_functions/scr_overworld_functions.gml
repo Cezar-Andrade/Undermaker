@@ -250,11 +250,12 @@ function handle_collision_object_and_interaction_collision(_id){
 	return _direction
 }
 
-function general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, _handle_collision_function){
+function general_object_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, _handle_collision_function){
 	var _id_index = -1
 	
 	for (var _i=0; _i < _collision_amount; _i++){
-		if (_colliding_instances[_i] == id){
+		var _instance_id = _colliding_instances[_i]
+		if (typeof(_instance_id) == "ref" and _instance_id == id){
 			_id_index = _i
 			
 			break
@@ -309,20 +310,20 @@ function general_entity_update(_pusher=undefined){
 			}
 			
 			if (_can_collide){
-				_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_collision_object_and_interaction_collision)
+				_collision_amount = general_object_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_collision_object_and_interaction_collision)
 			}
 		}
 		
 		with (obj_interaction){
 			if (can_entities_collide){
-				_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_collision_object_and_interaction_collision)
+				_collision_amount = general_object_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_collision_object_and_interaction_collision)
 			}
 		}
 		
 		if (!can_overlap){
 			with (obj_entity){
 				if (id != _id and id != _pusher and (!can_entities_push or !_id.can_push_entities) and !can_overlap){
-					_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_entity_collision)
+					_collision_amount = general_object_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_entity_collision)
 				}
 			}
 		}
@@ -346,7 +347,7 @@ function general_entity_update(_pusher=undefined){
 				
 				if (!_id.can_overlap and place_meeting(x, y, _id)){
 					do{
-						_collision_amount = general_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_entity_collision)
+						_collision_amount = general_object_collision_handler(_id, _colliding_instances, _instance_directions, _collision_amount, handle_entity_collision)
 					}until (_collision_amount == 0)
 				}
 			}
