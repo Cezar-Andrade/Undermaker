@@ -1473,7 +1473,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 									var _temp_argument_3 = string_copy(_arguments[3], 1, _k - 1)
 									_arguments[3] = string_delete(_arguments[3], 1, _k)
 									var _cut_arguments = string_split(_arguments[3], ",")
-									var _length = array_length(_cut_arguments)
+									_length = array_length(_cut_arguments)
 									_arguments[3] = _temp_argument_3
 									
 									for (var _l = 0; _l < _length; _l++){
@@ -1521,7 +1521,7 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 								break
 							}
 							
-							var _length = array_length(_arguments)
+							_length = array_length(_arguments)
 							_command_data.type = COMMAND_TYPE.SHOW_DIALOG_POP_UP
 							_command_data.value = _arguments
 							

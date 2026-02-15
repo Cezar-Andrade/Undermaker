@@ -8,19 +8,24 @@ if (_move_x != 0 or _move_y != 0){
 	move_y = _move_y
 }
 
+if (mode == SOUL_MODE.NORMAL){
+	conveyor_push.x = 0
+	conveyor_push.y = 0
+}
+
 if (obj_game.battle_state == BATTLE_STATE.ENEMY_ATTACK or obj_game.battle_state == BATTLE_STATE.END_DODGE_ATTACK){
 	if (move_x != 0 or move_y != 0){
 		var _finish = false
 		var _is_x_longer = (abs(move_x) >= abs(move_y))
 		var _longer = abs(_is_x_longer ? move_x : move_y)
 		var _increment = (_is_x_longer ? move_y : move_x)/_longer
-	
+		
 		while (_longer > 0){
 			array_push(soul_previous_positions, [x, y])
 		
 			var _step = min(1, _longer)
 			_longer -= min(_step, _longer)
-		
+			
 			if (_is_x_longer){
 				x += sign(move_x)*_step
 				y += _increment*_step
@@ -55,5 +60,5 @@ move_x = 0
 move_y = 0
 move_to_x = undefined
 move_to_y = undefined
-x = round(x)
-y = round(y)
+//x = round(x)
+//y = round(y)

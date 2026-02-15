@@ -13,21 +13,16 @@ function enemy_attack(_attack_name, _position) constructor{
 		case ENEMY_ATTACK.MAD_DUMMY_1: {
 			battle_box_resize(130, 130)
 			timer -= 15*_position
-			set_soul_mode(SOUL_MODE.GRAVITY)
-			//set_soul_gravity(GRAVITY_SOUL.RIGHT, true)
-			with (instance_create_depth(320, 350, 0, obj_platform)){
-				
-			}
 			
 			update = function(){
 				timer++
 				
 				if (timer%30 == 10){
-					//spawn_bullet(spr_circle_bullet, 0, 0, irandom(359), 300,, BULLET_TYPE.ORANGE)
+					spawn_bullet(spr_circle_bullet, 0, 0, irandom(359), 300)
 				}
 				
 				if (timer > 300){
-					//attack_done = true
+					attack_done = true
 				}
 			}
 			

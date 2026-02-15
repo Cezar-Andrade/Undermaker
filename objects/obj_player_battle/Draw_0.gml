@@ -1,68 +1,39 @@
-/// @description Game over displaying
+/// @description Player drawing and animating
 
-draw_self()
-/*
-if (State == "GameOver"){
-	if (!Dunked){
-		anim++
-		var alpha = clamp(timer - 60, 0, 30)/30 + (state != "")
-		var alpha2 = clamp(timer - 120, 0, 30)/30 + (state != "") - (state == "Continue")*min(timer + 200, 60)/60
-		var color = make_color_rgb(255 - 128*alpha2, 255 - 128*alpha2, 255 - 128*alpha2)
-		draw_sprite_ext(spr_GAMEOVER, 0, 0, -(16*anim)%40, 2, 2, 0, c_white, alpha)
-		draw_sprite_ext(spr_GAMEOVER, 0, 0, 480 - (16*anim)%40, 2, 2, 0, c_white, alpha)
-		draw_sprite_ext(spr_GAMEOVER, 1, 0, 0, 2, 2, 0, c_white, 1)
-		shader_set(shd_outline)
-		shader_set_uniform_f(uAlpha, alpha2)
-		shader_set_uniform_f(uPixelX, texelX)
-		shader_set_uniform_f(uPixelY, texelY)
-		draw_sprite_ext(spr_chara_dies, (anim/3)%3, 320, 300, 2, 2, 0, color, alpha)
-		shader_reset()
-		draw_sprite_ext(spr_GAMEOVER, 2, 0, 0, 2, 2, 0, c_white, (state == "Give up") + (clamp(timer - 60, 0, 60) + (state == "Continue")*max(-timer - 140, 0))/60)
-		draw_set_alpha(alpha2)
-		draw_set_font(fn_big_8bit)
-		var pink = make_color_rgb(255,187,212)
-		draw_set_color(c_white)
-		if (timer >= 165 and select == 0){
-			draw_set_color(pink)
+if (sticky_animation.timer > 0){
+	var _animation_frame
+	with (sticky_animation){
+		_animation_frame = dsin(180*timer/10)
+		other.animation_offset_x = distance*dcos(direction)*_animation_frame
+		other.animation_offset_y = distance*dsin(direction)*_animation_frame
+		
+		if (timer < 5 or !keep_animation){
+			timer++
+		}else if (timer > 5){
+			timer--
 		}
-		draw_text(140, 380, "Continue")
-		draw_set_color(c_white)
-		if (timer >= 165 and select == 1){
-			draw_set_color(pink)
+		
+		if (timer == 2){
+			//audio_play_sound(snd_sticked, 0, false)
+		}else if (timer == 11){
+			timer = 0
 		}
-		draw_text(400, 380, "Give up")
-		if (state == "Give up"){
-			draw_set_alpha(min(timer + 200, 60)/60)
-			draw_set_color(c_black)
-			draw_rectangle(-10,-10,650,490,false)
-			draw_set_color(c_white)
-		}
-		draw_set_alpha(1)
-		if (timer == 110){
-			GameOverText.Draw()
-		}
-	}else{
-		var alpha = clamp(timer - 170, 0, 30)/30 + (state != "")*(1 - min(timer + 200, 60)/60)
-		draw_sprite_ext(spr_GAMEOVER, 3, 0, 0, 2, 2, 0, c_white, clamp(timer - 90, 0, 60)/60 + (state != "")*(1 - min(timer + 200, 60)/60))
-		draw_set_alpha(alpha)
-		draw_set_font(fn_big_8bit)
-		var pink = make_color_rgb(255,187,212)
-		draw_set_color(c_white)
-		if (timer >= 215 and select == 0){
-			draw_set_color(pink)
-		}
-		draw_text(140, 380, "Continue")
-		draw_set_color(c_white)
-		if (timer >= 215 and select == 1){
-			draw_set_color(pink)
-		}
-		draw_text(400, 380, "Give up")
-		draw_set_alpha(1)
-		if (timer == 160){
-			GameOverText.Draw()
-		}
+		
+		keep_animation = false
 	}
-	for (var i=0i < array_length(Shards)i++){
-		draw_sprite_ext(spr_heartshard, Shards[i].frame, Shards[i].xpos, Shards[i].ypos, 1, 1, 0, image_blend, 1)
-	}
+	
+	calculate_object_sprite_size_offset()
+	
+	var _direction = sticky_animation.direction
+	var _horizontal_axis = ((dsin(_direction) >= 0) ? sprite_right_offset : sprite_left_offset)
+	var _vertical_axis = ((dcos(_direction) >= 0) ? sprite_bottom_offset : sprite_top_offset)
+	var _offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_direction), 2) + power(_horizontal_axis*dsin(_direction), 2)) + 1
+	
+	var _p1_x = x - _offset*dcos(_direction) + min(dcos(_direction), 0) - 0.5
+	var _p1_y = y + _offset*dsin(_direction) + min(dsin(_direction), 0) - 0.5
+	
+	draw_line_width(_p1_x, _p1_y, _p1_x + animation_offset_x + _offset*dcos(_direction)*_animation_frame, _p1_y - animation_offset_y - _offset*dsin(_direction)*_animation_frame, 4)
+	draw_sprite_ext(sprite_index, image_index, x + animation_offset_x, y - animation_offset_y, image_xscale, image_yscale, image_angle, image_blend, image_alpha)
+}else{
+	draw_self()
 }

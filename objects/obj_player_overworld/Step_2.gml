@@ -53,8 +53,8 @@ move_x = 0
 move_y = 0
 move_to_x = undefined
 move_to_y = undefined
-x = round(x)
-y = round(y)
+//x = round(x)
+//y = round(y)
 
 if (obj_game.state == GAME_STATE.PLAYER_CONTROL){
 	//This is the part where the interaction check is being executed.

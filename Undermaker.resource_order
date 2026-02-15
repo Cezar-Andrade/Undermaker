@@ -61,7 +61,6 @@
     {"name":"rm_overworld_1_grass_land","order":1,"path":"rooms/rm_overworld_1_grass_land/rm_overworld_1_grass_land.yy",},
     {"name":"rm_overworld_2_the_void","order":2,"path":"rooms/rm_overworld_2_the_void/rm_overworld_2_the_void.yy",},
     {"name":"rm_overworld_3_hallway","order":3,"path":"rooms/rm_overworld_3_hallway/rm_overworld_3_hallway.yy",},
-    {"name":"rm_void","order":4,"path":"rooms/rm_void/rm_void.yy",},
     {"name":"scr_battle_functions","order":7,"path":"scripts/scr_battle_functions/scr_battle_functions.yy",},
     {"name":"scr_cell_functions","order":3,"path":"scripts/scr_cell_functions/scr_cell_functions.yy",},
     {"name":"scr_constants","order":2,"path":"scripts/scr_constants/scr_constants.yy",},

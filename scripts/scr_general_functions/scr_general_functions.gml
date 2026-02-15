@@ -98,6 +98,66 @@ function get_vertical_button_force(_hold=true){
 
 //UTIL FUNCTIONS
 
+function calculate_object_sprite_size_offset(){
+	var _player_sprite = sprite_index
+	var _player_angle = image_angle
+	var _player_xscale = image_xscale
+	var _player_yscale = image_yscale
+	var _player_sprite_xoffset = sprite_get_xoffset(_player_sprite)
+	var _player_sprite_yoffset = sprite_get_yoffset(_player_sprite)
+	
+	var _sprite_left = _player_xscale*_player_sprite_xoffset - 0.5
+	var _sprite_top = _player_yscale*_player_sprite_yoffset - 0.5
+	var _sprite_right = _player_xscale*(sprite_get_width(_player_sprite) - _player_sprite_xoffset) - 0.5
+	var _sprite_bottom = _player_yscale*(sprite_get_height(_player_sprite) - _player_sprite_yoffset) - 0.5
+	
+	var _horizontal_axis = ((dcos(_player_angle) >= 0) ? _sprite_left : _sprite_right)
+	var _vertical_axis = ((dsin(_player_angle) >= 0) ? _sprite_top : _sprite_bottom)
+	sprite_left_offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_player_angle), 2) + power(_horizontal_axis*dsin(_player_angle), 2))
+	
+	_horizontal_axis = ((dsin(_player_angle) >= 0) ? _sprite_right : _sprite_left)
+	_vertical_axis = ((dcos(_player_angle) >= 0) ? _sprite_top : _sprite_bottom)
+	sprite_top_offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_player_angle), 2) + power(_horizontal_axis*dsin(_player_angle), 2))
+	
+	_horizontal_axis = ((dcos(_player_angle) >= 0) ? _sprite_right : _sprite_left)
+	_vertical_axis = ((dsin(_player_angle) >= 0) ? _sprite_bottom : _sprite_top)
+	sprite_right_offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_player_angle), 2) + power(_horizontal_axis*dsin(_player_angle), 2))
+	
+	_horizontal_axis = ((dsin(_player_angle) >= 0) ? _sprite_left : _sprite_right)
+	_vertical_axis = ((dcos(_player_angle) >= 0) ? _sprite_bottom : _sprite_top)
+	sprite_bottom_offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_player_angle), 2) + power(_horizontal_axis*dsin(_player_angle), 2))
+}
+
+function calculate_object_collision_offset(){
+	var _player_sprite = sprite_index
+	var _player_angle = image_angle
+	var _player_xscale = image_xscale
+	var _player_yscale = image_yscale
+	var _player_sprite_half_width = sprite_get_width(_player_sprite)/2
+	var _player_sprite_half_height = sprite_get_height(_player_sprite)/2
+	
+	var _sprite_bbox_left = _player_xscale*(_player_sprite_half_width - sprite_get_bbox_left(_player_sprite)) - 0.5
+	var _sprite_bbox_top = _player_yscale*(_player_sprite_half_height - sprite_get_bbox_top(_player_sprite)) - 0.5
+	var _sprite_bbox_right = _player_xscale*(sprite_get_bbox_right(_player_sprite) - _player_sprite_half_width + 1) - 0.5
+	var _sprite_bbox_bottom = _player_yscale*(sprite_get_bbox_bottom(_player_sprite) - _player_sprite_half_height + 1) - 0.5
+	
+	var _horizontal_axis = ((dcos(_player_angle) >= 0) ? _sprite_bbox_left : _sprite_bbox_right)
+	var _vertical_axis = ((dsin(_player_angle) >= 0) ? _sprite_bbox_top : _sprite_bbox_bottom)
+	sprite_left_collision_offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_player_angle), 2) + power(_horizontal_axis*dsin(_player_angle), 2))
+	
+	_horizontal_axis = ((dsin(_player_angle) >= 0) ? _sprite_bbox_right : _sprite_bbox_left)
+	_vertical_axis = ((dcos(_player_angle) >= 0) ? _sprite_bbox_top : _sprite_bbox_bottom)
+	sprite_top_collision_offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_player_angle), 2) + power(_horizontal_axis*dsin(_player_angle), 2))
+	
+	_horizontal_axis = ((dcos(_player_angle) >= 0) ? _sprite_bbox_right : _sprite_bbox_left)
+	_vertical_axis = ((dsin(_player_angle) >= 0) ? _sprite_bbox_bottom : _sprite_bbox_top)
+	sprite_right_collision_offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_player_angle), 2) + power(_horizontal_axis*dsin(_player_angle), 2))
+	
+	_horizontal_axis = ((dsin(_player_angle) >= 0) ? _sprite_bbox_left : _sprite_bbox_right)
+	_vertical_axis = ((dcos(_player_angle) >= 0) ? _sprite_bbox_bottom : _sprite_bbox_top)
+	sprite_bottom_collision_offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_player_angle), 2) + power(_horizontal_axis*dsin(_player_angle), 2))
+}
+
 function intersection_of_lines(_x1, _y1, _direction_1, _x2, _y2, _direction_2){
 	var _delta_x1 = lengthdir_x(1, _prev_direction)
 	var _delta_y1 = lengthdir_y(1, _prev_direction)
@@ -142,11 +202,15 @@ function set_soul_mode(_mode, _args=undefined, _obj=obj_player_battle){
 
 function set_soul_gravity(_direction=GRAVITY_SOUL.DOWN, _slam=false, _obj=obj_player_battle){
 	with (_obj){
-		gravity_data.direction = _direction
+		image_angle = 90*_direction
 		
-		if (_slam){
-			gravity_data.jump.speed = -10
-			gravity_data.slam = true
+		with (gravity_data){
+			direction = _direction
+		
+			if (_slam){
+				jump.speed = -10
+				slam = true
+			}
 		}
 	}
 }
@@ -177,7 +241,22 @@ function damage_player_bullet_instance(_bullet, _player){
 }
 
 function is_player_soul_moving(_player=obj_player_battle){
-	return _player.x != _player.xprevious or _player.y != _player.yprevious or _player.move_x != 0 or _player.move_y != 0 or (!is_undefined(_player.move_to_x) and _player.move_to_x != x) or (!is_undefined(_player.move_to_y) and _player.move_to_y != y)
+	with (_player){
+		var _extra_x = conveyor_push.x
+		var _extra_y = conveyor_push.y
+		
+		_extra_x += platform_vel.x
+		_extra_y += platform_vel.y
+		
+		if (mode == SOUL_MODE.GRAVITY){
+			if (gravity_data.box_bound){
+				_extra_x += obj_box.x - obj_box.xprevious
+				_extra_y -= obj_box.y - obj_box.yprevious
+			}
+		}
+		
+		return x != xprevious + _extra_x or y != yprevious + _extra_y or move_x != _extra_x or move_y != _extra_y or (!is_undefined(move_to_x) and move_to_x != x + _extra_x) or (!is_undefined(move_to_y) and move_to_y != y + _extra_y)
+	}
 }
 
 // BATTLE FUNCTIONS - PLATFORM
@@ -209,7 +288,7 @@ function get_box_right(){
 
 // CORE FUNCTIONS - SOUL COLLISION
 
-function general_line_collision_handler(_id, _line_points, _line_direction, _line_id, _counter_clockwise_push, _colliding_instances, _instance_directions, _collision_amount, _after_push_function=undefined){
+function general_line_collision_handler(_id, _line_points, _line_direction, _line_id, _counter_clockwise_push, _colliding_instances, _instance_directions, _collision_amount, _before_push_function=undefined){
 	var _id_index = -1
 	
 	for (var _i=0; _i < _collision_amount; _i++){
@@ -222,30 +301,45 @@ function general_line_collision_handler(_id, _line_points, _line_direction, _lin
 	}
 	
 	if (collision_line(_line_points[0], _line_points[1], _line_points[2], _line_points[3], _id, false, false)){
+		var _collide = true
 		if (_id_index >= 0){
 			var _direction = _instance_directions[_id_index]
 			
-			_id.x += dcos(_direction)
-			_id.y -= dsin(_direction)
+			if (!is_undefined(_before_push_function)){
+				var _data = _before_push_function(_id, _direction, _counter_clockwise_push)
+				_collide = _data[0]
+				_direction = _data[1]
+			}
 			
-			_after_push_function(_direction)
+			if (_collide){
+				_id.x += dcos(_direction)
+				_id.y -= dsin(_direction)
+			}else{
+				array_delete(_colliding_instances, _id_index, 1)
+				array_delete(_instance_directions, _id_index, 1)
+				_collision_amount--
+			}
 			
 			return _collision_amount
 		}
 		
 		var _direction = _line_direction - 90 + 180*_counter_clockwise_push
 		
-		_id.x += dcos(_direction)
-		_id.y -= dsin(_direction)
-		
-		if (!is_undefined(_after_push_function)){
-			_after_push_function(_direction)
+		if (!is_undefined(_before_push_function)){
+			var _data = _before_push_function(_id, _direction, _counter_clockwise_push)
+			_collide = _data[0]
+			_direction = _data[1]
 		}
 		
-		if (collision_line(_line_points[0], _line_points[1], _line_points[2], _line_points[3], _id, false, false)){
-			array_push(_colliding_instances, {object_id: id, line_id: _line_id, points: [_line_points[0], _line_points[1], _line_points[2], _line_points[3]]})
-			array_push(_instance_directions, _direction)
-			_collision_amount++
+		if (_collide){
+			_id.x += dcos(_direction)
+			_id.y -= dsin(_direction)
+		
+			if (collision_line(_line_points[0], _line_points[1], _line_points[2], _line_points[3], _id, false, false)){
+				array_push(_colliding_instances, {object_id: id, line_id: _line_id, points: [_line_points[0], _line_points[1], _line_points[2], _line_points[3]]})
+				array_push(_instance_directions, _direction)
+				_collision_amount++
+			}
 		}
 	}else if (_id_index >= 0){
 		array_delete(_colliding_instances, _id_index, 1)
@@ -265,26 +359,81 @@ function soul_update_collision(){
 	var _has_checked = false
 	var _a_valid_direction_found = false
 	
-	with (obj_platform){
-		var _p1_x = x - length/2*dcos(image_angle)
-		var _p1_y = y + length/2*dsin(image_angle)
-		var _p2_x = x + length/2*dcos(image_angle)
-		var _p2_y = y - length/2*dsin(image_angle)
-		
-		if (collision_line(_p1_x, _p1_y, _p2_x, _p2_y, other, false, false) and !is_undefined(when_colliding) and !has_collided){
-			when_colliding()
-			has_collided = true
-		}
-	}
-	
 	do{
-		//This is for the obj_collision, which if the collision_id is 0, it will make the player collide with it.
-		//Different ids of collision are used so other objects like obj_entity can interact with these in different ways, shaping mazes where you push rocks, etc.
+		with (obj_platform){
+			var _direction = image_angle - other.image_angle
+			var _horizontal_axis = ((dsin(_direction) >= 0) ? other.sprite_right_collision_offset : other.sprite_left_collision_offset)
+			var _vertical_axis = ((dcos(_direction) >= 0) ? other.sprite_bottom_collision_offset : other.sprite_top_collision_offset)
+			var _offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_direction), 2) + power(_horizontal_axis*dsin(_direction), 2))
+			
+			var _platform_p1_x = x - length/2*dcos(image_angle) - _offset*dsin(image_angle)
+			var _platform_p1_y = y + length/2*dsin(image_angle) - _offset*dcos(image_angle)
+			var _platform_p2_x = x + length/2*dcos(image_angle) - _offset*dsin(image_angle)
+			var _platform_p2_y = y - length/2*dsin(image_angle) - _offset*dcos(image_angle)
+			
+			_collision_amount = general_line_collision_handler(other, [_platform_p1_x, _platform_p1_y, _platform_p2_x, _platform_p2_y], image_angle, 0, true, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
+			
+			var _p1_x = _platform_p1_x - dsin(image_angle)
+			var _p1_y = _platform_p1_y - dcos(image_angle)
+			var _p2_x = _platform_p2_x - dsin(image_angle)
+			var _p2_y = _platform_p2_y - dcos(image_angle)
+			
+			_collision_amount = general_line_collision_handler(other, [_p1_x, _p1_y, _p2_x, _p2_y], image_angle, 1, true, _colliding_instances, _instance_directions, _collision_amount, effect_collision_function)
+			
+			if (type == PLATFORM_TYPE.STICKY and is_player_on){
+				_direction += 180
+				_horizontal_axis = ((dsin(_direction) >= 0) ? other.sprite_right_collision_offset : other.sprite_left_collision_offset)
+				_vertical_axis = ((dcos(_direction) >= 0) ? other.sprite_bottom_collision_offset : other.sprite_top_collision_offset)
+				_offset += _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_direction), 2) + power(_horizontal_axis*dsin(_direction), 2))
+				
+				var _push_direction = image_angle + 90
+				var _tan_x = clamp((dcos(_push_direction) >= 0) ? abs(dtan(_push_direction + 90)) : -abs(dtan(_push_direction + 90)), -1, 1)
+				var _tan_y = clamp((dsin(_push_direction) >= 0) ? -abs(dtan(_push_direction)) : abs(dtan(_push_direction)), -1, 1)
+				_p1_x += (_offset + 1)*_tan_x
+				_p1_y += (_offset + 1)*_tan_y
+				_p2_x += (_offset + 1)*_tan_x
+				_p2_y += (_offset + 1)*_tan_y
+				
+				_collision_amount = general_line_collision_handler(other, [_p1_x, _p1_y, _p2_x, _p2_y], image_angle + 180, 2, true, _colliding_instances, _instance_directions, _collision_amount, player_sticky_platform_collision_function)
+				
+				var _func = function(){
+					is_player_on = false
+					other.sticky_animation.timer = 0
+					
+					return [false, 0]
+				}
+				
+				_direction -= 90
+				_horizontal_axis = ((dsin(_direction) >= 0) ? other.sprite_right_collision_offset : other.sprite_left_collision_offset)
+				_vertical_axis = ((dcos(_direction) >= 0) ? other.sprite_bottom_collision_offset : other.sprite_top_collision_offset)
+				_offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_direction), 2) + power(_horizontal_axis*dsin(_direction), 2))
+				
+				_direction += 180
+				_horizontal_axis = ((dsin(_direction) >= 0) ? other.sprite_right_collision_offset : other.sprite_left_collision_offset)
+				_vertical_axis = ((dcos(_direction) >= 0) ? other.sprite_bottom_collision_offset : other.sprite_top_collision_offset)
+				_offset += _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_direction), 2) + power(_horizontal_axis*dsin(_direction), 2))
+				
+				_platform_p1_x -= _offset*dcos(image_angle)
+				_platform_p1_y -= _offset*dsin(image_angle)
+				_p1_x -= _offset*dcos(image_angle)
+				_p1_y -= _offset*dsin(image_angle)
+				
+				_platform_p2_x += _offset*dcos(image_angle)
+				_platform_p2_y += _offset*dsin(image_angle)
+				_p2_x += _offset*dcos(image_angle)
+				_p2_y += _offset*dsin(image_angle)
+				
+				_collision_amount = general_line_collision_handler(other, [_platform_p1_x, _platform_p1_y, _p1_x, _p1_y], image_angle - 90, 3, true, _colliding_instances, _instance_directions, _collision_amount, _func)
+				_collision_amount = general_line_collision_handler(other, [_platform_p2_x, _platform_p2_y, _p2_x, _p2_y], image_angle + 90, 4, true, _colliding_instances, _instance_directions, _collision_amount, _func)
+			}
+		}
+		
 		with (obj_box){
 			var _inside_points = box_polygon_points.inside
 			var _outside_points = box_polygon_points.outside
 			var _direction_points = box_polygon_points.direction
 			var _length = array_length(box_polygon_points.inside)
+			
 			for (var _i=0; _i<_length; _i+=2){
 				var _id_x, _id_y
 				if (_i + 2 >= _length){
@@ -295,21 +444,12 @@ function soul_update_collision(){
 					_id_y = _i + 3
 				}
 				
-				var _player_sprite = other.sprite_index
-				var _player_angle = other.image_angle
-				var _sprite_bbox_left = sprite_get_bbox_left(_player_sprite)
-				var _sprite_bbox_top = sprite_get_bbox_top(_player_sprite)
-				var _sprite_bbox_right = sprite_get_width(_player_sprite) - sprite_get_bbox_right(_player_sprite) - 1
-				var _sprite_bbox_bottom = sprite_get_height(_player_sprite) - sprite_get_bbox_bottom(_player_sprite) - 1
-				var _sprite_left_collision_offset = _sprite_bbox_left*max(dcos(_player_angle), 0) + _sprite_bbox_top*max(dsin(_player_angle), 0) - _sprite_bbox_right*min(dcos(_player_angle), 0) - _sprite_bbox_bottom*min(dsin(_player_angle), 0)
-				var _sprite_top_collision_offset = _sprite_bbox_top*max(dcos(_player_angle), 0) + _sprite_bbox_right*max(dsin(_player_angle), 0) - _sprite_bbox_bottom*min(dcos(_player_angle), 0) - _sprite_bbox_left*min(dsin(_player_angle), 0)
-				var _sprite_right_collision_offset = _sprite_bbox_right*max(dcos(_player_angle), 0) + _sprite_bbox_bottom*max(dsin(_player_angle), 0) - _sprite_bbox_left*min(dcos(_player_angle), 0) - _sprite_bbox_top*min(dsin(_player_angle), 0)
-				var _sprite_bottom_collision_offset = _sprite_bbox_bottom*max(dcos(_player_angle), 0) + _sprite_bbox_left*max(dsin(_player_angle), 0) - _sprite_bbox_top*min(dcos(_player_angle), 0) - _sprite_bbox_right*min(dsin(_player_angle), 0)
-				
 				var _direction = _direction_points[_i div 2]
 				var _next_direction = _direction_points[_id_x div 2]
 				
-				var _offset = _sprite_bottom_collision_offset*max(dcos(_direction), 0) + _sprite_right_collision_offset*max(dsin(_direction), 0) - _sprite_top_collision_offset*min(dcos(_direction), 0) - _sprite_left_collision_offset*min(dsin(_direction), 0)
+				var _horizontal_axis = ((dsin(_direction) >= 0) ? other.sprite_right_collision_offset : other.sprite_left_collision_offset)
+				var _vertical_axis = ((dcos(_direction) >= 0) ? other.sprite_bottom_collision_offset : other.sprite_top_collision_offset)
+				var _offset = _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_direction), 2) + power(_horizontal_axis*dsin(_direction), 2))
 				
 				var _normal_angle = _direction + 90
 				var _p1_i_x = _inside_points[_i] + _offset*dcos(_normal_angle)
@@ -323,7 +463,7 @@ function soul_update_collision(){
 				var _p2_o_x = _outside_points[_id_x] + _offset*dcos(_normal_angle)
 				var _p2_o_y = _outside_points[_id_y] - _offset*dsin(_normal_angle)
 				
-				_offset = _sprite_bottom_collision_offset*max(dcos(_next_direction), 0) + _sprite_right_collision_offset*max(dsin(_next_direction), 0) - _sprite_top_collision_offset*min(dcos(_next_direction), 0) - _sprite_left_collision_offset*min(dsin(_next_direction), 0)
+				_offset = other.sprite_bottom_collision_offset*max(dcos(_next_direction), 0) + other.sprite_right_collision_offset*max(dsin(_next_direction), 0) - other.sprite_top_collision_offset*min(dcos(_next_direction), 0) - other.sprite_left_collision_offset*min(dsin(_next_direction), 0)
 				
 				_normal_angle = _next_direction + 90
 				var _p3_i_x = _inside_points[_id_x] + _offset*dcos(_normal_angle)
@@ -334,21 +474,11 @@ function soul_update_collision(){
 				var _p3_o_y = _outside_points[_id_y] - _offset*dsin(_normal_angle)
 				
 				var _start_id = 2*_i
-				_collision_amount = general_line_collision_handler(other, [_p1_i_x, _p1_i_y, _p2_i_x, _p2_i_y], _direction, _start_id, true, _colliding_instances, _instance_directions, _collision_amount, other.box_collsion_func)
-				_collision_amount = general_line_collision_handler(other, [_p2_i_x, _p2_i_y, _p3_i_x, _p3_i_y], point_direction(_p2_i_x, _p2_i_y, _p3_i_x, _p3_i_y), _start_id + 1, true, _colliding_instances, _instance_directions, _collision_amount, other.box_collsion_func)
-				_collision_amount = general_line_collision_handler(other, [_p1_o_x, _p1_o_y, _p2_o_x, _p2_o_y], _direction, _start_id + 2, false, _colliding_instances, _instance_directions, _collision_amount, other.box_collsion_func)
-				_collision_amount = general_line_collision_handler(other, [_p2_o_x, _p2_o_y, _p3_o_x, _p3_o_y], point_direction(_p2_o_x, _p2_o_y, _p3_o_x, _p3_o_y), _start_id + 3, false, _colliding_instances, _instance_directions, _collision_amount, other.box_collsion_func)
+				_collision_amount = general_line_collision_handler(other, [_p2_i_x, _p2_i_y, _p3_i_x, _p3_i_y], point_direction(_p2_i_x, _p2_i_y, _p3_i_x, _p3_i_y), _start_id + 1, true, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
+				_collision_amount = general_line_collision_handler(other, [_p2_o_x, _p2_o_y, _p3_o_x, _p3_o_y], point_direction(_p2_o_x, _p2_o_y, _p3_o_x, _p3_o_y), _start_id + 3, false, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
+				_collision_amount = general_line_collision_handler(other, [_p1_i_x, _p1_i_y, _p2_i_x, _p2_i_y], _direction, _start_id, true, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
+				_collision_amount = general_line_collision_handler(other, [_p1_o_x, _p1_o_y, _p2_o_x, _p2_o_y], _direction, _start_id + 2, false, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
 			}
-		}
-		
-		with (obj_platform){
-			var _p1_x = x - length/2*dcos(image_angle)
-			var _p1_y = y + length/2*dsin(image_angle)
-			var _p2_x = x + length/2*dcos(image_angle)
-			var _p2_y = y - length/2*dsin(image_angle)
-			var _direction = point_direction(_p1_x, _p1_y, _p2_x, _p2_y)
-		
-			_collision_amount = general_line_collision_handler(other, [_p1_x, _p1_y, _p2_x, _p2_y], _direction, 0, true, _colliding_instances, _instance_directions, _collision_amount)
 		}
 		
 		if (!_has_checked){
@@ -360,6 +490,7 @@ function soul_update_collision(){
 					var _direction = _instance_directions[_i]
 					var _offset_x = dcos(_direction)
 					var _offset_y = -dsin(_direction)
+					var _data
 			
 					do{
 						for (var _j=0; _j < _collision_amount; _j++){
@@ -367,7 +498,7 @@ function soul_update_collision(){
 								continue
 							}
 					
-							var _data = _colliding_instances[_j]
+							_data = _colliding_instances[_j]
 							if ((typeof(_data) == "ref" and !place_meeting(_current_x + _offset_x, _current_y + _offset_y, _data)) or (typeof(_data) == "struct" and !collision_line(_data.points[0] - _offset_x, _data.points[1] - _offset_y, _data.points[2] - _offset_x, _data.points[3] - _offset_y, id, false, false))){
 								_valid_direction = false
 						
@@ -382,7 +513,7 @@ function soul_update_collision(){
 						_offset_x += dcos(_direction)
 						_offset_y -= dsin(_direction)
 						
-						var _data = _colliding_instances[_i]
+						_data = _colliding_instances[_i]
 					}until ((typeof(_data) == "ref" and !place_meeting(_current_x + _offset_x, _current_y + _offset_y, _data)) or (typeof(_data) == "struct" and !collision_line(_data.points[0] - _offset_x, _data.points[1] - _offset_y, _data.points[2] - _offset_x, _data.points[3] - _offset_y, id, false, false)))
 			
 					if (_valid_direction){
@@ -391,7 +522,7 @@ function soul_update_collision(){
 								continue
 							}
 							
-							var _data = _colliding_instances[_j]
+							_data = _colliding_instances[_j]
 							if ((typeof(_data) == "ref" and place_meeting(_current_x + _offset_x, _current_y + _offset_y, _data)) or (typeof(_data) == "struct" and collision_line(_data.points[0] - _offset_x, _data.points[1] - _offset_y, _data.points[2] - _offset_x, _data.points[3] - _offset_y, id, false, false))){
 								_valid_direction = false
 						
