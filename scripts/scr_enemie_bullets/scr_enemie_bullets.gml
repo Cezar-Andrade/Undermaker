@@ -5,22 +5,21 @@ enum BULLET_TYPE{
 	GREEN
 }
 
-function spawn_platform(_x, _y, _direction=0, _depth=0, _type=PLATFORM_TYPE.NORMAL, _fragile=0, _respawn_time=0, _respawn=true){
-	var _platform = instance_create_depth(_x + obj_box.x, _y + obj_box.y - obj_box.height/2, _depth, obj_platform)
+function spawn_platform(_x, _y, _direction=0, _length=60, _depth=0, _type=PLATFORM_TYPE.NORMAL, _fragile=0, _respawn_time=0, _respawn=true){
+	var _platform = instance_create_depth(_x + obj_box.x, _y + obj_box.y - obj_box.height/2 - 5, _depth, obj_platform)
 	with (_platform){
 		type = _type
 		image_angle = _direction
-		fragile.respawn = _respawn
+		length = _length
 		
-		if (_respawn){
-			fragile.duration_time = _fragile
-			fragile.respawn_time = _respawn_time
-		}
+		fragile.respawn = _respawn
+		fragile.duration_time = _fragile
+		fragile.respawn_time = _respawn_time
 	}
 }
 
 function spawn_bullet(_sprite, _x, _y, _direction, _depth=0, _damage=3, _type=BULLET_TYPE.WHITE){
-	var _bullet = instance_create_depth(_x + obj_box.x, _y + obj_box.y - obj_box.height/2, _depth, obj_bullet)
+	var _bullet = instance_create_depth(_x + obj_box.x, _y + obj_box.y - obj_box.height/2 - 5, _depth, obj_bullet)
 	with (_bullet){
 		sprite_index = _sprite
 		damage = _damage

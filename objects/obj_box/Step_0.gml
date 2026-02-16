@@ -3,10 +3,18 @@
 box_size.x = round(box_size.x)
 box_size.y = round(box_size.y)
 
+var _angle_difference = angle_difference(box_rotation, image_angle)
+
+if (_angle_difference > 0){
+	image_angle += min(rotation_speed, _angle_difference)
+}
+if (_angle_difference < 0){
+	image_angle += max(-rotation_speed, _angle_difference)
+}
+
 if (width > box_size.x){
 	width = max(width - resize_speed, box_size.x)
 }
-
 if (width < box_size.x){
 	width = min(width + resize_speed, box_size.x)
 }
@@ -14,7 +22,6 @@ if (width < box_size.x){
 if (height > box_size.y){
 	height = max(height - resize_speed, box_size.y)
 }
-
 if (height < box_size.y){
 	height = min(height + resize_speed, box_size.y)
 }
@@ -22,7 +29,6 @@ if (height < box_size.y){
 if (x > box_position.x){
 	x = max(x - movement_speed, box_position.x)
 }
-
 if (x < box_position.x){
 	x = min(x + movement_speed, box_position.x)
 }
@@ -30,26 +36,56 @@ if (x < box_position.x){
 if (y > box_position.y){
 	y = max(y - movement_speed, box_position.y)
 }
-
 if (y < box_position.y){
 	y = min(y + movement_speed, box_position.y)
 }
 
-if (box_default_polygons){ //TODO: MAKE IT SO IT CAN HANDLE ANY SIZE OF POINTS
-	box_polygon_points.inside[0] = x + box_center_offset.x - (box_center_offset.x + round(width)/2)*dcos(image_angle) - (box_center_offset.y + 5)*dsin(image_angle)
-	box_polygon_points.inside[1] = y + box_center_offset.y - (box_center_offset.y + 5)*dcos(image_angle) + (box_center_offset.x + round(width)/2)*dsin(image_angle)
-	box_polygon_points.inside[2] = x + box_center_offset.x + (round(width)/2 - box_center_offset.x)*dcos(image_angle) - (box_center_offset.y + 5)*dsin(image_angle)
-	box_polygon_points.inside[3] = y + box_center_offset.y - (box_center_offset.y + 5)*dcos(image_angle) - (round(width)/2 - box_center_offset.x)*dsin(image_angle)
-	box_polygon_points.inside[4] = x + box_center_offset.x + (round(width)/2 - box_center_offset.x)*dcos(image_angle) - (box_center_offset.y + round(height) + 5)*dsin(image_angle)
-	box_polygon_points.inside[5] = y + box_center_offset.y - (box_center_offset.y + round(height) + 5)*dcos(image_angle) - (round(width)/2 - box_center_offset.x)*dsin(image_angle)
-	box_polygon_points.inside[6] = x + box_center_offset.x - (box_center_offset.x + round(width)/2)*dcos(image_angle) - (box_center_offset.y + round(height) + 5)*dsin(image_angle)
-	box_polygon_points.inside[7] = y + box_center_offset.y - (box_center_offset.y + round(height) + 5)*dcos(image_angle) + (box_center_offset.x + round(width)/2)*dsin(image_angle)
-}
-box_polygon_points.outside = []
-
+var _defined_points = box_polygon_points.defined
 var _inside_points = box_polygon_points.inside
 var _outside_points = box_polygon_points.outside
-var _length = array_length(_inside_points)
+
+var _length = array_length(_outside_points)
+if (_length > 0){
+	array_delete(_outside_points, 0, _length)
+}
+_length = array_length(_inside_points)
+if (_length > 0){
+	array_delete(_inside_points, 0, _length)
+}
+
+_length = array_length(_defined_points)
+if (_length > 0){
+	for (var _i = 0; _i < _length; _i++){
+		_inside_points[_i] = _defined_points[_i]
+	}
+}else{
+	_inside_points[0] = x - round(width)/2
+	_inside_points[1] = y - 5
+	_inside_points[2] = x + round(width)/2
+	_inside_points[3] = y - 5
+	_inside_points[4] = x + round(width)/2
+	_inside_points[5] = y - round(height) - 5
+	_inside_points[6] = x - round(width)/2
+	_inside_points[7] = y - round(height) - 5
+	
+	_length = 8
+}
+
+var _x = x + box_center_offset.x
+var _y = y + box_center_offset.y
+
+for (var _i = 0; _i < _length; _i += 2){
+	var _px = _inside_points[_i]
+	var _py = _inside_points[_i+1]
+	
+	var _distance = point_distance(_x, _y, _px, _py)
+	var _direction = point_direction(_x, _y, _px, _py) + image_angle
+	_px = _x + _distance*dcos(_direction)
+	_py = _y - _distance*dsin(_direction)
+	
+	_inside_points[_i] = _px
+	_inside_points[_i+1] = _py
+}
 
 if (array_length(_outside_points) == 0 and _length > 0){
 	var _direction_points = box_polygon_points.direction
@@ -63,12 +99,7 @@ if (array_length(_outside_points) == 0 and _length > 0){
 		var _p1_x = _inside_points[_i]
 		var _p1_y = _inside_points[_i+1]
 	
-		var _direction
-		if (_i + 2 >= _length){
-			_direction = point_direction(_p1_x, _p1_y, _inside_points[0], _inside_points[1])
-		}else{
-			_direction = point_direction(_p1_x, _p1_y, _inside_points[_i+2], _inside_points[_i+3])
-		}
+		var _direction = point_direction(_p1_x, _p1_y, _inside_points[(_i + 2)%_length], _inside_points[(_i + 3)%_length])
 	
 		var _p2_x = _p1_x + 5*dcos(_direction - 90)
 		var _p2_y = _p1_y - 5*dsin(_direction - 90)

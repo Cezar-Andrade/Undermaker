@@ -95,11 +95,12 @@ player_collision_function = function(_id, _push_direction, _counter_clockwise_pu
 	
 	var _grip = _push_direction
 	
+	var _base_angle_to_jump
 	if (_id.mode == SOUL_MODE.GRAVITY){
 		var _offset_to_grip = abs(_id.gravity_data.allowed_angle_range_to.grip)
-		var _base_angle_to_jump = 90 + 90*_id.gravity_data.direction
+		_base_angle_to_jump = 90 + 90*_id.gravity_data.direction
 		if (abs(angle_difference(_push_direction, _base_angle_to_jump)) <= _offset_to_grip){
-			_grip = _id.gravity_data.direction + 90
+			_grip = 90*_id.gravity_data.direction + 90
 		}
 	}
 	
@@ -155,6 +156,9 @@ player_collision_function = function(_id, _push_direction, _counter_clockwise_pu
 				var _offset_to_bonk = abs(allowed_angle_range_to.bonk)
 				var _base_angle_to_bonk = 270 + 90*direction
 				
+				var _speed = point_distance(0, 0, _id.move_x, _id.move_y)
+				var _reflected_angle = _push_direction - angle_difference(_speed_angle + 180, _push_direction)
+				
 				switch (direction){
 					case GRAVITY_SOUL.DOWN: case GRAVITY_SOUL.UP:{
 						if (_platform_type == PLATFORM_TYPE.TRAMPOLINE){
@@ -191,8 +195,8 @@ player_collision_function = function(_id, _push_direction, _counter_clockwise_pu
 								jump.speed = -1
 							}
 							
-							_id.conveyor_push.x /= 1.2
-							_id.conveyor_push.y /= 1.2
+							_id.conveyor_push.x /= 1.1
+							_id.conveyor_push.y /= 1.1
 							
 							if (abs(_id.conveyor_push.x) <= 0.1){
 								_id.conveyor_push.x = 0
@@ -208,9 +212,6 @@ player_collision_function = function(_id, _push_direction, _counter_clockwise_pu
 							}
 						}else if (abs(angle_difference(_push_direction, _base_angle_to_bonk)) <= _offset_to_bonk){
 							if (orange_mode){
-								var _speed = point_distance(0, 0, _id.move_x, _id.move_y)
-								var _reflected_angle = _push_direction - angle_difference(_speed_angle + 180, _push_direction)
-								
 								jump.speed = -_speed*dsin(_reflected_angle)/(direction - 1) + _gravity/2
 								movement.speed = clamp(_speed*dcos(_reflected_angle), -_id.movement_speed, _id.movement_speed)
 							}else{
@@ -258,8 +259,8 @@ player_collision_function = function(_id, _push_direction, _counter_clockwise_pu
 								jump.speed = -1
 							}
 							
-							_id.conveyor_push.x /= 1.2
-							_id.conveyor_push.y /= 1.2
+							_id.conveyor_push.x /= 1.1
+							_id.conveyor_push.y /= 1.1
 							
 							if (abs(_id.conveyor_push.x) <= 0.1){
 								_id.conveyor_push.x = 0
@@ -275,11 +276,10 @@ player_collision_function = function(_id, _push_direction, _counter_clockwise_pu
 							}
 						}else if (abs(angle_difference(_push_direction, _base_angle_to_bonk)) <= _offset_to_bonk){
 							if (orange_mode){
-								var _speed = point_distance(0, 0, _id.move_x, _id.move_y)
-								var _reflected_angle = _push_direction - angle_difference(_speed_angle + 180, _push_direction) - 90
-						
+								_reflected_angle -= 90
+								
 								jump.speed = -_speed*dsin(_reflected_angle)/(direction - 2) + _gravity/2
-								movement.speed = clamp(_speed*dcos(_reflected_angle), -_id.movement_speed, _id.movement_speed)
+								movement.speed = clamp(-_speed*dcos(_reflected_angle), -_id.movement_speed, _id.movement_speed)
 							}else{
 								jump.speed = min(jump.speed*abs(angle_difference(_push_direction, _base_angle_to_bonk))/90, jump.speed)
 							}
@@ -319,8 +319,8 @@ player_sticky_platform_collision_function = function(_id, _push_direction, _coun
 	if (_id.mode == SOUL_MODE.GRAVITY){
 		var _offset_to_grip = abs(_id.gravity_data.allowed_angle_range_to.grip)
 		var _base_angle_to_jump = 90 + 90*_id.gravity_data.direction
-		if (abs(angle_difference(_push_direction, _base_angle_to_jump)) >= _offset_to_grip){
-			_grip = _id.gravity_data.direction - 90
+		if (abs(angle_difference(_push_direction, _base_angle_to_jump)) <= _offset_to_grip){
+			_grip = 90*_id.gravity_data.direction + 90
 		}
 	}
 	
@@ -335,12 +335,15 @@ player_sticky_platform_collision_function = function(_id, _push_direction, _coun
 	platform_sticky_updated = true
 	
 	var _platform_type = type
+	var _speed = point_distance(0, 0, _id.move_x, _id.move_y)
 	
-	if (_id.sticky_animation.timer == 0){
-		_id.sticky_animation.timer = 1
-		_id.sticky_animation.direction = _push_direction + 180
-	}else{
-		_id.sticky_animation.keep_animation = true
+	if (_speed > 0 and abs(angle_difference(_push_direction, _speed_angle)) > 90){
+		if (_id.sticky_animation.timer == 0){
+			_id.sticky_animation.timer = 1
+			_id.sticky_animation.direction = _push_direction + 180
+		}else{
+			_id.sticky_animation.keep_animation = true
+		}
 	}
 	
 	switch (_id.mode){
@@ -356,15 +359,14 @@ player_sticky_platform_collision_function = function(_id, _push_direction, _coun
 				var _base_angle_to_jump = 90 + 90*direction
 				var _base_angle_to_bonk = 270 + 90*direction
 				
+				var _reflected_angle = _push_direction - angle_difference(_speed_angle + 180, _push_direction)
+				
 				switch (direction){
 					case GRAVITY_SOUL.DOWN: case GRAVITY_SOUL.UP:{
 						if (abs(angle_difference(_push_direction, _base_angle_to_jump)) <= _offset_to_jump){
 							jump.speed = -1
 						}else if (abs(angle_difference(_push_direction, _base_angle_to_bonk)) <= _offset_to_bonk){
 							if (orange_mode){
-								var _speed = point_distance(0, 0, _id.move_x, _id.move_y)
-								var _reflected_angle = _push_direction - angle_difference(_speed_angle + 180, _push_direction)
-								
 								jump.speed = -_speed*dsin(_reflected_angle)/(direction - 1) + _gravity/2
 								movement.speed = clamp(_speed*dcos(_reflected_angle), -_id.movement_speed, _id.movement_speed)
 							}else{
@@ -382,11 +384,10 @@ player_sticky_platform_collision_function = function(_id, _push_direction, _coun
 							jump.speed = -1
 						}else if (abs(angle_difference(_push_direction, _base_angle_to_bonk)) <= _offset_to_bonk){
 							if (orange_mode){
-								var _speed = point_distance(0, 0, _id.move_x, _id.move_y)
-								var _reflected_angle = _push_direction - angle_difference(_speed_angle + 180, _push_direction) - 90
+								_reflected_angle -= 90
 						
 								jump.speed = -_speed*dsin(_reflected_angle)/(direction - 2) + _gravity/2
-								movement.speed = clamp(_speed*dcos(_reflected_angle), -_id.movement_speed, _id.movement_speed)
+								movement.speed = clamp(-_speed*dcos(_reflected_angle), -_id.movement_speed, _id.movement_speed)
 							}else{
 								jump.speed = min(jump.speed*abs(angle_difference(_push_direction, _base_angle_to_bonk))/90, jump.speed)
 							}

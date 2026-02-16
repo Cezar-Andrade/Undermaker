@@ -777,6 +777,7 @@ function set_battle_scene(_animation, _init_function, _end_function, _heart_x, _
 	battle_start_animation_type = _animation
 	battle_start_animation_player_heart_x = _heart_x
 	battle_start_animation_player_heart_y = _heart_y
+	battle_black_alpha = 1
 	
 	if (_animation == BATTLE_START_ANIMATION.NORMAL or _animation == BATTLE_START_ANIMATION.FAST){
 		anim_timer = -36

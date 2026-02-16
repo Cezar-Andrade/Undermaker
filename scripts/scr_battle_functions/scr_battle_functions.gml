@@ -24,7 +24,7 @@ function battle_apply_rewards(_sound=true){
 	}
 }
 
-function battle_box_dialog(_dialogues, _x_offset=0, _face_sprite=undefined, _face_subimages=undefined){
+function battle_set_box_dialog(_dialogues, _x_offset=0, _face_sprite=undefined, _face_subimages=undefined){
 	with (obj_game){
 		battle_dialog_x_offset = _x_offset
 		
@@ -42,7 +42,7 @@ function battle_box_dialog(_dialogues, _x_offset=0, _face_sprite=undefined, _fac
 	}
 }
 
-function battle_enemy_dialog(_enemy){
+function battle_set_enemy_dialog(_enemy){
 	if (typeof(_enemy.next_dialog) == "array"){
 		_enemy.next_dialog[0] = "[font:" + string(int64(fnt_monster)) + "][color_rgb:0,0,0][asterisk:false]" + _enemy.next_dialog[0]
 	}else{
@@ -109,17 +109,36 @@ function battle_kill_enemy(_index){
 	global.battle_enemies[_index] = undefined
 }
 
-function battle_box_resize(_x, _y){
+function battle_resize_box(_x, _y, _instant=false){
 	with (obj_box){
 		box_size.x = _x
 		box_size.y = _y
+		
+		if (_instant){
+			width = box_size.x
+			height = box_size.y
+		}
 	}
 }
 
-function battle_box_move_to(_x, _y){
-	with (obj_box){
+function battle_move_player_in_box_to(_x, _y, _box=obj_box, _obj=obj_player_battle){
+	with (_obj){
+		with (_box){
+			other.x = x
+			other.y = y + round(height)/2
+		}
+	}
+}
+
+function battle_move_box_to(_x, _y, _instant=false, _box=obj_box){
+	with (_box){
 		box_position.x = _x
 		box_position.y = _y
+		
+		if (_instant){
+			x = box_position.x
+			y = box_position.y
+		}
 	}	
 }
 
@@ -163,7 +182,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 				}
 				
 				if (_enemies_still_available){
-					battle_box_dialog(battle_current_box_dialog)
+					battle_set_box_dialog(battle_current_box_dialog)
 				}else{
 					battle_go_to_state(BATTLE_STATE.PLAYER_WON)
 				}
@@ -215,13 +234,13 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 					}
 				}
 				
-				battle_box_dialog(_text)
+				battle_set_box_dialog(_text)
 			break
 			case BATTLE_STATE.PLAYER_ATTACK:
 				dialog.next_dialog(false)
 				
 				obj_player_battle.image_alpha = 0
-				battle_box_resize(565, 130)
+				battle_resize_box(565, 130)
 				
 				battle_player_attack = new player_attack(global.player.weapon, _enemy)
 			break
@@ -243,7 +262,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 					}
 				}
 				
-				battle_box_dialog(_text)
+				battle_set_box_dialog(_text)
 			break
 			case BATTLE_STATE.PLAYER_ITEM:
 				battle_selection[2] = 0
@@ -279,7 +298,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 					
 					_text += string_repeat("\n", ceil((4 - (min(_amount_items, 4*battle_item_page) - 4*_page_index))/2)) + string_repeat(" ", 21) + "PAGE " + string(battle_item_page)
 					
-					battle_box_dialog(_text)
+					battle_set_box_dialog(_text)
 				}else{
 					var _randmsg = global.UI_texts[$"no items"]
 					if (global.battle_serious_mode){
@@ -291,7 +310,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 					var _msg = _randmsg[irandom(array_length(_randmsg) - 1)]
 					_text = "[skip:false][color_rgb:127,127,127][apply_to_asterisk]" + _msg
 					
-					battle_box_dialog(_text, 48)
+					battle_set_box_dialog(_text, 48)
 				}
 			break
 			case BATTLE_STATE.PLAYER_MERCY:
@@ -325,11 +344,13 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 					_text += "\r   * " + global.UI_texts[$"battle flee"]
 				}
 				
-				battle_box_dialog(_text)
+				battle_set_box_dialog(_text)
 			break
 			case BATTLE_STATE.PLAYER_WON:
-				battle_box_resize(565, 130)
-				battle_box_move_to(320, 390)
+				battle_resize_box(565, 130)
+				battle_move_box_to(320, 390)
+				battle_set_box_rotation(0)
+				battle_reset_box_polygon_points()
 				
 				obj_player_battle.image_alpha = 0
 				
@@ -340,7 +361,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 				}
 				
 				battle_apply_rewards()
-				battle_box_dialog(_victory_text)
+				battle_set_box_dialog(_victory_text)
 			break
 			case BATTLE_STATE.PLAYER_FLEE:
 				obj_player_battle.sprite_index = spr_player_heart_run_away
@@ -367,7 +388,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 					battle_flee_chance = min(battle_flee_chance + 10, 100)
 				}
 				
-				battle_box_dialog("[skip:false]" + _flee_dialog)
+				battle_set_box_dialog("[skip:false]" + _flee_dialog)
 				
 				_length = array_length(global.battle_enemies)
 				for (var _i=0; _i<_length; _i++){
@@ -396,7 +417,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 						var _dialog = _enemy.act(_enemy.act_commands[battle_selection[2]])
 						
 						if (!is_undefined(_dialog)){
-							battle_box_dialog(_dialog)
+							battle_set_box_dialog(_dialog)
 						}else{
 							dialog.next_dialog(false)
 						}
@@ -419,7 +440,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 							}
 						}
 						
-						battle_box_dialog(_dialog)
+						battle_set_box_dialog(_dialog)
 					break
 					case BATTLE_STATE.PLAYER_MERCY:
 						dialog.next_dialog(false)
@@ -463,7 +484,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 					array_delete(battle_enemies_dialogs, 0, _length)
 				}
 				
-				battle_box_resize(155, 130)
+				battle_resize_box(155, 130)
 				
 				dialog.next_dialog(false)
 				
@@ -480,7 +501,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 					}
 					
 					if (!is_undefined(_enemy.next_dialog)){
-						battle_enemy_dialog(_enemy)
+						battle_set_enemy_dialog(_enemy)
 					}else if (_enemy.hp <= 0){
 						battle_kill_enemy(_i)
 					}else if (_enemy.spared){
@@ -539,8 +560,10 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 				}
 			break
 			case BATTLE_STATE.TURN_END:
-				battle_box_resize(565, 130)
-				battle_box_move_to(320, 390)
+				battle_resize_box(565, 130)
+				battle_move_box_to(320, 390)
+				battle_set_box_rotation(0)
+				battle_reset_box_polygon_points()
 				
 				obj_player_battle.image_alpha = 0
 				
@@ -576,7 +599,7 @@ function battle_go_to_state(_state, _enemy=undefined, _prev_state=undefined){
 						_enemies_still_available = true
 						_enemy_dialog = true
 						
-						battle_enemy_dialog(_enemy)
+						battle_set_enemy_dialog(_enemy)
 					}else if (_enemy.hp <= 0){
 						battle_kill_enemy(_i)
 					}else if (_enemy.spared){

@@ -265,7 +265,7 @@ switch (state){
 		depth = battle_player_stats.depth
 		
 		if (battle_state != BATTLE_STATE.START and battle_state != BATTLE_STATE.START_DODGE_ATTACK){
-			if (battle_only_attack_undefined){
+			if (is_battle_only_attack_undefined){
 				var _length = array_length(global.battle_enemies)
 				for (var _i=0; _i<_length; _i++){
 					var _enemy = global.battle_enemies[_i]
@@ -408,15 +408,15 @@ switch (state){
 					y = other.battle_start_animation_player_heart_y
 				}
 				
-				battle_only_attack_undefined = is_undefined(battle_only_attack)
+				is_battle_only_attack_undefined = is_undefined(battle_only_attack)
 				if (!is_undefined(battle_init_function)){
 					battle_init_function()
 					battle_init_function = undefined
 				}
 				
-				if (battle_state == BATTLE_STATE.START and battle_only_attack_undefined){
+				if (battle_state == BATTLE_STATE.START and is_battle_only_attack_undefined){
 					battle_go_to_state(BATTLE_STATE.PLAYER_BUTTONS)
-				}else if (!battle_only_attack_undefined){
+				}else if (!is_battle_only_attack_undefined){
 					battle_state = BATTLE_STATE.ENEMY_ATTACK
 					
 					with (obj_battle_button){
@@ -660,7 +660,7 @@ switch (state){
 					
 					_text += string_repeat("\n", ceil((4 - (min(_amount_items, 4 + 4*_page_index) - 4*_page_index))/2)) + string_repeat(" ", 21) + "PAGE " + string(battle_item_page)
 					
-					battle_box_dialog(_text)
+					battle_set_box_dialog(_text)
 				}
 				
 				if (global.confirm_button and _amount_items > 0){
@@ -850,7 +850,7 @@ switch (state){
 				
 				if (battle_state == BATTLE_STATE.ENEMY_ATTACK){
 					if (_attacks_done){
-						if (battle_only_attack_undefined){
+						if (is_battle_only_attack_undefined){
 							for (var _i=0; _i<_length; _i++){
 								var _attack = battle_enemies_attacks[_i]
 								if (!is_undefined(_attack.cleanup)){
@@ -1370,6 +1370,7 @@ if (keyboard_check_pressed(ord("E"))){
 	var _end_function = function(){
 		overworld_dialog("It seems you are alive, nice.",, (obj_player_overworld.y > 210))
 	}
+	
 	var _random = irandom(2)
 	var _attacks = ENEMY_ATTACK.MAD_DUMMY_1
 	if (_random == 1){
@@ -1377,6 +1378,8 @@ if (keyboard_check_pressed(ord("E"))){
 	}else if (_random == 2){
 		_attacks = [ENEMY_ATTACK.MAD_DUMMY_1, ENEMY_ATTACK.MAD_DUMMY_2]
 	}
+	
+	_attacks = ENEMY_ATTACK.PLATFORM_1
 	
 	start_attack(_attacks,,, _end_function)
 }

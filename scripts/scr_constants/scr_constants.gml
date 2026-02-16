@@ -36,8 +36,7 @@ enum PLAYER_STATUS_EFFECT{
 */
 enum SOUL_MODE{
 	NORMAL, //Red
-	GRAVITY, //Blue
-	GRAVITY2
+	GRAVITY //Blue
 }
 
 /*

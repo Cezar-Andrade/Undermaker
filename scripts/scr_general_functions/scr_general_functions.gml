@@ -96,6 +96,97 @@ function get_vertical_button_force(_hold=true){
 	}
 }
 
+//UTIL FUNCTIONS - TRIANGULATION
+
+function calculate_cross_product(_ax, _ay, _bx, _by, _cx, _cy) {
+    return (_bx - _ax)*(_cy - _ay) - (_by - _ay)*(_cx - _ax)
+}
+
+function is_triangle_convex(_ax, _ay, _bx, _by, _cx, _cy, _orientation) {
+    var _cross_value = calculate_cross_product(_ax, _ay, _bx, _by, _cx, _cy)
+    return ((_orientation > 0) ? _cross_value > 0 : _cross_value < 0)
+}
+
+function get_polygon_orientation(_points) {
+    var _sum = 0
+    var _length = array_length(_points)
+	
+    for (var _i = 0; _i < _length; _i += 2) {
+        var _p1_x = _points[_i]
+        var _p1_y = _points[_i+1]
+        var _p2_x = _points[(_i + 2)%_length]
+        var _p2_y = _points[(_i + 3)%_length]
+        _sum += (_p2_x - _p1_x)*(_p2_y + _p1_y)
+    }
+	
+    return ((_sum > 0) ? -1 : 1)
+}
+
+function triangulate_polygon(_points) {
+    var _triangles = []
+	var _vertices = []
+	var _length = array_length(_points)
+	
+	array_copy(_vertices, 0, _points, 0, _length)
+    var _orientation = get_polygon_orientation(_vertices)
+	
+    while (_length > 6) {
+        var _ear_found = false
+		
+        for (var _i = 0; _i < _length; _i += 2) {
+            var _prev_x = _vertices[(_i - 2 + _length)%_length]
+            var _prev_y = _vertices[(_i - 1 + _length)%_length]
+            var _curr_x = _vertices[_i]
+            var _curr_y = _vertices[_i+1]
+            var _next_x = _vertices[(_i + 2)%_length]
+            var _next_y = _vertices[(_i + 3)%_length]
+			
+            if (!is_triangle_convex(_prev_x, _prev_y, _curr_x, _curr_y, _next_x, _next_y, _orientation)) {
+                continue
+            }
+			
+            var _contains_point = false
+			
+            for (var _j = 0; _j < _length; _j += 2) {
+                if (_j == _i or _j == (_i - 2 + _length)%_length or _j == (_i + 2)%_length){
+					continue
+				}
+				
+                var _px = _vertices[_j]
+                var _py = _vertices[_j+1]
+				
+                if (point_in_triangle(_px, _py, _prev_x, _prev_y, _curr_x, _curr_y, _next_x, _next_y)) {
+                    _contains_point = true
+					
+                    break
+                }
+            }
+			
+            if (!_contains_point) {
+                array_push(_triangles, [_prev_x, _prev_y, _curr_x, _curr_y, _next_x, _next_y])
+                array_delete(_vertices, _i, 2)
+				
+				_length -= 2
+                _ear_found = true
+                
+				break
+            }
+        }
+		
+        if (!_ear_found) {
+			show_error("Triangulation failed, the polygon given is not valid for triangulation, make sure the lines don't intersect with each other.", true)
+			
+            break
+        }
+    }
+	
+    if (_length == 6) {
+        array_push(_triangles, [_vertices[0], _vertices[1], _vertices[2], _vertices[3], _vertices[4], _vertices[5]]);
+    }
+	
+    return _triangles
+}
+
 //UTIL FUNCTIONS
 
 function calculate_object_sprite_size_offset(){
@@ -270,20 +361,31 @@ enum PLATFORM_TYPE{
 
 // BATTLE FUNCTIONS - BOX
 
-function get_box_bottom(){
-	return obj_box.y - 5
+function battle_reset_box_polygon_points(_box=obj_box){
+	with (_box){
+		var _defined_points = array_length(box_polygon_points.defined)
+		var _length = array_length(_defined_points)
+		
+		if (_length > 0){
+			array_delete(_defined_points, 0, _length)
+		}
+	}
 }
 
-function get_box_top(){
-	return obj_box.y - obj_box.height - 5
+function battle_set_box_polygon_points(_points, _box=obj_box){
+	with (_box){
+		box_polygon_points.defined = _points
+	}
 }
 
-function get_box_left(){
-	return obj_box.x - round(obj_box.width)/2
-}
-
-function get_box_right(){
-	return obj_box.x + round(obj_box.width)/2
+function battle_set_box_rotation(_angle, _instant=false, _box=obj_box){
+	with (_box){
+		box_rotation = _angle
+		
+		if (_instant){
+			image_angle = box_rotation
+		}
+	}
 }
 
 // CORE FUNCTIONS - SOUL COLLISION
@@ -414,14 +516,14 @@ function soul_update_collision(){
 				_offset += _horizontal_axis*_vertical_axis/sqrt(power(_vertical_axis*dcos(_direction), 2) + power(_horizontal_axis*dsin(_direction), 2))
 				
 				_platform_p1_x -= _offset*dcos(image_angle)
-				_platform_p1_y -= _offset*dsin(image_angle)
+				_platform_p1_y += _offset*dsin(image_angle)
 				_p1_x -= _offset*dcos(image_angle)
-				_p1_y -= _offset*dsin(image_angle)
+				_p1_y += _offset*dsin(image_angle)
 				
 				_platform_p2_x += _offset*dcos(image_angle)
-				_platform_p2_y += _offset*dsin(image_angle)
+				_platform_p2_y -= _offset*dsin(image_angle)
 				_p2_x += _offset*dcos(image_angle)
-				_p2_y += _offset*dsin(image_angle)
+				_p2_y -= _offset*dsin(image_angle)
 				
 				_collision_amount = general_line_collision_handler(other, [_platform_p1_x, _platform_p1_y, _p1_x, _p1_y], image_angle - 90, 3, true, _colliding_instances, _instance_directions, _collision_amount, _func)
 				_collision_amount = general_line_collision_handler(other, [_platform_p2_x, _platform_p2_y, _p2_x, _p2_y], image_angle + 90, 4, true, _colliding_instances, _instance_directions, _collision_amount, _func)
@@ -474,10 +576,10 @@ function soul_update_collision(){
 				var _p3_o_y = _outside_points[_id_y] - _offset*dsin(_normal_angle)
 				
 				var _start_id = 2*_i
-				_collision_amount = general_line_collision_handler(other, [_p2_i_x, _p2_i_y, _p3_i_x, _p3_i_y], point_direction(_p2_i_x, _p2_i_y, _p3_i_x, _p3_i_y), _start_id + 1, true, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
-				_collision_amount = general_line_collision_handler(other, [_p2_o_x, _p2_o_y, _p3_o_x, _p3_o_y], point_direction(_p2_o_x, _p2_o_y, _p3_o_x, _p3_o_y), _start_id + 3, false, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
-				_collision_amount = general_line_collision_handler(other, [_p1_i_x, _p1_i_y, _p2_i_x, _p2_i_y], _direction, _start_id, true, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
-				_collision_amount = general_line_collision_handler(other, [_p1_o_x, _p1_o_y, _p2_o_x, _p2_o_y], _direction, _start_id + 2, false, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
+				_collision_amount = general_line_collision_handler(other, [_p2_i_x, _p2_i_y, _p3_i_x, _p3_i_y], point_direction(_p2_i_x, _p2_i_y, _p3_i_x, _p3_i_y), _start_id, true, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
+				_collision_amount = general_line_collision_handler(other, [_p2_o_x, _p2_o_y, _p3_o_x, _p3_o_y], point_direction(_p2_o_x, _p2_o_y, _p3_o_x, _p3_o_y), _start_id + 1, false, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
+				_collision_amount = general_line_collision_handler(other, [_p1_i_x, _p1_i_y, _p2_i_x, _p2_i_y], _direction, _start_id + 2, true, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
+				_collision_amount = general_line_collision_handler(other, [_p1_o_x, _p1_o_y, _p2_o_x, _p2_o_y], _direction, _start_id + 3, false, _colliding_instances, _instance_directions, _collision_amount, player_collision_function)
 			}
 		}
 		

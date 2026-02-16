@@ -171,6 +171,7 @@ battle_state = BATTLE_STATE.START
 
 battle_start_animation_player_heart_x = 0
 battle_start_animation_player_heart_y = 0
+battle_black_alpha = 1
 battle_button_order = []
 battle_selection = [0, 0, 0] //Buttons, enemy/spare/flee selection, act/item selection
 battle_can_flee = true
@@ -194,7 +195,7 @@ battle_exp = 0
 battle_gold = 0
 battle_fled = false
 battle_only_attack = undefined
-battle_only_attack_undefined = true //Auxiliar of the other variable
+is_battle_only_attack_undefined = true //Auxiliar of the other variable
 
 goto_room = undefined
 event_update = undefined
