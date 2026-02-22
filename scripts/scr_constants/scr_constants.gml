@@ -1,6 +1,6 @@
 /*
 If you are gonna change the game size then you will have to redo the border system to fit the new game size and probably also change the border's size.
-Also take into account the fullscreen feature with the , you might also need to change some stuff in it.
+Also take into account the fullscreen feature with the dialogs, you might also need to change some stuff in it.
 All that can be found in obj_game.
 */
 #macro GAME_WIDTH 640
@@ -133,9 +133,9 @@ enum PLAYER_MENU_INVENTORY_OPTIONS{
 }
 
 /*
-Directions of the options the player can choose in a multiple choice option direction dialog, used only in the create_choice_option() function to indicate which key to listen to for the choice option to select it.
+Directions of the options the player can choose in a multiple choice option direction dialog, used only in the create_plus_choice_option() function to indicate which key to listen to for the choice option to select it.
 */
-enum CHOICE_DIRECTION{
+enum PLUS_CHOICE_DIRECTION{
 	LEFT,
 	DOWN,
 	RIGHT,
@@ -155,7 +155,8 @@ enum GAME_STATE{
 	BATTLE_START_ANIMATION,
 	BATTLE,
 	BATTLE_END,
-	DIALOG_CHOICE,
+	DIALOG_PLUS_CHOICE,
+	DIALOG_GRID_CHOICE,
 	GAME_OVER
 }
 

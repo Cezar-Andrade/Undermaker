@@ -197,6 +197,16 @@ battle_fled = false
 battle_only_attack = undefined
 is_battle_only_attack_undefined = true //Auxiliar of the other variable
 
+can_player_encounter_enemies = false
+encounters_enemie_selection = ENCOUNTER_ENEMIE_SELECTION.COMBINE
+encounters_timer = 0
+encounters_steps = 0
+encounters_minimum_steps_to_trigger = 0
+encounters_enemie_pool = []
+encounters_exclude_enemie_combination = [] //Only applicable with combinations
+encounters_selected_enemies_ids = []
+encounters_enemie_amount = {minimum: 1, maximum: 1}
+
 goto_room = undefined
 event_update = undefined
 event_end_condition = undefined
@@ -206,7 +216,8 @@ end_room_function = undefined
 battle_init_function = undefined
 battle_end_function = undefined
 
-options = [undefined, undefined, undefined, undefined, undefined, undefined] //left, down, right, up, the other 2 are used for the grid choices (the previous 4 too as well as the direction choices).
+grid_options = []
+plus_options = [undefined, undefined, undefined, undefined] //left, down, right, up
 options_x = 0
 options_y = 0
 choice_sprite = spr_player_heart
@@ -227,7 +238,7 @@ player_heart_color = c_red
 player_menu_state = PLAYER_MENU_STATE.INITIAL
 player_menu_prev_state = 0
 player_prev_room = undefined
-player_menu_box = spr_box_normal
+player_menu_box = spr_player_menu_UI
 player_menu_tail = undefined
 player_menu_tail_mask = undefined
 player_menu_top = true //If menu is on the top or not.

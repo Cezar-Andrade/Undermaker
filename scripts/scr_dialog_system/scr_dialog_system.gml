@@ -65,7 +65,9 @@ enum EFFECT_TYPE{
 	OSCILLATE,
 	RAINBOW,
 	SHADOW,
-	MALFUNCTION
+	MALFUNCTION,
+	ZOOM,
+	SLIDE
 }
 
 /*
@@ -205,6 +207,14 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 	draw_effect_y = 0
 	draw_shadow_effect_x = 0
 	draw_shadow_effect_y = 0
+	draw_materializing_effect = EFFECT_TYPE.NONE
+	draw_materializing_effect_x = 0
+	draw_materializing_effect_y = 0
+	draw_materializing_effect_scale = 0
+	draw_materializing_effect_alpha = 0
+	draw_materializing_effect_intensity = 0
+	draw_materializing_effect_extra_effect = false
+	draw_materializing_effect_timers = []
 	text_align_x = ASTERISK_SPACING
 	
 	//Variables of the container sprite.
@@ -292,6 +302,11 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 			if (draw_text_effect_timers[_i] > 0){
 				draw_text_effect_timers[_i]--
 			}
+		}
+		
+		_length = array_length(draw_materializing_effect_timers)
+		for (var _i = 0; _i < _length; _i++){
+			draw_materializing_effect_timers[_i]++
 		}
 		
 		//----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -730,6 +745,11 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 			draw_effect_y = 0
 			draw_shadow_effect_x = 0
 			draw_shadow_effect_y = 0
+			draw_materializing_effect = EFFECT_TYPE.NONE
+			draw_materializing_effect_x = 0
+			draw_materializing_effect_y = 0
+			draw_materializing_effect_scale = 1
+			draw_materializing_effect_alpha = 1
 			
 			if (visual_command_length > 0){ //If there are any commands, set the visual_command_data already for the first one.
 				visual_command_data = _current_commands[0]
@@ -767,13 +787,13 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 				
 						draw_set_font(draw_shadow_effect_font)
 						
-						draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, 1)
+						draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_materializing_effect_x + draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + (draw_shadow_effect_y + draw_materializing_effect_y + draw_effect_y)*yscale, _letter, xscale*draw_materializing_effect_scale, yscale*draw_materializing_effect_scale, 0, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_materializing_effect_alpha)
 						
 						draw_set_font(font)
 						surface_set_target(surface)
 					}
 					
-					draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, color[0], color[1], color[2], color[3], 1)
+					draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x + draw_materializing_effect_x - ASTERISK_SPACING)*xscale, _letter_y + _offset_y + (draw_effect_y + draw_materializing_effect_y)*yscale, _letter, xscale*draw_materializing_effect_scale, yscale*draw_materializing_effect_scale, 0, color[0], color[1], color[2], color[3], draw_materializing_effect_alpha)
 				}else{ //Otherwise, display a normal asterisk in normal circumstances.
 					draw_text_transformed_color(_letter_x + _offset_x - ASTERISK_SPACING*xscale, _letter_y + _offset_y, _letter, xscale, yscale, 0, c_white, c_white, c_white, c_white, 1)
 				}
@@ -829,9 +849,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 							if (draw_color_effect == EFFECT_TYPE.RAINBOW){ //If you want a different interaction with the rainbow effect and shadows, modify it here.
 								draw_color_effect_value = make_color_hsv(color_get_hue(draw_color_effect_value), 255, 64)
 								
-								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, 1)
+								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_materializing_effect_x + draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + (draw_shadow_effect_y + draw_materializing_effect_y + draw_effect_y)*yscale, _letter, xscale*draw_materializing_effect_scale, yscale*draw_materializing_effect_scale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_materializing_effect_alpha)
 							}else{
-								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, 1)
+								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_materializing_effect_x + draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + (draw_shadow_effect_y + draw_materializing_effect_y + draw_effect_y)*yscale, _letter, xscale*draw_materializing_effect_scale, yscale*draw_materializing_effect_scale, 0, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_materializing_effect_alpha)
 							}
 							
 							draw_set_font(font)
@@ -839,9 +859,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 						}
 						
 						if (draw_color_effect == EFFECT_TYPE.RAINBOW){ //If the effect currently on is a rainbow, do a different color rendering.
-							draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, 1)
+							draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x + draw_materializing_effect_x - ASTERISK_SPACING)*xscale, _letter_y + _offset_y + (draw_effect_y + draw_materializing_effect_y)*yscale, _letter, xscale*draw_materializing_effect_scale, yscale*draw_materializing_effect_scale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_materializing_effect_alpha)
 						}else{
-							draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x - ASTERISK_SPACING)*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, color[0], color[1], color[2], color[3], 1)
+							draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x + draw_materializing_effect_x - ASTERISK_SPACING)*xscale, _letter_y + _offset_y + (draw_effect_y + draw_materializing_effect_y)*yscale, _letter, xscale*draw_materializing_effect_scale, yscale*draw_materializing_effect_scale, 0, color[0], color[1], color[2], color[3], draw_materializing_effect_alpha)
 						}
 					}
 				}else{ //Otherwise, render the letter.
@@ -854,9 +874,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 							if (draw_color_effect == EFFECT_TYPE.RAINBOW){ //If you want a different interaction with the rainbow effect and shadows, modify it here.
 								draw_color_effect_value = make_color_hsv(color_get_hue(draw_color_effect_value), 255, 64)
 							
-								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, 1)
+								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_materializing_effect_x + draw_effect_x)*xscale, _letter_y + (draw_shadow_effect_y + draw_materializing_effect_y + draw_effect_y)*yscale, _letter, xscale*draw_materializing_effect_scale, yscale*draw_materializing_effect_scale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_materializing_effect_alpha)
 							}else{
-								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_effect_x)*xscale, _letter_y + (draw_shadow_effect_y + draw_effect_y)*yscale, _letter, xscale, yscale, 0, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, 1)
+								draw_text_transformed_color(_letter_x + (draw_shadow_effect_x + draw_materializing_effect_x + draw_effect_x)*xscale, _letter_y + (draw_shadow_effect_y + draw_materializing_effect_y + draw_effect_y)*yscale, _letter, xscale*draw_materializing_effect_scale, yscale*draw_materializing_effect_scale, 0, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_shadow_effect_color, draw_materializing_effect_alpha)
 							}
 						
 							draw_set_font(font)
@@ -864,9 +884,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 						}
 					
 						if (draw_color_effect == EFFECT_TYPE.RAINBOW){ //If the effect currently on is a rainbow, do a different color rendering.
-							draw_text_transformed_color(_letter_x + _offset_x + draw_effect_x*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, 1)
+							draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x + draw_materializing_effect_x)*xscale, _letter_y + _offset_y + (draw_effect_y + draw_materializing_effect_y)*yscale, _letter, xscale*draw_materializing_effect_scale, yscale*draw_materializing_effect_scale, 0, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_color_effect_value, draw_materializing_effect_alpha)
 						}else{
-							draw_text_transformed_color(_letter_x + _offset_x + draw_effect_x*xscale, _letter_y + _offset_y + draw_effect_y*yscale, _letter, xscale, yscale, 0, color[0], color[1], color[2], color[3], 1)
+							draw_text_transformed_color(_letter_x + _offset_x + (draw_effect_x + draw_materializing_effect_x)*xscale, _letter_y + _offset_y + (draw_effect_y + draw_materializing_effect_y)*yscale, _letter, xscale*draw_materializing_effect_scale, yscale*draw_materializing_effect_scale, 0, color[0], color[1], color[2], color[3], draw_materializing_effect_alpha)
 						}
 						
 						_letter_x += (string_width(_original_letter) + spacing_width)*xscale //Incremented the X position by the width of the letter plus additional space given by the user.
@@ -1586,6 +1606,24 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 							var _command_arguments = string_split(_command_content[1], ",")
 							
 							switch (_command_arguments[0]){
+								case "zoom":
+									_command_data.subtype = EFFECT_TYPE.ZOOM
+								break
+								case "slide":
+									_command_data.subtype = EFFECT_TYPE.SLIDE
+									
+									if (array_length(_command_arguments) > 1 and _command_arguments[1] != ""){
+										_command_data.value = abs(real(_command_arguments[1]))
+									}else{
+										_command_data.value = 3
+									}
+									
+									if (array_length(_command_arguments) > 2 and _command_arguments[2] != ""){
+										_command_data.alpha = abs(real(_command_arguments[2]))
+									}else{
+										_command_data.alpha = 1
+									}
+								break
 								case "twitch":
 									_command_data.subtype = EFFECT_TYPE.TWITCH
 									
@@ -1675,6 +1713,12 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 							_command_arguments = string_split(_command_content[1], ",")
 							
 							switch (_command_arguments[0]){
+								case "zoom":
+									_command_data.subtype = EFFECT_TYPE.ZOOM
+								break
+								case "slide":
+									_command_data.subtype = EFFECT_TYPE.SLIDE
+								break
 								case "twitch":
 									_command_data.subtype = EFFECT_TYPE.TWITCH
 								break
@@ -2965,6 +3009,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 					
 					//Effects subtyping.
 					switch (_subtype){
+						case EFFECT_TYPE.ZOOM: case EFFECT_TYPE.SLIDE:
+							draw_materializing_effect = _subtype
+						break
 						case EFFECT_TYPE.RAINBOW:
 							draw_color_effect = _subtype
 							draw_color_effect_offset = visual_command_data.value
@@ -2984,6 +3031,8 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 						case EFFECT_TYPE.NONE: //When none type is used (usually by just [effect] with no arguments or not valid effect arguments), remove all effects.
 							draw_position_effect = EFFECT_TYPE.NONE
 							draw_color_effect = EFFECT_TYPE.NONE
+							draw_shadow_effect = false
+							draw_materializing_effect = EFFECT_TYPE.NONE
 						break
 						default: //These are the effects for position of the text.
 							draw_position_effect_value = visual_command_data.value
@@ -3001,6 +3050,9 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 					
 					//Effect to cancel.
 					switch (_subtype){
+						case EFFECT_TYPE.ZOOM: case EFFECT_TYPE.SLIDE:
+							draw_materializing_effect = EFFECT_TYPE.NONE
+						break
 						case EFFECT_TYPE.RAINBOW:
 							draw_color_effect = EFFECT_TYPE.NONE
 						break
@@ -3082,6 +3134,42 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		
 		draw_effect_x = 0
 		draw_effect_y = 0
+		draw_materializing_effect_x = 0
+		draw_materializing_effect_y = 0
+		draw_materializing_effect_scale = 1
+		draw_materializing_effect_alpha = 1
+		
+		//Materializing effects, they offset, scale and set the alpha of the letters in different ways while the text is appearing.
+		switch (draw_materializing_effect){
+			case EFFECT_TYPE.ZOOM:{
+				if (array_length(draw_materializing_effect_timers) <= _i){
+					draw_materializing_effect_timers[_i] = 0
+				}
+				
+				var _timer = min(draw_materializing_effect_timers[_i], 10)
+				var _size_x = string_width("A")
+				var _size_y = string_height("A")
+				
+				draw_materializing_effect_scale = 3 - _timer/5
+				draw_materializing_effect_x = -_size_x*(draw_materializing_effect_scale - 1)/2
+				draw_materializing_effect_y = -_size_y*(draw_materializing_effect_scale - 1)/3
+				draw_materializing_effect_alpha = _timer/10
+			break}
+			case EFFECT_TYPE.SLIDE:{
+				if (array_length(draw_materializing_effect_timers) <= _i){
+					draw_materializing_effect_timers[_i] = 0
+				}
+				
+				var _timer = min(draw_materializing_effect_timers[_i], 40)
+				var _size_x = string_width("A")
+				var _size_y = string_height("A")
+				
+				draw_materializing_effect_x = 3*_size_x*max(20 - _timer, 0)/20
+				draw_materializing_effect_y = 2*_size_y*ceil((40 - _timer)/40)/10
+				draw_materializing_effect_scale = 0.6 + 4*floor(_timer/40)/10
+				draw_materializing_effect_alpha = min(_timer, 20)/20
+			break}
+		}
 		
 		//Positional effects, they offset the letters in different ways to give style to the dialog.
 		switch (draw_position_effect){
@@ -3132,6 +3220,15 @@ function DisplayDialog(_x, _y, _dialogues, _width, _height=0, _xscale=1, _yscale
 		display_amount = 1
 		face_animation = true
 		shadow_effect = false
+		
+		var _length = array_length(draw_text_effect_timers)
+		if (_length > 0){
+			array_delete(draw_text_effect_timers, 0, _length)
+		}
+		_length = array_length(draw_materializing_effect_timers)
+		if (_length){
+			array_delete(draw_materializing_effect_timers, 0, _length)
+		}
 		
 		if (execute_action_commands() == 0){ //Execute any initial commands and if no text_timer is set, strart it on 1.
 			text_timer = 1

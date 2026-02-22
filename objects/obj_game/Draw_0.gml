@@ -10,7 +10,7 @@ draw_text(0, 140, "C: " + string(global.menu_hold_button))
 draw_text(0, 160, "Escape: " + string(global.escape_hold_button))*/
 switch (state){
 	case GAME_STATE.BATTLE:
-		dialog.move_to(obj_box.x - obj_box.width/2 + 14.5 + battle_dialog_x_offset, obj_box.y - obj_box.height + 10)
+		dialog.move_to(obj_battle_box.x - obj_battle_box.width/2 + 14.5 + battle_dialog_x_offset, obj_battle_box.y - obj_battle_box.height + 10)
 		
 		draw_set_halign(fa_left)
 		draw_set_valign(fa_top)
@@ -24,7 +24,7 @@ switch (state){
 		draw_healthbar(battle_player_stats.x + 245, battle_player_stats.y + 6, battle_player_stats.x + 245 + global.player.hp_bar_width, battle_player_stats.y - 16, 100*global.player.hp/global.player.max_hp, c_red, _hp_bar_color, _hp_bar_color, 0, true, false)
 		
 		switch (global.player.status_effect.type){
-			case PLAYER_STATUS_EFFECT.KARMIC_RETRIBUTION:
+			case PLAYER_STATUS_EFFECT.KARMIC_RETRIBUTION:{
 				var _kr_color = global.player.status_effect.color
 				var _kr_amount = global.player.status_effect.value
 				_x_offset += 32
@@ -36,7 +36,7 @@ switch (state){
 				if (_kr_amount > 0){
 					draw_set_color(_kr_color)
 				}
-			break
+			break}
 		}
 		
 		draw_set_font(fnt_mars_needs_cunnilingus)

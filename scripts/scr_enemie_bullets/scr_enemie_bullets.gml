@@ -5,21 +5,29 @@ enum BULLET_TYPE{
 	GREEN
 }
 
-function spawn_platform(_x, _y, _direction=0, _length=60, _depth=0, _type=PLATFORM_TYPE.NORMAL, _fragile=0, _respawn_time=0, _respawn=true){
-	var _platform = instance_create_depth(_x + obj_box.x, _y + obj_box.y - obj_box.height/2 - 5, _depth, obj_platform)
+function spawn_platform(_x, _y, _direction=0, _length=60, _vel_x=0, _vel_y=0, _depth=0, _type=PLATFORM_TYPE.NORMAL, _conveyor_speed=1, _fragile=0, _respawn_time=1, _respawn=true){
+	var _platform = instance_create_depth(_x + obj_battle_box.x, _y + obj_battle_box.y - obj_battle_box.height/2 - 5, _depth, obj_battle_platform)
 	with (_platform){
 		type = _type
 		image_angle = _direction
 		length = _length
+		conveyor_speed = _conveyor_speed
+		
+		move_x = _vel_x
+		move_y = _vel_y
 		
 		fragile.respawn = _respawn
 		fragile.duration_time = _fragile
 		fragile.respawn_time = _respawn_time
 	}
+	
+	array_push(obj_game.battle_bullets, _platform) //It's not really a bullet, but it does clear it from screen if added to this table
+	
+	return _platform
 }
 
 function spawn_bullet(_sprite, _x, _y, _direction, _depth=0, _damage=3, _type=BULLET_TYPE.WHITE){
-	var _bullet = instance_create_depth(_x + obj_box.x, _y + obj_box.y - obj_box.height/2 - 5, _depth, obj_bullet)
+	var _bullet = instance_create_depth(_x + obj_battle_box.x, _y + obj_battle_box.y - obj_battle_box.height/2 - 5, _depth, obj_battle_bullet)
 	with (_bullet){
 		sprite_index = _sprite
 		damage = _damage
@@ -29,6 +37,9 @@ function spawn_bullet(_sprite, _x, _y, _direction, _depth=0, _damage=3, _type=BU
 		can_damage = false
 		color_value = 64
 		type = _type
+		bounce = function(){
+			return false
+		}
 		
 		switch (type){
 			case BULLET_TYPE.WHITE:{
@@ -50,10 +61,10 @@ function spawn_bullet(_sprite, _x, _y, _direction, _depth=0, _damage=3, _type=BU
 		
 			if (timer == 60){
 				depth = 0
-			}else if (timer > 160){
+			}else if (timer >= 120 and (x < obj_battle_box.x - obj_battle_box.width/2 or x > obj_battle_box.x + obj_battle_box.width/2 or y > obj_battle_box.y - 5 or y < obj_battle_box.y - 5 - obj_battle_box.height)){
 				image_alpha -= 0.05
 			}
-					
+			
 			var _movement = 5*pi*dcos(1.5*min(timer, 120))/6
 					
 			if (!can_damage and _movement <= 0){
@@ -82,6 +93,10 @@ function spawn_bullet(_sprite, _x, _y, _direction, _depth=0, _damage=3, _type=BU
 					
 			x += _movement*dcos(direction)
 			y -= _movement*dsin(direction)
+			
+			if (bounce()){
+				timer = 30
+			}
 					
 			if (image_alpha <= 0){
 				instance_destroy()

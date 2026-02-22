@@ -5,8 +5,8 @@ function DialogTree() constructor{
 	
     //The first struct has no content cause it's the start.
     create_dialog = function(_text){
-        array_push(dialogs, {content:_text, ids:[0,0,0,0,0,0,0,0]})
-        return (array_lenght(dialogs) - 1)
+        array_push(dialogs, {content: _text, ids: [0,0,0,0,0,0,0,0]})
+        return (array_length(dialogs) - 1)
     }
 	
     connect = function(_dialog_id, _atk_id, _act_id, _spare_id, _default_id, _special_atk_id=0, _special_act_id=0, _special_spare_id=0, _special_timed_act_id=0){
@@ -15,7 +15,7 @@ function DialogTree() constructor{
 	
     reset = function(){
         current = 0
-    } //Yes it's needed, we could do it by just put current to 0, but... Makes more sense with the function name... Might remove it xd
+    }
 	
     get_next_dialog = function(_action){
 		if (current == -1){

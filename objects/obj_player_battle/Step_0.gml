@@ -77,8 +77,8 @@ switch (obj_game.battle_state){
 							other.move_y += (direction - 1)*(jump.speed - _gravity/2)
 							
 							if (box_bound){
-								other.move_x += obj_box.x - obj_box.xprevious
-								other.move_y -= obj_box.y - obj_box.yprevious
+								other.move_x += obj_battle_box.x - obj_battle_box.xprevious
+								other.move_y -= obj_battle_box.y - obj_battle_box.yprevious
 							}
 							
 							jump.speed -= _gravity
@@ -129,8 +129,8 @@ switch (obj_game.battle_state){
 							other.move_x += (direction - 2)*(jump.speed - _gravity/2)
 							
 							if (box_bound){
-								other.move_x += obj_box.x - obj_box.xprevious
-								other.move_y -= obj_box.y - obj_box.yprevious
+								other.move_x += obj_battle_box.x - obj_battle_box.xprevious
+								other.move_y -= obj_battle_box.y - obj_battle_box.yprevious
 							}
 							
 							jump.speed -= _gravity

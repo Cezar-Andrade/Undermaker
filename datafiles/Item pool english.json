@@ -78,8 +78,12 @@
     {
         "inventory name": "Chocolate",
         "type": "Consumable",
-        "use dialog": "You ate the Chocolate.\nIt fills you with energy.\n[HealMessage]",
-        "info dialog": "Chocolate - Heals 20 HP.\nIt can overheal your HP by 10!",
-        "amount": 20
+        "use dialog": {
+            "overworld": ["You ate the Chocolate.\nIt fills you with energy.\n[HealMessage]","If only you had better use for that extra energy..."],
+            "battle": ["You ate the Chocolate.\nIt fills you with energy.","[HealMessage]\nATK and DEF increased by 10!"]
+        },
+        "info dialog": "Chocolate - Heals 20 HP.\nIt can overheal your HP by 10.\nIncreases your ATK and DEF.",
+        "atk": 10,
+        "def": 10
     }
 ]

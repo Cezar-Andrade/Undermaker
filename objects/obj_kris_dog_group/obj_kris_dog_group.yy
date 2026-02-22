@@ -6,8 +6,8 @@
   "name":"obj_kris_dog_group",
   "overriddenProperties":[],
   "parent":{
-    "name":"Overworld",
-    "path":"folders/Objects/Overworld.yy",
+    "name":"NPCs",
+    "path":"folders/Objects/Overworld/NPCs.yy",
   },
   "parentObjectId":{
     "name":"obj_entity",

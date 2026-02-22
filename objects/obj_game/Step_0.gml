@@ -144,10 +144,6 @@ switch (control_type){
 global.escape_button = keyboard_check_pressed(vk_escape) //Exclusive to keyboard.
 global.escape_hold_button = keyboard_check(vk_escape) //Exclusive to keyboard.
 
-if (keyboard_check_pressed(ord("V"))){
-	perform_game_load()
-}
-
 //Little system that sets the equipped atk, equipped def and invulnerability frames.
 if (global.player.prev_weapon != global.player.weapon or global.player.prev_armor != global.player.armor){
 	global.player.prev_weapon = global.player.weapon
@@ -292,10 +288,10 @@ switch (state){
 						var _dust_pixels = _enemy.last_animation_timer
 						var _offset_x = sprite_get_xoffset(_enemy.sprite_killed)
 						var _offset_y = sprite_get_yoffset(_enemy.sprite_killed)
-				
+						
 						array_push(battle_enemies_parts, {sprite: _enemy.sprite_killed, sprite_index: _enemy.sprite_killed_index, part: _enemy.last_animation_timer, x: _enemy.x - _offset_x, y: _enemy.y + (_dust_pixels - _offset_y)*_enemy.sprite_yscale, xscale: _enemy.sprite_xscale, yscale: _enemy.sprite_yscale, direction: irandom_range(60, 120), alpha: 1})
 				
-						_enemy.last_animation_timer++
+						_enemy.last_animation_timer += _enemy.dust_y_pixels_amount_per_frame
 					}
 				}
 		
@@ -401,7 +397,7 @@ switch (state){
 						_enemy_1.name += " A"
 					}
 				}
-			}
+			} //No break
 			case BATTLE_STATE.START_DODGE_ATTACK:{
 				with (obj_player_battle){
 					x = other.battle_start_animation_player_heart_x
@@ -436,18 +432,18 @@ switch (state){
 					if (typeof(battle_only_attack) == "array"){
 						_length = array_length(battle_only_attack)
 						for (var _i=0; _i<_length; _i++){
-							array_push(battle_enemies_attacks, new enemy_attack(battle_only_attack[_i], 0))
+							array_push(battle_enemies_attacks, new enemy_attack(battle_only_attack[_i], 0, undefined))
 						}
 					}else{
-						array_push(battle_enemies_attacks, new enemy_attack(battle_only_attack, 0))
+						array_push(battle_enemies_attacks, new enemy_attack(battle_only_attack, 0, undefined))
 					}
 					
 					with (obj_player_battle){
-						x = obj_box.x
-						y = obj_box.y - round(obj_box.height)/2 - 5
+						x = obj_battle_box.x
+						y = obj_battle_box.y - round(obj_battle_box.height)/2 - 5
 					}
 					
-					with (obj_box){
+					with (obj_battle_box){
 						width = box_size.x
 						height = box_size.y
 					}
@@ -507,7 +503,8 @@ switch (state){
 					y = _button.y + _button.heart_button_position_y
 				}
 			break}
-			case BATTLE_STATE.PLAYER_ENEMY_SELECT: case BATTLE_STATE.PLAYER_MERCY:{
+			case BATTLE_STATE.PLAYER_ENEMY_SELECT:
+			case BATTLE_STATE.PLAYER_MERCY:{
 				var _length = array_length(battle_enemies_dialogs)
 				for (var _i=0; _i<_length; _i++){
 					var _dialog = battle_enemies_dialogs[_i]
@@ -815,8 +812,8 @@ switch (state){
 				}
 				
 				with (obj_player_battle){
-					x = obj_box.x
-					y = obj_box.y - round(obj_box.height)/2 - 5
+					x = obj_battle_box.x
+					y = obj_battle_box.y - round(obj_battle_box.height)/2 - 5
 				}
 			break}
 			case BATTLE_STATE.TURN_END:{
@@ -946,7 +943,26 @@ switch (state){
 		}
 	break}
 	case GAME_STATE.PLAYER_CONTROL:{
-		//Nothing, in this state the control is given to the player, an obj_player_overworld handles the logic now with movement and interactions, and triggers all sorts of events in here from there, if you need to do something while the player can move around, here is the place to do it.
+		if (can_player_encounter_enemies and is_overworld_player_moving()){
+			var _animation_speed = obj_player_overworld.animation_speed
+			
+			encounters_timer += 1 + is_overworld_player_running()
+			
+			while (encounters_timer >= _animation_speed){
+				encounters_timer -= _animation_speed
+				encounters_steps++
+			}
+			
+			if (encounters_steps >= encounters_minimum_steps_to_trigger){
+				encounters_steps = 0
+				
+				var _enemies = get_random_enemies(encounters_enemie_selection, encounters_enemie_pool, encounters_selected_enemies_ids, encounters_enemie_amount.minimum, encounters_enemie_amount.maximum, encounters_exclude_enemie_combination)
+				var _dialog = get_encounter_initial_dialog(_enemies)
+				var _data = get_encounter_functions(_enemies)
+				
+				start_battle(_enemies, _dialog, _data[0], _data[1], _data[2], _data[3], _data[4])
+			}
+		}
 	break}
 	case GAME_STATE.PLAYER_MENU_CONTROL:{
 		switch (player_menu_state){
@@ -1271,7 +1287,7 @@ switch (state){
 			event_end_condition = undefined
 		}
 	break}
-	case GAME_STATE.DIALOG_CHOICE:{
+	case GAME_STATE.DIALOG_PLUS_CHOICE:{
 		var _prev_selection = selection
 		
 		if (!is_undefined(event_update)){
@@ -1279,49 +1295,97 @@ switch (state){
 		}
 		
 		for (var _i = 0; _i < 4; _i++){
-			if (!is_undefined(options[_i])){
-				options[_i][4].step()
+			if (!is_undefined(plus_options[_i])){
+				plus_options[_i][4].step()
 			}
 		}
 		
-		if (global.confirm_button and selection >= 0){
+		if (get_confirm_button(false) and selection >= 0){
 			//Unless the function passed in the option variables set it otherwise, upon finishing a selection, the player regains control, a little fail safe in case you forget to place the event.
 			state = GAME_STATE.PLAYER_CONTROL
 			
-			options[selection][3]()
+			plus_options[selection][3]()
 			
 			for (var _i = 0; _i < 4; _i++){
-				if (_i >= 0){
-					options[_i][3] = undefined
-					delete options[_i][4]
+				if (_i >= 0 and !is_undefined(plus_options[_i])){
+					plus_options[_i][3] = undefined
+					delete plus_options[_i][4]
+					
+					plus_options[_i] = undefined
 				}
-				
-				options[_i] = undefined
 			}
-		}else if (global.left_hold_button and selection != 0 and !is_undefined(options[0])){
-			audio_play_sound(snd_menu_selecting, 0, false)
-			
+		}else if (get_left_button(false) and selection != 0 and !is_undefined(plus_options[0])){
 			selection = 0
-		}else if (global.down_hold_button and selection != 1 and !is_undefined(options[1])){
-			audio_play_sound(snd_menu_selecting, 0, false)
-			
+		}else if (get_down_button(false) and selection != 1 and !is_undefined(plus_options[1])){
 			selection = 1
-		}else if (global.right_hold_button and selection != 2 and !is_undefined(options[2])){
-			audio_play_sound(snd_menu_selecting, 0, false)
-			
+		}else if (get_right_button(false) and selection != 2 and !is_undefined(plus_options[2])){
 			selection = 2
-		}else if (global.up_hold_button and selection != 3 and !is_undefined(options[3])){
-			audio_play_sound(snd_menu_selecting, 0, false)
-			
+		}else if (get_up_button(false) and selection != 3 and !is_undefined(plus_options[3])){
 			selection = 3
 		}
 		
-		if (_prev_selection != selection and (_prev_selection < 0 or !is_undefined(options[_prev_selection])) and !is_undefined(options[selection])){
+		if (_prev_selection != selection and (_prev_selection < 0 or !is_undefined(plus_options[_prev_selection])) and !is_undefined(plus_options[selection])){
+			audio_play_sound(snd_menu_selecting, 0, false)
+			
 			if (_prev_selection >= 0){
-				options[_prev_selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false]" + options[_prev_selection][2])
+				plus_options[_prev_selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false]" + plus_options[_prev_selection][2])
 			}
 			
-			options[selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false][color_rgb:255,255,0]" + options[selection][2])
+			plus_options[selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false][color_rgb:255,255,0]" + plus_options[selection][2])
+		}
+	break}
+	case GAME_STATE.DIALOG_GRID_CHOICE:{
+		var _prev_selection = selection
+		
+		if (!is_undefined(event_update)){
+			event_update()
+		}
+		
+		var _length = array_length(grid_options)
+		
+		for (var _i = 0; _i < _length; _i++){
+			grid_options[_i][4].step()
+		}
+		
+		if (get_confirm_button(false)){
+			//Unless the function passed in the option variables set it otherwise, upon finishing a selection, the player regains control, a little fail safe in case you forget to place the event.
+			state = GAME_STATE.PLAYER_CONTROL
+			
+			grid_options[selection][3]()
+			
+			if (_length > 0){
+				array_delete(grid_options, 0, _length)
+			}
+		}else if (get_left_button(false) or get_right_button(false)){
+			audio_play_sound(snd_menu_selecting, 0, false)
+			
+			if (selection%2 == 0 and selection + 1 < _length){
+				selection++
+			}else if (selection >= 1){
+				selection--
+			}
+		}else if (get_down_button(false)){
+			audio_play_sound(snd_menu_selecting, 0, false)
+			
+			selection += 2
+			if (selection >= _length){
+				selection %= 2
+			}
+		}else if (get_up_button(false)){
+			audio_play_sound(snd_menu_selecting, 0, false)
+			
+			selection -= 2
+			if (selection < 0){
+				selection = _length - 1 + selection%2
+			}
+		}
+		
+		if (_prev_selection != selection and (_prev_selection < 0 or !is_undefined(grid_options[_prev_selection])) and !is_undefined(grid_options[selection])){
+			if (_prev_selection >= 0){
+				grid_options[_prev_selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false]" + grid_options[_prev_selection][2])
+			}
+			
+			grid_options[selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false][color_rgb:255,255,0]" + grid_options[selection][2])
 		}
 	break}
 }
@@ -1331,63 +1395,9 @@ if (keyboard_check_pressed(vk_f4)){
 	change_resolution((resolution_active + 1) % array_length(resolutions_width))
 }
 
-//Border toggle
-if (keyboard_check_pressed(ord("D"))){
+//Border toggle - TEMP
+if (keyboard_check_pressed(ord("G"))){
 	toggle_border(!with_border)
-}
-
-if (keyboard_check_pressed(ord("Q"))){
-	var _end_function = function(_enemies_left, _enemies_killed, _enemies_spared, _battle_fled){
-		var _text = ""
-		
-		var _length = array_length(_enemies_left)
-		for (var _i=0; _i<_length; _i++){
-			var _enemy = _enemies_left[_i]
-			_text += string_concat(_enemy.name, " was left alive.\n")
-		}
-		
-		_length = array_length(_enemies_killed)
-		for (var _i=0; _i<_length; _i++){
-			var _enemy = _enemies_killed[_i]
-			_text += string_concat(_enemy.name, " was killed.\n")
-		}
-		
-		_length = array_length(_enemies_spared)
-		for (var _i=0; _i<_length; _i++){
-			var _enemy = _enemies_spared[_i]
-			_text += string_concat(_enemy.name, " was spared.\n")
-		}
-		
-		_text += string_concat("You ", ((_battle_fled) ? "fled" : "didn't flee"), " the battle.")
-		
-		overworld_dialog(_text,, (obj_player_overworld.y > 210))
-	}
-	
-	start_battle([ENEMY.MAD_DUMMY_DRAWN, ENEMY.MAD_DUMMY_SPRITED], "Oh no, two dummies...[w:20]\nAnd they are mad!",,, _end_function)
-}
-
-if (keyboard_check_pressed(ord("E"))){
-	var _end_function = function(){
-		overworld_dialog("It seems you are alive, nice.",, (obj_player_overworld.y > 210))
-	}
-	
-	var _random = irandom(2)
-	var _attacks = ENEMY_ATTACK.MAD_DUMMY_1
-	if (_random == 1){
-		_attacks = ENEMY_ATTACK.MAD_DUMMY_2
-	}else if (_random == 2){
-		_attacks = [ENEMY_ATTACK.MAD_DUMMY_1, ENEMY_ATTACK.MAD_DUMMY_2]
-	}
-	
-	_attacks = ENEMY_ATTACK.PLATFORM_1
-	
-	start_attack(_attacks,,, _end_function)
-}
-
-if (keyboard_check_pressed(ord("R"))){
-	state = GAME_STATE.PLAYER_CONTROL
-	
-	room_goto(player_prev_room)
 }
 
 dialog.step()

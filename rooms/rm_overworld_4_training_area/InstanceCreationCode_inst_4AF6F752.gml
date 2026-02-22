@@ -1,0 +1,1 @@
+spawn_point_instance = inst_spawn_point_training_area

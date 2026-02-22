@@ -30,6 +30,9 @@ animation_frames = sprite_get_number(walk_sprite)/4 //Amount of frames the walki
 
 player_previous_positions = []
 
+x_previous = x
+y_previous = y
+
 state_none_function = undefined
 
 spawn_point_reference = noone
@@ -39,5 +42,5 @@ timer = 2 //For replicating that 30 FPS feel on the 60 FPS, that means the varia
 animation_timer = 5 //Starts at animation_speed - 1, so it walks immediatelly when the button is pressed.
 move_x = 0 //Used to move the player pixel by pixel
 move_y = 0
-move_to_x = x
-move_to_y = y
+move_to_x = undefined
+move_to_y = undefined

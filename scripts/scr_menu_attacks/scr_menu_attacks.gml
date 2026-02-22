@@ -1,4 +1,4 @@
-function menu_attack(type) constructor{
+function menu_attack(type) constructor{ //TODO - Implement it
 	switch (type){
 		case 1:
 			Initial = function(){

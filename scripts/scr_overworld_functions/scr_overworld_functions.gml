@@ -418,71 +418,129 @@ function push_entity(_pusher){
 	general_entity_update(_pusher) //Update the entity so it checks for collision in general of the entity, pass the _pusher id so it avoids taking into account the one that pushed it, as that one will do its own thing after this is done.
 }
 
-function start_choice_grid(){
-	//TODO
-}
-
-function start_choice_plus(_x, _y, _start_centered=true){
+function start_plus_choice(_x, _y, _start_centered=true){
 	_x = real(_x)
 	_y = real(_y)
 	_start_centered = bool(_start_centered)
 	
 	var _found_option = -1
 	
-	for (var _i = 0; _i < 4; _i++){
-		if (!is_undefined(obj_game.options[_i])){
-			if (_found_option == -1){
-				_found_option = _i
+	with (obj_game){
+		var _sprite_half_width = sprite_get_width(choice_sprite)/2
+		var _sprite_half_height = sprite_get_height(choice_sprite)/2
+		
+		for (var _i = 0; _i < 4; _i++){
+			if (!is_undefined(plus_options[_i])){
+				if (_found_option == -1){
+					_found_option = _i
+				}
+			
+				var _dialog_system = new DisplayDialog(0, 0, "[skip:false][progress_mode:none][asterisk:false]" + plus_options[_i][2], 640,, 2, 2)
+				plus_options[_i][4] = _dialog_system //Yes it literally loads a dialog displaying for each one, for the effects it contains.
+			
+				switch (_i){
+					case 0:
+						plus_options[0][0] -= _dialog_system.get_current_text_width() + _sprite_half_width + 8
+						plus_options[0][1] -= _dialog_system.get_current_text_height()/2 - _sprite_half_height
+					break
+					case 1:
+						plus_options[1][0] -= _dialog_system.get_current_text_width()/2 + _sprite_half_width + 8
+						plus_options[1][1] += _sprite_half_height
+					break
+					case 2:
+						plus_options[2][0] -= _sprite_half_width + 8
+						plus_options[2][1] -= _dialog_system.get_current_text_height()/2 - _sprite_half_height
+					break
+					default: //3
+						plus_options[3][0] -= _dialog_system.get_current_text_width()/2 + _sprite_half_width + 8
+						plus_options[3][1] -= _dialog_system.get_current_text_height() - _sprite_half_height
+					break
+				}
+			
+				_dialog_system.move_to(_x + plus_options[_i][0] + _sprite_half_width + 8, _y + plus_options[_i][1] - 14)
 			}
-			
-			var _dialog_system = new DisplayDialog(0, 0, "[skip:false][progress_mode:none][asterisk:false]" + obj_game.options[_i][2], 640,, 2, 2)
-			obj_game.options[_i][4] = _dialog_system //Yes it literally loads a dialog displaying for each one, for the effects it contains.
-			
-			switch (_i){
-				case 0:
-					obj_game.options[0][0] -= _dialog_system.get_current_text_width() + 16
-					obj_game.options[0][1] -= _dialog_system.get_current_text_height()/2 - 8
-				break
-				case 1:
-					obj_game.options[1][0] -= _dialog_system.get_current_text_width()/2 + 16
-					obj_game.options[1][1] += 8
-				break
-				case 2:
-					obj_game.options[2][0] -= 16
-					obj_game.options[2][1] -= _dialog_system.get_current_text_height()/2 - 8
-				break
-				default: //3
-					obj_game.options[3][0] -= _dialog_system.get_current_text_width()/2 + 16
-					obj_game.options[3][1] -= _dialog_system.get_current_text_height() - 8
-				break
-			}
-			
-			_dialog_system.move_to(_x + obj_game.options[_i][0] + 16, _y + obj_game.options[_i][1] - 14)
 		}
-	}
 	
-	if (_found_option >= 0){
-		obj_game.state = GAME_STATE.DIALOG_CHOICE
-		obj_game.options_x = _x
-		obj_game.options_y = _y
+		if (_found_option >= 0){
+			state = GAME_STATE.DIALOG_PLUS_CHOICE
+			options_x = _x
+			options_y = _y
 	
-		if (_start_centered){
-			obj_game.selection = -1
-		}else{
-			obj_game.selection = _found_option //The first one that finds is left, if not then, down, if not then, right, if not then, up it's always secure it's one of those 4 cases.
-			obj_game.options[_found_option][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false][color_rgb:255,255,0]" + obj_game.options[_found_option][2])
+			if (_start_centered){
+				selection = -1
+			}else{
+				selection = _found_option //The first one that finds is left, if not then, down, if not then, right, if not then, up it's always secure it's one of those 4 cases.
+				plus_options[_found_option][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false][color_rgb:255,255,0]" + plus_options[_found_option][2])
+			}
 		}
 	}
 }
 
-function create_choice_option(_direction, _distance, _text, _function){
+function start_grid_choice(_x, _y, _x_spacing=280, _y_spacing=-1){
+	_x = real(_x)
+	_y = real(_y)
+	_x_spacing = real(_x_spacing)
+	_y_spacing = real(_y_spacing)
+	
+	var _found_option = -1
+	
+	with (obj_game){
+		var _length = array_length(grid_options)
+		var _sprite_half_width = sprite_get_width(choice_sprite)/2
+		var _sprite_half_height = sprite_get_height(choice_sprite)/2
+		var _option_x = 0
+		var _option_y = 0
+		var _line_jump_height = 0
+		
+		if (_length > 0){
+			_found_option = 0
+		}
+		
+		for (var _i=0; _i<_length; _i++){
+			var _dialog_system = new DisplayDialog(0, 0, "[skip:false][progress_mode:none][asterisk:false]" + grid_options[_i][2], 640,, 2, 2)
+			grid_options[_i][4] = _dialog_system //Yes it literally loads a dialog displaying for each one, for the effects it contains.
+			
+			grid_options[_i][0] = _option_x
+			grid_options[_i][1] = _option_y + _sprite_half_height
+			
+			_dialog_system.move_to(_x + grid_options[_i][0] + _sprite_half_width + 8, _y + grid_options[_i][1] - 14)
+			
+			_line_jump_height = _dialog_system.line_jump_height*_dialog_system.yscale
+			if (_y_spacing != -1){
+				_line_jump_height = max(_y_spacing, _line_jump_height)
+			}
+			
+			if (_option_x == 0){
+				_option_x = _x_spacing
+			}else{
+				_option_x = 0
+				_option_y += _line_jump_height
+			}
+		}
+		
+		if (_length > 0){
+			state = GAME_STATE.DIALOG_GRID_CHOICE
+			options_x = _x
+			options_y = _y
+	
+			selection = 0
+			grid_options[_found_option][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false][color_rgb:255,255,0]" + grid_options[_found_option][2])
+		}
+	}
+}
+
+function create_plus_choice_option(_direction, _distance, _text, _function){
 	var _option_index = _direction
 	var _x = -_distance*dcos(90*_direction)
 	var _y = _distance*dsin(90*_direction)
 	
 	if (_option_index >= 0){
-		obj_game.options[_option_index] = [_x, _y, _text, _function]
+		obj_game.plus_options[_option_index] = [_x, _y, _text, _function]
 	}
+}
+
+function create_grid_choice_option(_text, _function){
+	array_push(obj_game.grid_options, [0, 0, _text, _function])
 }
 
 function start_box_menu(_index){

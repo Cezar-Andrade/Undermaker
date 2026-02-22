@@ -35,16 +35,16 @@ set_mode = function(_mode, _args_struct=undefined){
 		conveyor_push.y = 0
 	}
 	
-	mode = _mode
-	
-	switch (mode){
+	switch (_mode){
 		case SOUL_MODE.NORMAL:{
 			image_blend = c_red
 			image_angle = 0
 		break}
 		case SOUL_MODE.GRAVITY:{
 			with (gravity_data){
-				direction = GRAVITY_SOUL.DOWN
+				if (other.mode != _mode){
+					direction = GRAVITY_SOUL.DOWN
+				}
 				orange_mode = false
 				jump.speed = 0
 				jump.movement_offset = 0
@@ -70,6 +70,8 @@ set_mode = function(_mode, _args_struct=undefined){
 			}
 		break}
 	}
+	
+	mode = _mode
 }
 
 set_mode(SOUL_MODE.NORMAL)

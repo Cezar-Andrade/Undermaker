@@ -10,8 +10,8 @@
   "name":"obj_collision",
   "overriddenProperties":[],
   "parent":{
-    "name":"Overworld",
-    "path":"folders/Objects/Overworld.yy",
+    "name":"Generic Objects",
+    "path":"folders/Objects/Overworld/Generic Objects.yy",
   },
   "parentObjectId":null,
   "persistent":false,

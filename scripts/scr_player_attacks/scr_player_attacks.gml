@@ -111,7 +111,7 @@ function player_attack(_type, _enemie) constructor{
 			}
 			
 			draw = function(){
-				draw_sprite(spr_player_target, 0, obj_box.x, obj_box.y - round(obj_box.height)/2 - 5)
+				draw_sprite(spr_player_target, 0, obj_battle_box.x, obj_battle_box.y - round(obj_battle_box.height)/2 - 5)
 				
 				var _anim = 0
 				if (second_bar){
@@ -120,13 +120,13 @@ function player_attack(_type, _enemie) constructor{
 					_anim = timer
 				}
 				
-				draw_sprite_ext(spr_player_target_bar, floor(_anim/4.8)%2, obj_box.x + x, obj_box.y - round(obj_box.height)/2 - 5, 1, 1, 0, color, 1)
+				draw_sprite_ext(spr_player_target_bar, floor(_anim/4.8)%2, obj_battle_box.x + x, obj_battle_box.y - round(obj_battle_box.height)/2 - 5, 1, 1, 0, color, 1)
 				
 				if (second_bar){
 					if (x == x2){
-						draw_sprite_ext(spr_player_target_bar, floor(timer/4.8)%2, obj_box.x + x2, obj_box.y - round(obj_box.height)/2 - 5, 1 + timer/60, 1 + timer/60, 0, color2, max(1 - timer/40, 0))
+						draw_sprite_ext(spr_player_target_bar, floor(timer/4.8)%2, obj_battle_box.x + x2, obj_battle_box.y - round(obj_battle_box.height)/2 - 5, 1 + timer/60, 1 + timer/60, 0, color2, max(1 - timer/40, 0))
 					}else{
-						draw_sprite_ext(spr_player_target_bar, floor(timer/4.8)%2, obj_box.x + x2, obj_box.y - round(obj_box.height)/2 - 5, 1, 1, 0, color2, (abs(x - x2) > 91) ? max(1 - timer/30, 0) : 1)
+						draw_sprite_ext(spr_player_target_bar, floor(timer/4.8)%2, obj_battle_box.x + x2, obj_battle_box.y - round(obj_battle_box.height)/2 - 5, 1, 1, 0, color2, (abs(x - x2) > 91) ? max(1 - timer/30, 0) : 1)
 					}
 				}
 				if (timer > 0 and timer < 60){
@@ -187,8 +187,8 @@ function player_attack(_type, _enemie) constructor{
 			}
 			
 			draw = function(){
-				draw_sprite(spr_player_target, 0, obj_box.x, obj_box.y - round(obj_box.height)/2 - 5)
-				draw_sprite(spr_player_target_bar, floor(timer/4.8)%2, obj_box.x + x, obj_box.y - round(obj_box.height)/2 - 5)
+				draw_sprite(spr_player_target, 0, obj_battle_box.x, obj_battle_box.y - round(obj_battle_box.height)/2 - 5)
+				draw_sprite(spr_player_target_bar, floor(timer/4.8)%2, obj_battle_box.x + x, obj_battle_box.y - round(obj_battle_box.height)/2 - 5)
 				
 				if (timer > 0 and timer < 60){
 					draw_sprite(spr_player_slice_attack, floor(timer/12), enemy_attacked.x + enemy_attacked.player_attack_x, enemy_attacked.y + enemy_attacked.player_attack_y)

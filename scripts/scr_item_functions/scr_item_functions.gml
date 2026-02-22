@@ -65,6 +65,15 @@ function use_item(_inventory_index){
 			
 			global.player.hp = min(global.player.hp + _item_data.amount, global.player.max_hp + _overheal_amount)
 			
+			if (room == rm_battle){
+				if (struct_exists(_item_data, "atk")){
+					global.player.battle_atk += _item_data.atk
+				}
+				if (struct_exists(_item_data, "def")){
+					global.player.battle_def += _item_data.def
+				}
+			}
+			
 			if (global.player.hp == _player_hp){ //Hacer que si no hay curacion este se reproduzca
 				_heal_message = global.UI_texts[$"item heal"].unchanged
 				

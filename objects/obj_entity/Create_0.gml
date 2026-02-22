@@ -1,4 +1,4 @@
-/// @description Pushable setting
+/// @description Pushable, collision and event trigger setting
 
 collision_ids = [0] //By default it collides with the same stuff the player can collide with.
 can_player_push = false //Sets if the entity can be pushed around by the player or other entities that can push.

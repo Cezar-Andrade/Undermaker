@@ -14,7 +14,7 @@ if (sticky_animation.timer > 0){
 		}
 		
 		if (timer == 2){
-			//audio_play_sound(snd_sticked, 0, false)
+			audio_play_sound(snd_sticky_platform, 0, false)
 		}else if (timer == 11){
 			timer = 0
 		}

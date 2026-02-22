@@ -26,12 +26,12 @@ interaction = function(){
 			overworld_dialog(["[asterisk:true]...[w:20]Well[w:20], at least you're honest[w:20], you may pass then.","[func:" + string(method_get_index(epic_movement)) + "][next]"],, false)
 		}
 	
-		create_choice_option(CHOICE_DIRECTION.LEFT, 110, "Sans", _option_1)
-		create_choice_option(CHOICE_DIRECTION.RIGHT, 110, "Papyrus", _option_2)
-		create_choice_option(CHOICE_DIRECTION.UP, 35, "Gaster", _option_3)
-		create_choice_option(CHOICE_DIRECTION.DOWN, 35, "I don't know.", _option_4)
+		create_plus_choice_option(PLUS_CHOICE_DIRECTION.LEFT, 110, "Sans", _option_1)
+		create_plus_choice_option(PLUS_CHOICE_DIRECTION.RIGHT, 110, "Papyrus", _option_2)
+		create_plus_choice_option(PLUS_CHOICE_DIRECTION.UP, 35, "Gaster", _option_3)
+		create_plus_choice_option(PLUS_CHOICE_DIRECTION.DOWN, 35, "I don't know.", _option_4)
 	
-		overworld_dialog(["Halt![w:20] if you want to pass[w:20], then tell me who's the king of the underground.","[progress_mode:none][asterisk:false][func:" + string(start_choice_plus) + ", 320, 390]"])
+		overworld_dialog(["Halt![w:20] if you want to pass[w:20], then tell me who's the king of the underground.","[progress_mode:none][asterisk:false][func:" + string(start_plus_choice) + ", 320, 390]"])
 	
 		obj_game.event_update = function(){
 			if (move_wall){

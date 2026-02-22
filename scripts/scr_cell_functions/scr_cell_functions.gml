@@ -3,7 +3,7 @@ enum CELL{
 	CALL_GASTER,
 	DIMENTIONAL_BOX_A,
 	DIMENTIONAL_BOX_B,
-	SAVE_GAME
+	LOAD_GAME
 }
 
 function load_ui_texts(_path){
@@ -33,10 +33,10 @@ function cell_use(_cell_index){
 		case CELL.DIMENTIONAL_BOX_B:
 			start_box_menu(1)
 		return;
-		case CELL.SAVE_GAME:
-			start_save_menu()
+		case CELL.LOAD_GAME:
+			perform_game_load()
 			
-			audio_play_sound(snd_menu_selecting, 100, false)
+			audio_play_sound(snd_game_saved, 100, false)
 		return
 	}
 	

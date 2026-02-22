@@ -40,7 +40,10 @@
     "battle no enemy": "No one",
     "battle no acts": "Can't act",
     "battle acts": [
-        "Check"
+        "Check",
+        "Annoy",
+        "Fluster",
+        "Distract"
     ],
     "battle flee dialogs": [
         "I'm outta here.",
@@ -58,7 +61,7 @@
         "Call Gaster",
         "Dimentional Box A",
         "Dimentional Box B",
-        "Save Game"
+        "Load Game"
     ],
 	"no items": {
 		"normal": [
@@ -87,6 +90,7 @@
     "rooms": {
         "rm_overworld_1_grass_land": "The Grass Land",
         "rm_overworld_2_the_void": "The Void",
-        "rm_overworld_3_hallway": "The Hallway"
+        "rm_overworld_3_hallway": "The Hallway",
+        "rm_overworld_4_training_area": "The Training Area"
     }
 }

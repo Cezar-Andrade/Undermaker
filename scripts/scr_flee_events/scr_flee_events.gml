@@ -8,7 +8,7 @@ function flee_event(_type, _success) constructor{
 	success = _success
 	is_finished = false
 	
-	switch(_type) {
+	switch (_type){
 		case FLEE_EVENT.IMPROVED:
 			timer = 0
 			

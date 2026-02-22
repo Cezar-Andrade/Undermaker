@@ -11,7 +11,7 @@ if (_ui_not_showing){
 	draw_clear_alpha(c_black, 0)
 	
 	switch (state){
-		case GAME_STATE.GAME_OVER:
+		case GAME_STATE.GAME_OVER:{
 			var _number = 255*(clamp(game_over_timer - 225, 0, 75) - clamp(game_over_timer - 352, 0, 75))/75
 			var _color = make_colour_rgb(_number, _number, _number)
 			
@@ -30,16 +30,16 @@ if (_ui_not_showing){
 				
 				draw_sprite_ext(spr_player_heart_shard, floor(game_over_timer/6), _shard.x, _shard.y, 1, 1, 0, game_over_heart_color, 1)
 			}
-		break
+		break}
 	}
 	
 	dialog.draw()
 	
 	switch (state){
-		case GAME_STATE.BATTLE_END:
+		case GAME_STATE.BATTLE_END:{
 			draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, 1 - anim_timer/20)
-		break
-		case GAME_STATE.BATTLE:
+		break}
+		case GAME_STATE.BATTLE:{
 			//Special effects of the battle can be placed here.
 			if (battle_black_alpha > 0){
 				draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, battle_black_alpha)
@@ -53,15 +53,15 @@ if (_ui_not_showing){
 			
 			switch (battle_state){
 				case BATTLE_STATE.END_DODGE_ATTACK:
-				case BATTLE_STATE.END:
+				case BATTLE_STATE.END:{
 					draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, anim_timer/20)
-				break
+				break}
 			}
-		break
-		case GAME_STATE.ROOM_CHANGE:
+		break}
+		case GAME_STATE.ROOM_CHANGE:{
 			draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, (min(anim_timer, room_change_fade_in_time) - max(anim_timer - room_change_wait_time, 0))/20)
-		break
-		case GAME_STATE.BATTLE_START_ANIMATION:
+		break}
+		case GAME_STATE.BATTLE_START_ANIMATION:{
 			if (anim_timer >= 0){
 				draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, 1)
 				
@@ -87,21 +87,33 @@ if (_ui_not_showing){
 					}
 				}
 			}
-		break
-		case GAME_STATE.DIALOG_CHOICE:
+		break}
+		case GAME_STATE.DIALOG_PLUS_CHOICE:{
 			for (var _i = 0; _i < 4; _i++){
-				if (!is_undefined(options[_i])){
-					options[_i][4].draw()
+				if (!is_undefined(plus_options[_i])){
+					plus_options[_i][4].draw()
 				}
 			}
 			
 			if (selection >= 0){
-				draw_sprite_ext(choice_sprite, choice_index, options_x + options[selection][0], options_y + options[selection][1], 1, 1, 0, player_heart_color, 1)
+				draw_sprite_ext(choice_sprite, choice_index, options_x + plus_options[selection][0], options_y + plus_options[selection][1], 1, 1, 0, player_heart_color, 1)
 			}else{
 				draw_sprite_ext(choice_sprite, choice_index, options_x, options_y, 1, 1, 0, player_heart_color, 1)
 			}
-		break
-		case GAME_STATE.PLAYER_MENU_CONTROL:
+		break}
+		case GAME_STATE.DIALOG_GRID_CHOICE:{
+			var _length = array_length(grid_options)
+			for (var _i = 0; _i < _length; _i++){
+				grid_options[_i][4].draw()
+			}
+			
+			if (selection >= 0){
+				draw_sprite_ext(choice_sprite, choice_index, options_x + grid_options[selection][0], options_y + grid_options[selection][1], 1, 1, 0, player_heart_color, 1)
+			}else{
+				draw_sprite_ext(choice_sprite, choice_index, options_x, options_y, 1, 1, 0, player_heart_color, 1)
+			}
+		break}
+		case GAME_STATE.PLAYER_MENU_CONTROL:{
 			draw_set_halign(fa_left)
 			draw_set_valign(fa_top)
 			draw_set_font(fnt_determination_sans)
@@ -110,7 +122,7 @@ if (_ui_not_showing){
 			var _heart_y = 0
 			
 			switch (player_menu_state){
-				case PLAYER_MENU_STATE.BOX:
+				case PLAYER_MENU_STATE.BOX:{
 					var _items_string = ""
 					var _box_string = ""
 					var _amount_items = array_length(global.player.inventory)
@@ -157,8 +169,8 @@ if (_ui_not_showing){
 					draw_text_transformed(167, 29, global.UI_texts[$"box inventory"], 2, 2, 0)
 					draw_text_transformed(472, 29, global.UI_texts[$"box box"], 2, 2, 0)
 					draw_text_transformed(320, 405, global.UI_texts[$"box exit"], 2, 2, 0)
-				break
-				case PLAYER_MENU_STATE.SAVE:
+				break}
+				case PLAYER_MENU_STATE.SAVE:{
 					_heart_x = 151 + 180*player_save_cursor
 					_heart_y = 257
 					
@@ -181,12 +193,12 @@ if (_ui_not_showing){
 					if (player_save_cursor == 2){
 						draw_set_color(c_white)
 					}
-				break
-				default:
+				break}
+				default:{
 					var _stats_x = 32
 					var _stats_y = 320
 					var _box_height = 0 //Height of the box of the items, cell and stats.
-					_amount_items = array_length(global.player.inventory)
+					var _amount_items = array_length(global.player.inventory)
 					var _amount_cell = array_length(global.player.cell_options)
 					var _item_color = (_amount_items > 0) ? c_white : c_gray 
 					var _cell_color = (_amount_cell > 0) ? c_white : c_gray//Color of the item option.
@@ -196,28 +208,28 @@ if (_ui_not_showing){
 					}
 					
 					switch (player_menu_state){
-						case PLAYER_MENU_STATE.INITIAL:
+						case PLAYER_MENU_STATE.INITIAL:{
 							_heart_x = 64
 							_heart_y = 204 + 36*player_menu_selection[0]
-						break
-						case PLAYER_MENU_STATE.STATS:
+						break}
+						case PLAYER_MENU_STATE.STATS:{
 							_box_height = 418
-						break
-						case PLAYER_MENU_STATE.INVENTORY:
+						break}
+						case PLAYER_MENU_STATE.INVENTORY:{
 							_box_height = 362
 							_heart_x = 217
 							_heart_y = 97 + 32*player_menu_selection[1]
-						break
-						case PLAYER_MENU_STATE.ITEM_SELECTED:
+						break}
+						case PLAYER_MENU_STATE.ITEM_SELECTED:{
 							_box_height = 362
 							_heart_x = 217 + min(96*player_menu_selection[2], 105)*player_menu_selection[2]
 							_heart_y = 377
-						break
-						case PLAYER_MENU_STATE.CELL:
+						break}
+						case PLAYER_MENU_STATE.CELL:{
 							_box_height = 270
 							_heart_x = 217
 							_heart_y = 97 + 32*player_menu_selection[1]
-						break
+						break}
 					}
 				
 					draw_sprite_ext(player_menu_box, 0, 32, 167, 142/30, 148/30, 0, c_white, 1) //Menu box
@@ -227,7 +239,7 @@ if (_ui_not_showing){
 						draw_sprite_ext(player_menu_box, 0, 188, 52, 346/30, _box_height/30, 0, c_white, 1) //Multi-purpose box
 				
 						switch (player_menu_state){
-							case PLAYER_MENU_STATE.STATS:
+							case PLAYER_MENU_STATE.STATS:{
 								_box_height = 418
 								var _player_weapon = global.UI_texts.none
 								var _player_armor = global.UI_texts.none
@@ -246,10 +258,11 @@ if (_ui_not_showing){
 								draw_text_ext_transformed(216, 144, string_concat(global.UI_texts.lv ,"  ", global.player.lv, "\n", global.UI_texts.hp, "  ", global.player.hp, " / ", global.player.max_hp, "\n\n", global.UI_texts[$"stat attack"], "  ", global.player.atk, " (", global.player.equipped_atk, ")\n", global.UI_texts[$"stat defense"], "  ", global.player.def, " (", global.player.equipped_def, ")\n\n", global.UI_texts[$"stat weapon"], ": ", _player_weapon, "\n", global.UI_texts[$"stat armor"], ": ", _player_armor), 16, 400, 2, 2, 0)
 								draw_text_ext_transformed(384, 240, string_concat(global.UI_texts[$"stat exp"], ": ", global.player.exp, "\n", global.UI_texts[$"stat next"], ": ", (is_infinity(global.player.next_exp) ? global.UI_texts.none : global.player.next_exp)), 16, 400, 2, 2, 0)
 								draw_text_transformed(216, 408, string_concat(global.UI_texts[$"stat gold"], ": ", global.player.gold), 2, 2, 0)
-							break
-							case PLAYER_MENU_STATE.INVENTORY: case PLAYER_MENU_STATE.ITEM_SELECTED:
+							break}
+							case PLAYER_MENU_STATE.INVENTORY:
+							case PLAYER_MENU_STATE.ITEM_SELECTED:{
 								_box_height = 362
-								_items_string = ""
+								var _items_string = ""
 						
 								for (var _i = 0; _i < _amount_items; _i++){
 									var _item = global.item_pool[global.player.inventory[_i]]
@@ -262,8 +275,8 @@ if (_ui_not_showing){
 								draw_text_transformed(232, 360, global.UI_texts[$"item use"], 2, 2, 0)
 								draw_text_transformed(328, 360, global.UI_texts[$"item info"], 2, 2, 0)
 								draw_text_transformed(442, 360, global.UI_texts[$"item drop"], 2, 2, 0)
-							break
-							case PLAYER_MENU_STATE.CELL:
+							break}
+							case PLAYER_MENU_STATE.CELL:{
 								_box_height = 270
 								var _cell_string = ""
 						
@@ -274,7 +287,7 @@ if (_ui_not_showing){
 								}
 						
 								draw_text_ext_transformed(232, 80, _cell_string, 16, 400, 2, 2, 0)
-							break
+							break}
 						}
 					}
 				
@@ -290,13 +303,13 @@ if (_ui_not_showing){
 			
 					draw_text_ext_transformed(_stats_x + 13, _stats_y + 49, string_concat(global.UI_texts.lv, "\n", global.UI_texts.hp, "\n", global.UI_texts.gold), 9, 100, 2, 2, 0)
 					draw_text_ext_transformed(_stats_x + 49, _stats_y + 49, string_concat(global.player.lv, "\n", global.player.hp, "/", global.player.max_hp, "\n", global.player.gold), 9, 100, 2, 2, 0)
-				break
+				break}
 			}
 			
 			if ((player_menu_state != PLAYER_MENU_STATE.BOX or player_box_cursor[0] != -1) and (player_menu_state != PLAYER_MENU_STATE.SAVE or player_save_cursor < 2) and player_menu_state != PLAYER_MENU_STATE.WAITING_DIALOG_END and player_menu_state != PLAYER_MENU_STATE.STATS){
 				draw_sprite_ext(spr_player_heart, player_heart_subimage, _heart_x, _heart_y, 1, 1, 0, player_heart_color, 1)
 			}
-		break
+		break}
 	}
 
 	surface_reset_target()
