@@ -21,12 +21,13 @@ function spawn_platform(_x, _y, _direction=0, _length=60, _vel_x=0, _vel_y=0, _d
 	return _platform
 }
 
-function spawn_bullet(_sprite, _x, _y, _direction, _depth=0, _damage=3, _type=BULLET_TYPE.WHITE){
+function spawn_bullet(_sprite, _x, _y, _direction, _mask_to_box=false, _depth=0, _damage=3, _type=BULLET_TYPE.WHITE){
 	var _bullet = instance_create_depth(_x + obj_battle_box.x, _y + obj_battle_box.y - obj_battle_box.height/2 - 5, _depth, obj_battle_bullet)
 	with (_bullet){
 		sprite_index = _sprite
 		damage = _damage
 		direction = _direction
+		mask_to_box = _mask_to_box
 		
 		timer = 0
 		can_damage = false

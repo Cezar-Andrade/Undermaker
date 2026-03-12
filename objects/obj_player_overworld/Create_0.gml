@@ -1,5 +1,6 @@
 /// @description Initial variables
 
+//Small methods to manipulate a bit the animation of the player
 player_sprite_reset = function(_direction=0){
 	sprite_index = walk_sprite
 	image_index = animation_frames*_direction
@@ -26,20 +27,26 @@ walk_sprite = spr_unknown_walk
 run_sprite = undefined
 animation_frames = sprite_get_number(walk_sprite)/4 //Amount of frames the walking and running animations have, you can edit the code to change this dynamically in case your running sprite has more frames than the walking or viceversa, or create separate variables for these and use them in the step event of this object (requires you to edit the functions).
 
-//-------------------------
+//-----------Programmer area--------------
 
+//For collision system to avoid loops that end up in the same result
 player_previous_positions = []
 
+//This player holds the xprevious and yprevious in their own variables, mostly because the ones from Game Maker update before the Begin Step event, but I need them to update in a different stop, so it's at the start of this object's End Step event.
 x_previous = x
 y_previous = y
 
+//Function when the player is in a none state.
 state_none_function = undefined
 
+//Spawn point reference for room transitioning
 spawn_point_reference = noone
 spawn_point_offset = 0
 
 timer = 2 //For replicating that 30 FPS feel on the 60 FPS, that means the variable player_speed is doubled for that reason, needed for the frisk_dance consistency.
 animation_timer = 5 //Starts at animation_speed - 1, so it walks immediatelly when the button is pressed.
+
+//Movement of the player variables
 move_x = 0 //Used to move the player pixel by pixel
 move_y = 0
 move_to_x = undefined

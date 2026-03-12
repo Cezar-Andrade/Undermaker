@@ -2,15 +2,15 @@
   "$GMSound":"v2",
   "%Name":"snd_player_slice",
   "audioGroupId":{
-    "name":"audiogroup_default",
-    "path":"audiogroups/audiogroup_default",
+    "name":"audiogroup_sound",
+    "path":"audiogroups/audiogroup_sound",
   },
   "bitDepth":1,
   "channelFormat":0,
   "compression":0,
   "compressionQuality":4,
   "conversionMode":0,
-  "duration":0.55059,
+  "duration":0.55058956,
   "exportDir":"",
   "name":"snd_player_slice",
   "parent":{

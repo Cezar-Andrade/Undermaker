@@ -13,7 +13,7 @@ enum ACT_COMMAND{
 }
 
 function calculate_enemy_damage_amount(_enemy){
-	return ceil(_enemy.atk/5 - global.player.def) //You can make your separate calculations based on many other data from the enemy
+	return ceil(_enemy.atk/5 - get_player_total_def()) //You can make your separate calculations based on many other data from the enemy
 }
 
 function Enemy(_monster, _x_pos, _y_pos) constructor{
@@ -268,14 +268,14 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			hp = 100
 			max_hp = 100
 			name = "Monster"
-			layer_inst = layer_create(301)
+			layer_inst = layer_create(300)
 			timer = -1
 			array_push(act_commands, ACT_COMMAND.ANNOY, ACT_COMMAND.FLUSTER)
 			
 			sprite = layer_sprite_create(layer_inst, x, y, spr_enemy_monster)
 			
 			calculate_damage = function(_accuracy){
-				return (100 + 2*(global.player.atk - def))*_accuracy //Custom formula
+				return (100 + 2*(get_player_total_atk() - def))*_accuracy //Custom formula
 			}
 			
 			hurt = function(_damage){ //FIGHT
@@ -398,7 +398,7 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			hp = 10
 			max_hp = 10
 			name = "Angy Monster"
-			layer_inst = layer_create(301)
+			layer_inst = layer_create(300)
 			timer = -1
 			dodge = -1
 			distracted = false
@@ -412,7 +412,7 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 					dodge = 0
 				}
 				
-				return 100*_accuracy/max(def - global.player.atk, 1) //Custom formula
+				return 100*_accuracy/max(def - get_player_total_atk(), 1) //Custom formula
 			}
 			
 			hurt = function(_damage){ //FIGHT

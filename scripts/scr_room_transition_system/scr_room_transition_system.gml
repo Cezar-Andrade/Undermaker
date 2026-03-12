@@ -4,6 +4,9 @@ function RoomTransitionSystem() constructor{
 	room_change_wait_time = 0
 	room_change_fade_out_time = 0
 	
+	alpha = 0
+	update_border_alpha = false
+	
 	goto_room = undefined
 	after_transition_function = undefined
 	
@@ -20,9 +23,15 @@ function RoomTransitionSystem() constructor{
 				after_transition_function = undefined
 			}
 		}
+		
+		alpha = (min(anim_timer, room_change_fade_in_time) - max(anim_timer - room_change_wait_time, 0))/20
+		
+		if (is_border_dynamic() and update_border_alpha){
+			obj_game.border_alpha = 1 - alpha
+		}
 	}
 	
 	draw = function(){
-		draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, (min(anim_timer, room_change_fade_in_time) - max(anim_timer - room_change_wait_time, 0))/20)
+		draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, alpha)
 	}
 }

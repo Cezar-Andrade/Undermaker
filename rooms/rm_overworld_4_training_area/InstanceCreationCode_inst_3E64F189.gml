@@ -46,7 +46,7 @@ trigger_function = function(){
 			var _dialog = get_encounter_initial_dialog(_enemies)
 			//var _data = get_encounter_functions(_enemies) //We don't use this since we are supplementing our custom functions instead
 			
-			start_battle(_enemies, _dialog, BATTLE_START_ANIMATION.NO_WARNING,,, end_battle)
+			start_battle(_enemies, _dialog, BATTLE_START_ANIMATION.NO_WARNING, mus_stronger_monsters, BATTLE_BACKGROUND.MOVING_SQUARE_GRID,, end_battle)
 		}
 	}
 }

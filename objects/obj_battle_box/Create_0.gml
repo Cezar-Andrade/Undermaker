@@ -11,7 +11,7 @@ resize_speed = 20
 movement_speed = 10
 rotation_speed = 5
 
-//--------------------------------------------------------------------
+//-------------------------------Programmer area-------------------------------------
 
 box_size = {x: 565, y: 130}
 box_position = {x: 320, y: 390}
@@ -44,6 +44,7 @@ box_polygon_points = {
 }
 box_fill_color = c_black
 box_fill_alpha = 1
+box_fill_surface = -1 //Surface mask
 
 var _default_points = box_polygon_points.default_points
 _default_points[0] = x - round(width)/2

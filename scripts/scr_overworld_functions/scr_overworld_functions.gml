@@ -3,7 +3,7 @@ function handle_interaction_action(_direction, _movement_speed){
 	var _y_offset = _movement_speed*dcos(_direction)
 	
 	if (can_interact and !is_undefined(interaction) and place_meeting(x - _x_offset, y - _y_offset, obj_player_overworld)){
-		var _is_interacting = true
+		var _is_interacting
 		
 		//Check for the key to interact being pressed.
 		switch (interaction_key){
@@ -33,13 +33,18 @@ function handle_interaction_action(_direction, _movement_speed){
 }
 
 //DO NOT MODIFY - unless you know what you're doing
-function set_battle_scene(_animation, _init_function, _end_function, _heart_x, _heart_y){
+function set_battle_scene(_animation, _background, _init_function, _end_function, _heart_x, _heart_y){
 	obj_game.battle_start_animation_player_heart_x = _heart_x
 	obj_game.battle_start_animation_player_heart_y = _heart_y
+	
 	battle_init_function = _init_function
 	battle_end_function = _end_function
 	battle_start_animation_type = _animation
+	
 	battle_black_alpha = 1
+	battle_background_name = _background
+	
+	update_border_alpha = is_border_dynamic()
 	
 	if (_animation == BATTLE_START_ANIMATION.NORMAL or _animation == BATTLE_START_ANIMATION.FAST){
 		obj_game.anim_timer = -36

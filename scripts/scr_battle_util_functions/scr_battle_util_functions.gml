@@ -122,7 +122,7 @@ function battle_reset_box_polygon_points(_box=obj_battle_box){
 			polygon_defined = false
 			if (!defined){
 				x = 0
-				y = -5 - round(height)/2
+				y = -5 - round(_box.height)/2
 			}
 		}
 		
@@ -158,6 +158,11 @@ function battle_set_box_polygon_points(_points, _relative=true, _box=obj_battle_
 		return
 	}
 	
+	var _length = array_length(_points)
+	var _points_copy = []
+	array_copy(_points_copy, 0, _points, 0, _length)
+	_points = _points_copy
+	
 	with (_box.box_polygon_points){
 		with (_box.box_origin){
 			polygon_defined = true
@@ -168,10 +173,40 @@ function battle_set_box_polygon_points(_points, _relative=true, _box=obj_battle_
 		}
 		
 		if (_relative){
-			var _length = array_length(_points)
 			for (var _i = 0; _i < _length; _i += 2){
 				_points[_i] += _box.x
 				_points[_i+1] += _box.y
+			}
+		}
+		
+		if (_length >= 6){ //Do the point reduction as long as there 3 or more points
+			for (var _i = 0; _i < _length; _i += 2){
+				var _distance = point_distance(_points[(_i - 2 + _length)%_length], _points[(_i - 1 + _length)%_length], _points[_i], _points[_i+1])
+				var _remove = false
+				
+				if (_distance == 0){
+					_remove = true
+				}else{			
+					var _prev_direction = point_direction(_points[(_i - 2 + _length)%_length], _points[(_i - 1 + _length)%_length], _points[_i], _points[_i+1])
+					var _direction = point_direction(_points[_i], _points[_i+1], _points[(_i + 2)%_length], _points[(_i + 3)%_length])
+					var _angle_difference = angle_difference(_prev_direction, _direction)
+			
+					//Remove points that are in the middle of a straight line and in the opposite direction too
+					if (_angle_difference == 0 or _angle_difference == 180){
+						_remove = true
+					}
+				}
+				
+				if (_remove){
+					array_delete(_points, _i, 2)
+					
+					_i -= 2
+					_length -= 2
+					
+					if (_length <= 4){
+						break //If it got reduced to 2 points, stop, no more reduction.
+					}
+				}
 			}
 		}
 		
@@ -200,6 +235,16 @@ function battle_set_box_rotation(_angle, _instant=false, _box=obj_battle_box){
 			
 			battle_box_update_points_by_rotation(_diff_angle, _box)
 		}
+	}
+}
+
+function battle_set_background(_background=BATTLE_BACKGROUND.NO_BG){
+	with (obj_game.battle_system){
+		if (!is_undefined(battle_background)){
+			instance_destroy(battle_background)
+		}
+		
+		battle_background = BattleBackground(_background)
 	}
 }
 
@@ -807,7 +852,7 @@ function battle_go_to_state(_state, _enemy=undefined){
 				battle_apply_rewards(false)
 				
 				if (obj_game.battle_pause_music){
-					obj_game.battle_music_system.stop_music()
+					obj_game.battle_music_system.set_gain(0, 333)
 				}
 			break}
 		}

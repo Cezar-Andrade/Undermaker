@@ -68,7 +68,7 @@ function PlayerAttack(_weapon, _enemie) constructor{
 						
 						if (x > 280 or x < -280){
 							enemy_attacked.hurt("MISS")
-							array_push(get_battle_damage_text_array(), new DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NO_ANIMATION, "MISS", c_gray, enemy_attacked.x + enemy_attacked.damage_ui_x, enemy_attacked.y + enemy_attacked.damage_ui_y))
+							array_push(get_battle_damage_text_array(), DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NO_ANIMATION, "MISS", c_gray, enemy_attacked.x + enemy_attacked.damage_ui_x, enemy_attacked.y + enemy_attacked.damage_ui_y))
 							
 							battle_go_to_state(BATTLE_STATE.ENEMY_DIALOG)
 						}
@@ -91,7 +91,7 @@ function PlayerAttack(_weapon, _enemie) constructor{
 						damage = enemy_attacked.hurt(damage)
 						
 						if (typeof(damage) == "string"){
-							array_push(get_battle_damage_text_array(), new DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NORMAL, damage, c_gray, _x, _y, false))
+							array_push(get_battle_damage_text_array(), DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NORMAL, damage, c_gray, _x, _y,, false))
 						}else{
 							var _text_color = c_white
 							if (damage < 0){
@@ -100,7 +100,7 @@ function PlayerAttack(_weapon, _enemie) constructor{
 								_text_color = c_red
 							}
 							
-							array_push(get_battle_damage_text_array(), new DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NORMAL, string(damage), _text_color, _x, _y, true, _hp, _max_hp, damage, enemy_attacked.hp_bar_width_attacked, enemy_attacked.hp_bar_color))
+							array_push(get_battle_damage_text_array(), DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NORMAL, string(damage), _text_color, _x, _y,, true, _hp, _max_hp, damage, enemy_attacked.hp_bar_width_attacked, enemy_attacked.hp_bar_color))
 						}
 					}
 					
@@ -153,7 +153,7 @@ function PlayerAttack(_weapon, _enemie) constructor{
 					
 					if (x > 280){
 						enemy_attacked.hurt("MISS")
-						array_push(get_battle_damage_text_array(), new DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NO_ANIMATION, "MISS", c_gray, enemy_attacked.x + enemy_attacked.damage_ui_x, enemy_attacked.y + enemy_attacked.damage_ui_y))
+						array_push(get_battle_damage_text_array(), DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NO_ANIMATION, "MISS", c_gray, enemy_attacked.x + enemy_attacked.damage_ui_x, enemy_attacked.y + enemy_attacked.damage_ui_y))
 						
 						battle_go_to_state(BATTLE_STATE.ENEMY_DIALOG)
 					}
@@ -167,7 +167,7 @@ function PlayerAttack(_weapon, _enemie) constructor{
 						damage = enemy_attacked.hurt(damage)
 						
 						if (typeof(damage) == "string"){
-							array_push(get_battle_damage_text_array(), new DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NORMAL, damage, c_gray, _x, _y, false))
+							array_push(get_battle_damage_text_array(), DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NORMAL, damage, c_gray, _x, _y,, false))
 						}else{
 							var _text_color = c_white
 							if (damage < 0){
@@ -176,7 +176,7 @@ function PlayerAttack(_weapon, _enemie) constructor{
 								_text_color = c_red
 							}
 							
-							array_push(get_battle_damage_text_array(), new DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NORMAL, string(damage), _text_color, _x, _y, true, _hp, _max_hp, damage, enemy_attacked.hp_bar_width_attacked, enemy_attacked.hp_bar_color))
+							array_push(get_battle_damage_text_array(), DamageUIAnimation(DAMAGE_UI_ANIMATION_TYPE.NORMAL, string(damage), _text_color, _x, _y,, true, _hp, _max_hp, damage, enemy_attacked.hp_bar_width_attacked, enemy_attacked.hp_bar_color))
 						}
 					}
 					

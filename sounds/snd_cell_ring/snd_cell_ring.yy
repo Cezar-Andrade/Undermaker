@@ -2,15 +2,15 @@
   "$GMSound":"v2",
   "%Name":"snd_cell_ring",
   "audioGroupId":{
-    "name":"audiogroup_default",
-    "path":"audiogroups/audiogroup_default",
+    "name":"audiogroup_sound",
+    "path":"audiogroups/audiogroup_sound",
   },
   "bitDepth":1,
   "channelFormat":0,
   "compression":0,
   "compressionQuality":4,
   "conversionMode":0,
-  "duration":2.50093,
+  "duration":2.5009296,
   "exportDir":"",
   "name":"snd_cell_ring",
   "parent":{

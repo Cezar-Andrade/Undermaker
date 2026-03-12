@@ -1,11 +1,16 @@
 global.instance_references = {}
+global.room_borders = {}
+global.room_musics = {}
 
 global.game_settings = {
 	language: "english",
 	resolution_active: 0,
 	resolution_last_active: -1,
 	border_active: false,
-	border_id: 0
+	border_id: 0,
+	border_last_id: 0,
+	sound_volume: 0.5,
+	music_volume: 0.5
 }
 
 /*

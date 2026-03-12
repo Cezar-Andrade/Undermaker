@@ -2,15 +2,15 @@
   "$GMSound":"v2",
   "%Name":"snd_monster_voice",
   "audioGroupId":{
-    "name":"audiogroup_default",
-    "path":"audiogroups/audiogroup_default",
+    "name":"audiogroup_sound",
+    "path":"audiogroups/audiogroup_sound",
   },
   "bitDepth":1,
   "channelFormat":0,
   "compression":0,
   "compressionQuality":4,
   "conversionMode":0,
-  "duration":0.0,
+  "duration":0.052108843,
   "exportDir":"",
   "name":"snd_monster_voice",
   "parent":{

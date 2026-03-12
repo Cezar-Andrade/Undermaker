@@ -2,15 +2,15 @@
   "$GMSound":"v2",
   "%Name":"snd_warning",
   "audioGroupId":{
-    "name":"audiogroup_default",
-    "path":"audiogroups/audiogroup_default",
+    "name":"audiogroup_sound",
+    "path":"audiogroups/audiogroup_sound",
   },
   "bitDepth":1,
   "channelFormat":0,
   "compression":0,
   "compressionQuality":4,
   "conversionMode":0,
-  "duration":1.256553,
+  "duration":1.2565533,
   "exportDir":"",
   "name":"snd_warning",
   "parent":{

@@ -14,9 +14,50 @@ function battle_move_player_from_boxs_center_to(_x, _y, _box=obj_battle_box, _ob
 	}
 }
 
-function set_soul_mode(_mode, _args=undefined, _obj=obj_player_battle){
+function set_soul_mode(_mode, _args_struct=undefined, _obj=obj_player_battle){
 	with (_obj){
-		set_mode(_mode, _args)
+		if (mode != _mode){
+			conveyor_push.x = 0
+			conveyor_push.y = 0
+		}
+	
+		switch (_mode){
+			case SOUL_MODE.NORMAL:{
+				image_blend = c_red
+				image_angle = 0
+			break}
+			case SOUL_MODE.GRAVITY:{
+				with (gravity_data){
+					if (other.mode != _mode){
+						direction = GRAVITY_SOUL.DOWN
+					}
+					orange_mode = false
+					jump.speed = 0
+					jump.movement_offset = 0
+					movement.speed = 0
+					other.image_angle = 90*direction
+			
+					if (is_undefined(_args_struct)){
+						other.image_blend = make_color_rgb(0,60,255)
+					}else{
+						if (variable_struct_exists(_args_struct, "box_bound") and !_args_struct.box_bound){
+							box_bound = false
+						}
+					
+						if (variable_struct_exists(_args_struct, "orange") and !_args_struct.orange){
+							other.image_blend = make_color_rgb(0,60,255)
+						}else{
+							other.image_blend = make_color_rgb(255,127,0)
+				
+							orange_mode = true
+							movement_direction = 0
+						}
+					}
+				}
+			break}
+		}
+	
+		mode = _mode
 	}
 }
 
@@ -93,4 +134,20 @@ function get_player_atk(){
 
 function get_player_def(){
 	return global.player.def + global.player.battle_def
+}
+
+function get_player_equipped_atk(){
+	return global.player.equipped_atk
+}
+
+function get_player_equipped_def(){
+	return global.player.equipped_def
+}
+
+function get_player_total_atk(){
+	return get_player_atk() + get_player_equipped_atk()
+}
+
+function get_player_total_def(){
+	return get_player_def() + get_player_equipped_def()
 }

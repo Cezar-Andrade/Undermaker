@@ -1,5 +1,6 @@
 /// @description Pushable, collision and event trigger setting
 
+//The rest is the same as the entity creation code, only the interaction and a variable are added
 collision_ids = [0] //By default it collides with the same stuff the player can collide with.
 can_player_push = false //Sets if the entity can be pushed around by the player or other entities that can push.
 can_entities_push = false
@@ -11,8 +12,9 @@ can_interact = true
 depth_ordering = true
 
 interaction_key = "confirm"
-spawn_point_instance = undefined
+spawn_point_instance = undefined //The spawn point it references
 
+//The interaction of the save point
 interaction = function(){
 	if (is_undefined(spawn_point_instance)){
 		show_message("There's no spawn point instance defined for this save point, please define one using the variable \"spawn_point_instance\".")

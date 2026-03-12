@@ -4,6 +4,7 @@ if (!is_undefined(step)){
 	step()
 }
 
+//Platform color.
 if (type == PLATFORM_TYPE.CONVEYOR){
 	image_blend = make_color_rgb(191, 76, 0);
 }else if (type == PLATFORM_TYPE.TRAMPOLINE){

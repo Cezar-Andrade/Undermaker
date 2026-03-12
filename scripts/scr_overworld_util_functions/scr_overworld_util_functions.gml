@@ -1,4 +1,4 @@
-function start_battle(_enemies, _initial_dialog, _animation=BATTLE_START_ANIMATION.NORMAL, _music=undefined, _init_function=undefined, _end_function=undefined, _heart_x=48, _heart_y=453){ //By default points to where the FIGHT button would be
+function start_battle(_enemies, _initial_dialog, _animation=BATTLE_START_ANIMATION.NORMAL, _music=undefined, _background=BATTLE_BACKGROUND.NO_BG, _init_function=undefined, _end_function=undefined, _heart_x=48, _heart_y=453){ //By default points to where the FIGHT button would be
 	if (typeof(_enemies) != "array"){
 		global.battle_enemies = [_enemies]
 	}else{
@@ -20,12 +20,12 @@ function start_battle(_enemies, _initial_dialog, _animation=BATTLE_START_ANIMATI
 			battle_selection[0] = 0
 			battle_only_attack = undefined
 		
-			set_battle_scene(_animation, _init_function, _end_function, _heart_x, _heart_y)
+			set_battle_scene(_animation, _background, _init_function, _end_function, _heart_x, _heart_y)
 		}
 	}
 }
 
-function start_attack(_attacks, _animation=BATTLE_START_ANIMATION.NO_WARNING_FAST, _music=undefined, _init_function=undefined, _end_function=undefined, _heart_x=GAME_WIDTH/2, _heart_y=2*GAME_HEIGHT/3){
+function start_attack(_attacks, _animation=BATTLE_START_ANIMATION.NO_WARNING_FAST, _music=undefined, _background=BATTLE_BACKGROUND.NO_BG, _init_function=undefined, _end_function=undefined, _heart_x=GAME_WIDTH/2, _heart_y=2*GAME_HEIGHT/3){
 	with (obj_game){
 		state = GAME_STATE.BATTLE_START_ANIMATION
 		battle_pause_music = !is_undefined(_music)
@@ -39,7 +39,7 @@ function start_attack(_attacks, _animation=BATTLE_START_ANIMATION.NO_WARNING_FAS
 			battle_state = BATTLE_STATE.START_DODGE_ATTACK
 			battle_only_attack = _attacks
 		
-			set_battle_scene(_animation, _init_function, _end_function, _heart_x, _heart_y)
+			set_battle_scene(_animation, _background, _init_function, _end_function, _heart_x, _heart_y)
 		}
 	}
 }
@@ -199,15 +199,15 @@ function overworld_dialog(_dialogues, _set_event=true, _top=true, _width=261, _h
 	}
 }
 
-function change_room(_room_id, _spawn_point_instance, _music=undefined, _sides=true, _room_change_fade_in_time=20, _room_change_wait_time=0, _room_change_fade_out_time=20, _end_room_func=undefined, _start_room_func=undefined, _after_transition_func=undefined){
+function change_room(_room_id, _spawn_point_instance, _sides=true, _room_change_fade_in_time=20, _room_change_wait_time=0, _room_change_fade_out_time=20, _end_room_func=undefined, _start_room_func=undefined, _after_transition_func=undefined){
 	with (obj_game){
 		state = GAME_STATE.ROOM_CHANGE
 		end_room_function = _end_room_func
 		start_room_function = _start_room_func
-		overworld_music_system.schedule_music_change_to(_music)
 		
 		with (room_transition_system){
 			anim_timer = 0
+			update_border_alpha = !is_undefined(get_border_id_by_room(_room_id))
 			
 			room_change_fade_in_time = max(ceil(_room_change_fade_in_time), 1) //Cannot allow decimals and negatives.
 			room_change_wait_time = max(room_change_fade_in_time + ceil(_room_change_wait_time), 1)

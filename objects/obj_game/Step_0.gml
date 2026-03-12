@@ -1,15 +1,28 @@
+///@description Control of game flow, many systems update and more
+
+if (starting_up){
+	if (!is_audio_loaded()){
+		return
+	}else{
+		starting_up = false
+	}
+}
+
 //Keyboard controls handler, if you don't understand it, I recommend not to touch it, don't even look at it... well ok you can in an attempt to understand, my bad, sorry...
 input_system.step()
 
 //Little system that sets the equipped atk, equipped def and invulnerability frames.
 if (global.player.prev_weapon != global.player.weapon or global.player.prev_armor != global.player.armor){
+	//If they are different, reassign them to save their state in the previous state variables
 	global.player.prev_weapon = global.player.weapon
 	global.player.prev_armor = global.player.armor
 	
+	//Reset the data on the player as if it had no armor
 	global.player.equipped_atk = 0
 	global.player.equipped_def = 0
 	global.player.invulnerability_frames = PLAYER_BASE_INVULNERABILITY_FRAMES
 	
+	//Update stats accordingly to what piece of armor and weapon has
 	var _weapon = global.item_pool[global.player.weapon]
 
 	global.player.equipped_atk += ((is_undefined(_weapon[$"atk"])) ? 0 : _weapon[$"atk"])
@@ -23,22 +36,32 @@ if (global.player.prev_weapon != global.player.weapon or global.player.prev_armo
 	global.player.invulnerability_frames += ((is_undefined(_armor[$"inv_frames"])) ? 0 : _armor[$"inv_frames"])
 }
 
-if (global.player.hp <= 0 and state != GAME_STATE.GAME_OVER or keyboard_check_pressed(ord("K"))){
+//In general if the player drops to 0 HP, we trigger the Game Over, no matter when, if it reaches 0 HP, it will Game Over
+if (global.player.hp <= 0 and state != GAME_STATE.GAME_OVER){
 	trigger_game_over()
 }
 
+//Step the player menu system, even if it's not open, it must update
 player_menu_system.step()
 
+//Depending on the state of the game, different updates happen, they can be from the system or made here only in the obj_game.
 switch (state){
-	case GAME_STATE.GAME_OVER: {
+	case GAME_STATE.GAME_OVER: { //Game over system update
 		game_over_system.step()
 	break}
-	case GAME_STATE.BATTLE: { //You're already in the battle room when in this state, if not then errors may happen.
+	case GAME_STATE.BATTLE: { //Battle system update, you're already in the battle room when in this state, most variables depend on that being true, if not then errors may happen.
 		battle_system.step()
 	break}
-	case GAME_STATE.BATTLE_START_ANIMATION:{
-		if (anim_timer == 0 and battle_pause_music){
-			overworld_music_system.pause_music()
+	case GAME_STATE.BATTLE_START_ANIMATION:{ //Animation of the battle starting
+		if (anim_timer == 0){
+			//If the border is set to be dynamic, set it to no alpha for visual effects in the transition.
+			if (is_border_dynamic()){
+				border_alpha = 0
+			}
+			
+			if (battle_pause_music){
+				overworld_music_system.pause_music() //If it has to pause the music, pause it.
+			}
 		}
 		
 		//Depending on the animation the animation timer may go faster or start early, either way, it stops counting at 100.
@@ -53,39 +76,43 @@ switch (state){
 		
 		switch (anim_timer){
 			case 0: case 8: case 16:{
-				audio_play_sound(snd_switch_flip, 100, false)
+				audio_play_sound(snd_switch_flip, 100, false) //Sound of the player's heart flickering
 			break}
 			case 24:{
-				audio_play_sound(snd_battle_start, 100, false)
+				audio_play_sound(snd_battle_start, 100, false) //Player's heart moving in position
 			break}
-			case 48:{
+			case 48:{ //Change to battle room and state
 				state = GAME_STATE.BATTLE
 				obj_player_overworld.image_alpha = 0
 				
 				if (room != rm_battle){
-					player_prev_room = room
+					player_prev_room = room //Save the room where it comes from
 				}
 				
 				room_persistent = true
+				
+				border_prev_id = border_id
 				
 				room_goto(rm_battle)
 			break}
 		}
 	break}
-	case GAME_STATE.PLAYER_CONTROL:{
+	case GAME_STATE.PLAYER_CONTROL:{ //Random encounter system update, encounters happen only when the player has control and they are set (Has no break)
 		random_encounter_system.step()
 	} //No break
-	case GAME_STATE.PLAYER_MENU_CONTROL:{
+	case GAME_STATE.PLAYER_MENU_CONTROL:{ //Nothing is here, but in case you need stuff to happen on the player menu system and player control, here you can place it, the update for the menu is already being done above.
 		//Nothing
 	break}
-	case GAME_STATE.ROOM_CHANGE:{
+	case GAME_STATE.ROOM_CHANGE:{ //Room change system update
 		room_transition_system.step()
 	break}
-	case GAME_STATE.BATTLE_END:{
-		anim_timer++
+	case GAME_STATE.BATTLE_END:{ //Transition from the battle room back to the overworld (Conditional break)
+		anim_timer++ //Uses animation timer too
 		
+		//This is in case an event is happening after the battle is over, you trigger the events usually on the end function of the battle.
 		var _is_undefined = is_undefined(event_end_condition)
 		if (anim_timer == 20){
+			//If there's no event happening, give control back to the player, otherwise keep the event going
 			if (_is_undefined){
 				state = GAME_STATE.PLAYER_CONTROL
 				
@@ -95,11 +122,17 @@ switch (state){
 			}
 		}
 		
+		//If borders are dynamic, set the alpha same.
+		if (is_border_dynamic()){
+			border_alpha = anim_timer/20
+		}
+		
+		//If there's an event happening, there has to be an end event condition, for like cutscenes when exiting battles, then the case doesn't stop here, it propagates to the GAME_STATE.EVENT
 		if (_is_undefined){
 			break
 		}
-	}
-	case GAME_STATE.EVENT:{
+	}//No break
+	case GAME_STATE.EVENT:{ //System that controls events happening and returns control to the player when events are over, useful for cutscenes and other stuff you want
 		if (!is_undefined(event_update)){
 			event_update()
 		}
@@ -113,24 +146,26 @@ switch (state){
 			event_end_condition = undefined
 		}
 	break}
-	case GAME_STATE.DIALOG_PLUS_CHOICE:{
+	case GAME_STATE.DIALOG_PLUS_CHOICE:{ //For handling the choice options, this is for the ones that are laid out like a cross, use start_plus_choice() and create_plus_choice_option() to enter these states.
 		var _prev_selection = selection
 		
+		//There's an event update here too, in case you wanted to do like a timer for these choices and something else to happen if they didn't pick in time
 		if (!is_undefined(event_update)){
 			event_update()
 		}
 		
 		for (var _i = 0; _i < 4; _i++){
 			if (!is_undefined(plus_options[_i])){
-				plus_options[_i][4].step()
+				plus_options[_i][4].step() //Each of these is a dialog system, must be updated
 			}
 		}
 		
+		//Selection and confirm actions
 		if (get_confirm_button(false) and selection >= 0){
 			//Unless the function passed in the option variables set it otherwise, upon finishing a selection, the player regains control, a little fail safe in case you forget to place the event.
 			state = GAME_STATE.PLAYER_CONTROL
 			
-			plus_options[selection][3]()
+			plus_options[selection][3]() //Execute the function of the selected one
 			
 			for (var _i = 0; _i < 4; _i++){
 				if (_i >= 0 and !is_undefined(plus_options[_i])){
@@ -150,6 +185,7 @@ switch (state){
 			selection = 3
 		}
 		
+		//Update of the color of the options selected
 		if (_prev_selection != selection and (_prev_selection < 0 or !is_undefined(plus_options[_prev_selection])) and !is_undefined(plus_options[selection])){
 			audio_play_sound(snd_menu_selecting, 0, false)
 			
@@ -160,19 +196,20 @@ switch (state){
 			plus_options[selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false][color_rgb:255,255,0]" + plus_options[selection][2])
 		}
 	break}
-	case GAME_STATE.DIALOG_GRID_CHOICE:{
+	case GAME_STATE.DIALOG_GRID_CHOICE:{ //This is for the ones that are laid out in a grid, use start_grid_choice() and create_grid_choice_option() to enter these states.
 		var _prev_selection = selection
 		
 		if (!is_undefined(event_update)){
-			event_update()
+			event_update() //Event updating like in the Plus choice
 		}
 		
 		var _length = array_length(grid_options)
 		
 		for (var _i = 0; _i < _length; _i++){
-			grid_options[_i][4].step()
+			grid_options[_i][4].step() //Step every dialog system
 		}
 		
+		//Confirming and selection of the options
 		if (get_confirm_button(false)){
 			//Unless the function passed in the option variables set it otherwise, upon finishing a selection, the player regains control, a little fail safe in case you forget to place the event.
 			state = GAME_STATE.PLAYER_CONTROL
@@ -206,6 +243,7 @@ switch (state){
 			}
 		}
 		
+		//Updating their color
 		if (_prev_selection != selection and (_prev_selection < 0 or !is_undefined(grid_options[_prev_selection])) and !is_undefined(grid_options[selection])){
 			if (_prev_selection >= 0){
 				grid_options[_prev_selection][4].set_dialogues("[skip:false][progress_mode:none][asterisk:false]" + grid_options[_prev_selection][2])
@@ -216,7 +254,7 @@ switch (state){
 	break}
 }
 
-//Fullscreen toggle
+//Fullscreen toggle, always there like in Undertale
 if (keyboard_check_pressed(vk_f4)){
 	set_fullscreen(!window_get_fullscreen())
 }
@@ -225,5 +263,9 @@ if (keyboard_check_pressed(vk_f4)){
 if (keyboard_check_pressed(ord("G"))){
 	toggle_border(!global.game_settings.border_active)
 }
+if (keyboard_check_pressed(ord("H"))){
+	toggle_dynamic_borders(!is_border_dynamic())
+}
 
+//Step the dialog system of the overworld
 dialog.step()

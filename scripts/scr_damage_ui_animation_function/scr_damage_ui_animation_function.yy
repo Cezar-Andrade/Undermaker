@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"scr_damage_ui_animation_function",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"scr_damage_ui_animation_function",
+  "parent":{
+    "name":"Systems",
+    "path":"folders/Scripts/Engine/Systems.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

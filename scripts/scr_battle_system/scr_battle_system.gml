@@ -25,6 +25,10 @@ function BattleSystem() constructor{
 	battle_fled = false
 	anim_timer = 0
 	
+	update_border_alpha = false
+	
+	battle_background_name = BATTLE_BACKGROUND.NO_BG
+	battle_background = undefined
 	battle_dialog = new DialogSystem(0, 0, [], 1)
 	
 	battle_init_function = undefined
@@ -111,9 +115,7 @@ function BattleSystem() constructor{
 				for (var _i=0; _i<_length; _i++){
 					var _text = battle_damage_text[_i]
 			
-					_text.timer++
-			
-					if (_text.timer >= 90){
+					if (!instance_exists(_text)){
 						array_delete(battle_damage_text, _i, 1)
 				
 						_i--
@@ -198,6 +200,12 @@ function BattleSystem() constructor{
 				}
 			} //No break
 			case BATTLE_STATE.START_DODGE_ATTACK:{
+				if (!is_undefined(battle_background)){
+					instance_destroy(battle_background)
+				}
+				
+				battle_background = BattleBackground(battle_background_name)
+				
 				with (obj_player_battle){
 					x = obj_game.battle_start_animation_player_heart_x
 					y = obj_game.battle_start_animation_player_heart_y
@@ -717,6 +725,19 @@ function BattleSystem() constructor{
 					obj_game.anim_timer = 0
 					obj_game.state = GAME_STATE.BATTLE_END
 					
+					if (!is_undefined(battle_background)){
+						instance_destroy(battle_background)
+						
+						battle_background = undefined
+					}
+					
+					change_border_dynamicly(obj_game.border_prev_id)
+					obj_game.border_alpha = 0
+					
+					if (obj_game.battle_pause_music){
+						obj_game.battle_music_system.stop_music()
+					}
+					
 					room_goto(obj_game.player_prev_room)
 				}
 			break}
@@ -808,21 +829,6 @@ function BattleSystem() constructor{
 			draw_sprite_ext(spr_dust_cloud, floor(_dust.timer/5), _dust.x, _dust.y, _size, _size, 0, c_white, 1)
 		}
 		
-		_length = array_length(battle_damage_text)
-		for (var _i=0; _i<_length; _i++){
-			var _text = battle_damage_text[_i]
-			var _timer = min(_text.timer/60, 1)
-			
-			draw_set_halign(fa_center)
-			draw_set_valign(fa_bottom)
-			draw_set_font(fnt_hachiko)
-			
-			draw_text_color(_text.x, _text.y - 10 - 20*dsin(180*_timer), _text.text, _text.text_color, _text.text_color, _text.text_color, _text.text_color, 1)
-			if (_text.draw_bar){
-				draw_healthbar(_text.x - _text.bar_width/2, _text.y + 5, _text.x + _text.bar_width/2, _text.y - 13, 100*(_text.hp - _text.damage*_timer)/_text.max_hp, c_red, _text.bar_color, _text.bar_color, 0, true, true)
-			}
-		}
-		
 		_length = array_length(battle_enemies_dialogs)
 		for (var _i=0; _i<_length; _i++){
 			var _dialog = battle_enemies_dialogs[_i]
@@ -857,10 +863,25 @@ function BattleSystem() constructor{
 			battle_black_alpha -= 0.05
 		}
 		
+		if (update_border_alpha){
+			obj_game.border_alpha = 1 - battle_black_alpha
+			
+			if (battle_black_alpha <= 0){
+				obj_game.border_alpha = 1
+				
+				update_border_alpha = false
+			}
+		}
+		
 		switch (battle_state){
 			case BATTLE_STATE.END_DODGE_ATTACK:
 			case BATTLE_STATE.END:{
-				draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, anim_timer/20)
+				var _alpha = anim_timer/20
+				draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, _alpha)
+				
+				if (is_border_dynamic()){
+					obj_game.border_alpha = 1 - _alpha
+				}
 			break}
 		}
 	}

@@ -6,6 +6,7 @@ if (!is_undefined(after_update)){
 
 general_entity_update() //Update of the entity for colliding.
 
+//Depth ordering
 if (depth_ordering){
 	depth = -y
 }

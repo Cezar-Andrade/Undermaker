@@ -59,10 +59,26 @@ function load_game_data(){
 	
 	var _lang = global.game_settings.language
 	
-	load_items_info("Item pool " + _lang + ".json")
-	load_ui_texts("UI texts " + _lang + ".json")
-	load_dialogues_file("Dialogues " + _lang + ".json")
-	load_save_info()
+	load_game_texts(_lang)
+}
+
+function load_audio(){
+	audio_group_load(audiogroup_sound)
+	audio_group_load(audiogroup_music)
+}
+
+function is_audio_loaded(){
+	var _is_loaded = (audio_group_is_loaded(audiogroup_sound) and audio_group_is_loaded(audiogroup_music))
+	
+	if (_is_loaded){
+		var _snd_volume = global.game_settings.sound_volume
+		var _mus_volume = global.game_settings.music_volume
+	
+		audio_group_set_gain(audiogroup_sound, _snd_volume, 0)
+		audio_group_set_gain(audiogroup_music, _mus_volume, 0)
+	}
+	
+	return _is_loaded
 }
 
 function calculate_resolutions(){
@@ -78,4 +94,16 @@ function calculate_resolutions(){
 	array_push(resolutions_height, _display_height)
 
 	set_resolution(array_length(resolutions_width) - 2)
+}
+
+function change_border_dynamicly(_id=0){
+	obj_game.border_id = _id
+}
+
+function get_border_id_by_room(_room_id){
+	return struct_get(global.room_borders, room_get_name(_room_id))
+}
+
+function get_music_id_by_room(_room_id){
+	return struct_get(global.room_musics, room_get_name(_room_id))
 }

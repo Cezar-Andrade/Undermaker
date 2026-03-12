@@ -1,12 +1,12 @@
 {
   "$GMScript":"v1",
-  "%Name":"scr_damage_ui_animation",
+  "%Name":"scr_room_border_ids",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"scr_damage_ui_animation",
+  "name":"scr_room_border_ids",
   "parent":{
-    "name":"Battle",
-    "path":"folders/Scripts/Engine/Battle.yy",
+    "name":"Custom Stuff",
+    "path":"folders/Scripts/Custom Stuff.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

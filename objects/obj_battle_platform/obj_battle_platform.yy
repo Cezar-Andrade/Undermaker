@@ -13,8 +13,8 @@
   "name":"obj_battle_platform",
   "overriddenProperties":[],
   "parent":{
-    "name":"Battle",
-    "path":"folders/Objects/Battle.yy",
+    "name":"Bullets",
+    "path":"folders/Objects/Battle/Bullets.yy",
   },
   "parentObjectId":null,
   "persistent":false,

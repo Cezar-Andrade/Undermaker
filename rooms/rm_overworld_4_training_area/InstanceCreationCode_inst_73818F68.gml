@@ -26,14 +26,7 @@ trigger_function = function(){
 			collided_with_player = true
 			image_blend = c_gray
 	
-			var _attacks = [ENEMY_ATTACK.MAD_DUMMY_1, ENEMY_ATTACK.MAD_DUMMY_2]
-			var _random_number = irandom(2)
-	
-			if (_random_number == 0){
-				array_delete(_attacks, 0, 1)
-			}else if (_random_number == 1){
-				array_delete(_attacks, 1, 1)
-			}
+			var _attacks = [ENEMY_ATTACK.ATTACK_1]
 	
 			start_attack(_attacks)
 		}

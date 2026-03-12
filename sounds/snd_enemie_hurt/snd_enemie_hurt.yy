@@ -2,15 +2,15 @@
   "$GMSound":"v2",
   "%Name":"snd_enemie_hurt",
   "audioGroupId":{
-    "name":"audiogroup_default",
-    "path":"audiogroups/audiogroup_default",
+    "name":"audiogroup_sound",
+    "path":"audiogroups/audiogroup_sound",
   },
   "bitDepth":1,
   "channelFormat":0,
   "compression":0,
   "compressionQuality":4,
   "conversionMode":0,
-  "duration":0.450884,
+  "duration":0.45088434,
   "exportDir":"",
   "name":"snd_enemie_hurt",
   "parent":{

@@ -8,10 +8,12 @@ can_overlap = false
 can_player_collide = true //Sets if the player can collide with the obj_entity, if false it can't push the entity even if pushable is true.
 round_collision_behavior = false
 can_interact = true
-depth_ordering = true
+depth_ordering = true //You can deactivate the depth by the Y position
 
+//Button in which you interact with the entity, usually confirm
 interaction_key = "confirm"
 
+//Functions for the entity interaction
 before_update = undefined
 step = undefined
 after_update = undefined

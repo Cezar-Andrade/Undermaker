@@ -1,34 +1,38 @@
+///@description Drawing of the whole Game surface and border management, as well as size management.
+
+//Get screen size of the current game
 var _screen_height = resolutions_height[global.game_settings.resolution_active]
 var _game_width = _screen_height*(4/3)
-var _ui_not_showing = (input_system.can_draw() or state == GAME_STATE.PLAYER_MENU_CONTROL or state == GAME_STATE.BATTLE_END or (state == GAME_STATE.BATTLE and (battle_system.battle_black_alpha > 0 or get_battle_state() == BATTLE_STATE.END_DODGE_ATTACK)) or state == GAME_STATE.GAME_OVER or state == GAME_STATE.ROOM_CHANGE or state == GAME_STATE.BATTLE_START_ANIMATION or !battle_system.battle_dialog.is_finished() or !dialog.is_finished())
+//Detrminate if the UI should draw or not
+var _show_ui = (input_system.can_draw() or state == GAME_STATE.PLAYER_MENU_CONTROL or state == GAME_STATE.BATTLE_END or (state == GAME_STATE.BATTLE and (battle_system.battle_black_alpha > 0 or get_battle_state() == BATTLE_STATE.END_DODGE_ATTACK)) or state == GAME_STATE.GAME_OVER or state == GAME_STATE.ROOM_CHANGE or state == GAME_STATE.BATTLE_START_ANIMATION or !battle_system.battle_dialog.is_finished() or !dialog.is_finished())
 
-if (_ui_not_showing){
+if (_show_ui){
 	if (!surface_exists(ui_surface)){
-		ui_surface = surface_create(GAME_WIDTH, GAME_HEIGHT)
+		ui_surface = surface_create(GAME_WIDTH, GAME_HEIGHT) //Define the surface of the game if it doesn't exist
 	}
 	surface_set_target(ui_surface)
 	
-	draw_clear_alpha(c_black, 0)
+	draw_clear_alpha(c_black, 0) //Clear the contents
 	
 	switch (state){
-		case GAME_STATE.GAME_OVER:{
+		case GAME_STATE.GAME_OVER:{ //Game over system
 			game_over_system.draw()
 		break}
 	}
 	
-	dialog.draw()
+	dialog.draw() //Draw the dialog
 	
 	switch (state){
-		case GAME_STATE.BATTLE_END:{
+		case GAME_STATE.BATTLE_END:{ //Black foreground that fades out for getting back to the overworld
 			draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, 1 - anim_timer/20)
 		break}
-		case GAME_STATE.BATTLE:{
+		case GAME_STATE.BATTLE:{ //Battle system drawing gui
 			battle_system.draw_gui()
 		break}
-		case GAME_STATE.ROOM_CHANGE:{
+		case GAME_STATE.ROOM_CHANGE:{ //Room changing system draw
 			room_transition_system.draw()
 		break}
-		case GAME_STATE.BATTLE_START_ANIMATION:{
+		case GAME_STATE.BATTLE_START_ANIMATION:{ //Drawing the animation for starting battles
 			if (anim_timer >= 0){
 				draw_sprite_ext(spr_pixel, 0, 0, 0, 640, 480, 0, c_black, 1)
 				
@@ -55,42 +59,52 @@ if (_ui_not_showing){
 				}
 			}
 		break}
-		case GAME_STATE.DIALOG_PLUS_CHOICE:{
+		case GAME_STATE.DIALOG_PLUS_CHOICE:{ //Choice drawing, this is for the plus one
 			for (var _i = 0; _i < 4; _i++){
 				if (!is_undefined(plus_options[_i])){
-					plus_options[_i][4].draw()
+					plus_options[_i][4].draw() //Draw every single dialog
 				}
 			}
 			
+			//Draw the heart location
 			if (selection >= 0){
 				draw_sprite_ext(choice_sprite, choice_index, options_x + plus_options[selection][0], options_y + plus_options[selection][1], 1, 1, 0, player_heart_color, 1)
 			}else{
 				draw_sprite_ext(choice_sprite, choice_index, options_x, options_y, 1, 1, 0, player_heart_color, 1)
 			}
 		break}
-		case GAME_STATE.DIALOG_GRID_CHOICE:{
+		case GAME_STATE.DIALOG_GRID_CHOICE:{ //This one is for the grid one
 			var _length = array_length(grid_options)
 			for (var _i = 0; _i < _length; _i++){
-				grid_options[_i][4].draw()
+				grid_options[_i][4].draw() //Draw the dialog choies
 			}
 			
+			//Also draw the player location
 			if (selection >= 0){
 				draw_sprite_ext(choice_sprite, choice_index, options_x + grid_options[selection][0], options_y + grid_options[selection][1], 1, 1, 0, player_heart_color, 1)
 			}else{
 				draw_sprite_ext(choice_sprite, choice_index, options_x, options_y, 1, 1, 0, player_heart_color, 1)
 			}
 		break}
-		case GAME_STATE.PLAYER_MENU_CONTROL:{
+		case GAME_STATE.PLAYER_MENU_CONTROL:{ //Player menu system drawing
 			player_menu_system.draw()
 		break}
 	}
 	
-	input_system.draw()
+	input_system.draw() //Input drawing in case a controller/gamepad is connected
 
 	surface_reset_target()
 }
 
+//Clear the back
+draw_clear(c_black)
+
+//Draw the game surface and the border if it's active
 if (global.game_settings.border_active){
+	//If border is dynamic, we use the variable for dynamic borders, if not use the defined one.
+	var _border_id = (is_border_dynamic() ? border_id : global.game_settings.border_id)
+	
+	//The drawing is done differently depending if you're on fullscreen or not
 	if (window_get_fullscreen()){
 		_game_width /= 1.125
 		
@@ -103,10 +117,11 @@ if (global.game_settings.border_active){
 		var _x_scale = _game_width/GAME_WIDTH
 		var _y_scale = _game_height/GAME_HEIGHT
 		
-		draw_sprite_ext(spr_border, global.game_settings.border_id, (_screen_width - _border_width)/2, 0, _border_width/1920, _screen_height/1080, 0, c_white, 1)
+		draw_sprite_ext(spr_border, _border_id, (_screen_width - _border_width)/2, 0, _border_width/1920, _screen_height/1080, 0, c_white, border_alpha)
 		draw_surface_ext(application_surface, _x, _y, _x_scale, _y_scale, 0, c_white, 1)
 		
-		if (_ui_not_showing){
+		//The UI always draws on front
+		if (_show_ui){
 			draw_surface_ext(ui_surface, _x, _y, _x_scale, _y_scale, 0, c_white, 1)
 		}
 	}else{
@@ -115,10 +130,10 @@ if (global.game_settings.border_active){
 		var _x_scale = _game_width/GAME_WIDTH
 		var _y_scale = _screen_height/GAME_HEIGHT
 		
-		draw_sprite_ext(spr_border, global.game_settings.border_id, 0, 0, _screen_height*(16/9)*1.125/1920, _screen_height*1.125/1080, 0, c_white, 1)
+		draw_sprite_ext(spr_border, _border_id, 0, 0, _screen_height*(16/9)*1.125/1920, _screen_height*1.125/1080, 0, c_white, border_alpha)
 		draw_surface_ext(application_surface, _x, _y, _x_scale, _y_scale, 0, c_white, 1)
 		
-		if (_ui_not_showing){
+		if (_show_ui){
 			draw_surface_ext(ui_surface, _x, _y, _x_scale, _y_scale, 0, c_white, 1)
 		}
 	}
@@ -129,12 +144,13 @@ if (global.game_settings.border_active){
 	
 	draw_surface_ext(application_surface, _x, 0, _x_scale, _y_scale, 0, c_white, 1)
 	
-	if (_ui_not_showing){
+	if (_show_ui){
 		draw_surface_ext(ui_surface, _x, 0, _x_scale, _y_scale, 0, c_white, 1)
 	}
 }
 
-if (!_ui_not_showing and surface_exists(ui_surface)){
+//If the UI was drawn and its surface exists, free it
+if (!_show_ui and surface_exists(ui_surface)){
 	surface_free(ui_surface)
 	ui_surface = -1
 }

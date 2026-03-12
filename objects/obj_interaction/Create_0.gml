@@ -7,6 +7,7 @@ can_interact = true
 interaction_key = "confirm"
 previous_angle_of_this_instance = image_angle //The purpose of this is to have a very inconvient name so it's almost impossible people not knowing use the variable name for other purposes in other places.
 
+//Functions for the interaction object
 step = undefined
 interaction = undefined
 when_colliding = undefined

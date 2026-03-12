@@ -4,7 +4,8 @@ enum ENEMY_ATTACK{
 	MAD_DUMMY_2,
 	PLATFORM_1,
 	PLATFORM_2,
-	PLATFORM_3
+	PLATFORM_3,
+	ATTACK_1
 }
 
 function EnemyAttack(_attack_name, _position, _damage) constructor{
@@ -115,7 +116,7 @@ function EnemyAttack(_attack_name, _position, _damage) constructor{
 				
 				if (timer%120 == 20){
 					for (var _i = -170; _i <= 170; _i += 20){
-						with (spawn_bullet(spr_circle_bullet, _i, 0, 90, 300, damage)){
+						with (spawn_bullet(spr_circle_bullet, _i, 0, 90,, 300, damage)){
 							bounce = function(){
 								with (obj_battle_platform){
 									var _size = length/2
@@ -165,7 +166,7 @@ function EnemyAttack(_attack_name, _position, _damage) constructor{
 				
 				if (timer%60 == 20){
 					var _direction = floor(timer/120)%2
-					spawn_bullet(spr_circle_bullet, 115*(1 - 2*_direction), 35*irandom(2) - 20, 180*_direction, 300, damage)
+					spawn_bullet(spr_circle_bullet, 115*(1 - 2*_direction), 35*irandom(2) - 20, 180*_direction,, 300, damage)
 				}
 				
 				if (timer == 600){
@@ -182,7 +183,7 @@ function EnemyAttack(_attack_name, _position, _damage) constructor{
 				timer++
 				
 				if (timer%30 == 10){
-					spawn_bullet(spr_circle_bullet, 0, 0, irandom(359), 300, damage)
+					spawn_bullet(spr_circle_bullet, 0, 0, irandom(359),, 300, damage)
 				}
 				
 				if (timer > 300){
@@ -200,11 +201,54 @@ function EnemyAttack(_attack_name, _position, _damage) constructor{
 				timer++
 				
 				if (timer%30 == 10){
-					spawn_bullet(spr_circle_bullet, 0, -55 + irandom(110), direction, 300, damage)
+					spawn_bullet(spr_circle_bullet, 0, -55 + irandom(110), direction,, 300, damage)
 					direction = (direction + 180)%360
 				}
 				
 				if (timer > 300){
+					attack_done = true
+				}
+			}
+		break}
+		case ENEMY_ATTACK.ATTACK_1: {
+			damage = _damage
+			points = [140, 385, 320, 385, 500, 385, 500, 255, 320, 255, 140, 255]
+			
+			step = function(){
+				timer++
+				
+				points[1] = 385 - 50*dsin(2*timer)
+				points[3] = 385 - 50*dsin(2*max(timer - 30, 0))
+				points[5] = 385 - 50*dsin(2*max(timer - 60, 0))
+				points[7] = 255 - 50*dsin(2*max(timer - 60, 0))
+				points[9] = 255 - 50*dsin(2*max(timer - 30, 0))
+				points[11] = 255 - 50*dsin(2*timer)
+				
+				battle_set_box_polygon_points(points, false)
+				
+				if (timer%120 == 10){
+					var _except = -40 + 20*irandom(4)
+					for (var _i = -120; _i <= 120; _i += 20){
+						if (_except == _i){
+							continue
+						}
+						
+						with (spawn_bullet(spr_circle_bullet, 210, _i, 0, true,, damage)){
+							image_blend = c_white
+							can_damage = true
+							
+							step = function(){
+								x -= 1.5
+							
+								if (x < 110){
+									instance_destroy()
+								}
+							}
+						}
+					}
+				}
+				
+				if (timer > 360){
 					attack_done = true
 				}
 			}

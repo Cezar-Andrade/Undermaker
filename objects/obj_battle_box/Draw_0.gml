@@ -4,6 +4,15 @@
 var _inside_points = box_polygon_points.inside
 var _outside_points = box_polygon_points.outside
 
+//Prepare surface for the box's inside
+if (!surface_exists(box_fill_surface)){
+	box_fill_surface = surface_create(GAME_WIDTH, GAME_HEIGHT)
+}
+surface_set_target(box_fill_surface)
+
+//Clear surface
+draw_clear_alpha(c_black, 0)
+
 //At least 3 points must exist to draw filing in the box.
 var _length = array_length(_inside_points)
 if (_length >= 6) {
@@ -12,16 +21,21 @@ if (_length >= 6) {
 	var _triangle_amount = array_length(_triangles)
 	
 	//Loop through every triangle and draw it using the color to fill in.
-    draw_primitive_begin(pr_trianglelist)
+	draw_primitive_begin(pr_trianglelist)
 	for (var _i = 0; _i < _triangle_amount; _i++) {
 		var _triangle = _triangles[_i]
 		
-	    draw_vertex_colour(_triangle[0], _triangle[1], box_fill_color, box_fill_alpha)
-	    draw_vertex_colour(_triangle[2], _triangle[3], box_fill_color, box_fill_alpha)
-	    draw_vertex_colour(_triangle[4], _triangle[5], box_fill_color, box_fill_alpha)
+		draw_vertex_colour(_triangle[0], _triangle[1], c_white, 1)
+		draw_vertex_colour(_triangle[2], _triangle[3], c_white, 1)
+		draw_vertex_colour(_triangle[4], _triangle[5], c_white, 1)
 	}
-    draw_primitive_end()
+	draw_primitive_end()
 }
+
+//Finish drawing
+surface_reset_target()
+
+draw_surface_ext(box_fill_surface, 0, 0, 1, 1, 0, box_fill_color, box_fill_alpha)
 
 //At least 2 points need to exist for lines to be drawn
 if (_length >= 4){

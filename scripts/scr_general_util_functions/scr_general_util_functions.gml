@@ -1,7 +1,14 @@
-	function save_game_settings(){
+function save_game_settings(){
 	var _file = file_text_open_write(working_directory + "/settings.save")
 	file_text_write_string(_file, json_stringify(global.game_settings))
 	file_text_close(_file)
+}
+
+function load_game_texts(_language){
+	load_items_info("Item pool " + _language + ".json")
+	load_ui_texts("UI texts " + _language + ".json")
+	load_dialogues_file("Dialogues " + _language + ".json")
+	load_save_info()
 }
 
 function set_resolution(_index){
@@ -54,6 +61,27 @@ function toggle_border(_state){
 			window_set_rectangle((_display_width - _curr_width)/2, (_display_height - _curr_height)/2, _curr_width, _curr_height)
 		}
 	}
+}
+
+function toggle_dynamic_borders(_active){
+	global.game_settings.border_id = (_active ? -1 : global.game_settings.border_last_id)
+}
+
+function set_border(_id=0){
+	if (is_border_dynamic()){
+		return
+	}
+	
+	obj_game.border_alpha = 1
+	global.game_settings.border_last_id = _id
+	
+	if (is_border_dynamic()){
+		global.game_settings.border_id = _id
+	}
+}
+
+function is_border_dynamic(){
+	return (global.game_settings.border_id == -1)
 }
 
 function set_fullscreen(_state){

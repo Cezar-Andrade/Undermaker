@@ -1,5 +1,6 @@
 /// @description Pushable, collision and event trigger setting
 
+//The rest is the same as the entity creation code, only the interaction and a variable are added
 collision_ids = [0] //By default it collides with the same stuff the player can collide with.
 can_player_push = false //Sets if the entity can be pushed around by the player or other entities that can push.
 can_entities_push = false
@@ -11,8 +12,9 @@ can_interact = true
 depth_ordering = true
 
 interaction_key = "confirm"
-box_inventory_id = 0
+box_inventory_id = 0 //Can change the id of the box it opens
 
+//The interaction is defined since it's meant to be a box object of course
 interaction = function(){
 	start_box_menu(box_inventory_id)
 }
