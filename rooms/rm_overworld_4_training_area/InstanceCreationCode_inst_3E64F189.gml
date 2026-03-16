@@ -8,7 +8,7 @@ end_battle = function(_enemies_left, _enemies_killed, _enemies_spared, _battle_f
 	var _length = array_length(_enemies_left)
 	for (var _i=0; _i<_length; _i++){
 		var _enemy = _enemies_left[_i]
-		_text += string_concat(_enemy.name, " was left alive.\n")
+		_text += string_concat(_enemy.name, " was left alive.\n") //These dialogs are not in files, these are to demonstrate you can do stuff here with enemies.
 	}
 	
 	_length = array_length(_enemies_killed)

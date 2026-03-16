@@ -1,3 +1,5 @@
+add_instance_reference(id, "inst_entity_12")
+
 interaction = function(){
-	overworld_dialog(["[bind_instance:" + string(real(id)) + "]Some of these obstacles are flipped.","So you can see they work just fine no matter the orientation of the scaling."])
+	overworld_dialog(global.dialogues.the_void.entity_12)
 }

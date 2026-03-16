@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"scr_overworld_room_music_ids",
+  "%Name":"scr_initial_save_file_data",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"scr_overworld_room_music_ids",
+  "name":"scr_initial_save_file_data",
   "parent":{
     "name":"Custom Stuff",
     "path":"folders/Scripts/Custom Stuff.yy",

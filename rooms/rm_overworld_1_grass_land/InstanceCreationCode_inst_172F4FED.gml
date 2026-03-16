@@ -1,14 +1,15 @@
 interaction = function(){
 	var _yes_dialog = function(){
-		overworld_dialog("Nice[w:20], we can be friends then!",, false)
+		overworld_dialog(global.dialogues.grass_land.interaction_2.option_1,, false)
 	}
 	
 	var _no_dialog = function(){
-		overworld_dialog("...[w:20]Then don't talk to me ever again.",, false)
+		overworld_dialog(global.dialogues.grass_land.interaction_2.option_2,, false)
 	}
 	
-	create_plus_choice_option(PLUS_CHOICE_DIRECTION.LEFT, 80, "Yes?", _yes_dialog)
-	create_plus_choice_option(PLUS_CHOICE_DIRECTION.RIGHT, 80, "No?", _no_dialog)
+	var _options = global.dialogues.grass_land.interaction_2.options
+	create_plus_choice_option(PLUS_CHOICE_DIRECTION.LEFT, 80, _options[0], _yes_dialog)
+	create_plus_choice_option(PLUS_CHOICE_DIRECTION.RIGHT, 80, _options[1], _no_dialog)
 	
-	overworld_dialog(["[progress_mode:none]Are you a dialog test?[func:" + string(start_plus_choice) + ",320,430,false]"],, false)
+	overworld_dialog(global.dialogues.grass_land.interaction_2.dialog,, false)
 }

@@ -1,5 +1,7 @@
+add_instance_reference(id, "inst_entity_7")
+
 interaction = function(){
-	overworld_dialog(["[bind_instance:" + string(real(id)) + "]My name is Backwards.","[bind_instance:" + string(real(object_index)) + "]We are part of the entity group kris dog.","[bind_instance:" + string(real(id)) + "]I was placed backwards to demonstrate you can do this with any entity.","It's a bit uncomfortable though..."],, false)
+	overworld_dialog(global.dialogues.the_void.entity_7,, false)
 }
 
 draw = function(){

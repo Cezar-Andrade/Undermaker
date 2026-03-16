@@ -1,6 +1,6 @@
 function get_encounter_initial_dialog(_enemies){
 	//Do stuff depending on enemies, you got a list of them as paramenters, usually to add flavour text, look at the example provided.
-	
+	var _initial_dialogues = global.dialogues.battle.initial_dialogues
 	var _dialog = ""
 	var _length = array_length(_enemies)
 	
@@ -8,10 +8,10 @@ function get_encounter_initial_dialog(_enemies){
 		if (_length == 2 and _enemies[0] == _enemies[1]){
 			switch (_enemies[0]){
 				case ENEMY.MAD_DUMMY_DRAWN:{
-					_dialog = "Two Mad Dummies join battle to persuade you to use drawing functions."
+					_dialog = _initial_dialogues.two_mad_dummies_drawn
 				break}
 				case ENEMY.MAD_DUMMY_SPRITED:{
-					_dialog = "Two Mad Dummies attempt to sell you sprited functions through battle."
+					_dialog = _initial_dialogues.two_mad_dummies_sprited
 				break}
 			}
 			
@@ -20,31 +20,31 @@ function get_encounter_initial_dialog(_enemies){
 	
 		switch (_enemies[0]){ //Filter by first enemie
 			case ENEMY.MAD_DUMMY_DRAWN:{
-				_dialog += "Mad Dummy draws into battle."
+				_dialog += _initial_dialogues.mad_dummy_drawn_1
 			break}
 			case ENEMY.MAD_DUMMY_SPRITED:{
-				_dialog += "Mad Dummy sprites into battle."
+				_dialog += _initial_dialogues.mad_dummy_sprited_1
 			break}
 			case ENEMY.MONSTER_1:{
-				_dialog += "A Monster engages with you.[w:30]\nNot in a romantic way."
+				_dialog += _initial_dialogues.monster_1
 			break}
 			case ENEMY.MONSTER_2:{
-				_dialog += "A Monster engages with you.[w:30]\nIn an angry way."
+				_dialog += _initial_dialogues.angy_monster_1
 			break}
 		}
 		
 		if (_length == 2){
 			switch (_enemies[1]){
 				case ENEMY.MAD_DUMMY_DRAWN:{
-					_dialog += "[w:30]\nAnother one joins to draw your attention."
+					_dialog += _initial_dialogues.mad_dummy_drawn_2
 				break}
 				case ENEMY.MAD_DUMMY_SPRITED:{
-					_dialog += "[w:30]\nAnother one joins to sprite them away."
+					_dialog += _initial_dialogues.mad_dummy_sprited_2
 				break}
 			}
 		}
 	}else{
-		_dialog = "A battle has started!"
+		_dialog = _initial_dialogues.default_dialog
 	}
 	
 	return _dialog

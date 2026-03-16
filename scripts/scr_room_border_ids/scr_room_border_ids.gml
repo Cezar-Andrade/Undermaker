@@ -6,6 +6,7 @@ enum BORDER{
 }
 
 global.room_borders = {
+	rm_menu: BORDER.BATTLE, //Yes same as battle, for testing, can be any of course.
 	rm_battle: BORDER.BATTLE,
 	rm_overworld_1_grass_land: BORDER.SNOW_FOREST_2,
 	rm_overworld_2_the_void: BORDER.SNOW_FOREST,

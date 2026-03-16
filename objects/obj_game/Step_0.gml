@@ -5,6 +5,10 @@ if (starting_up){
 		return
 	}else{
 		starting_up = false
+		
+		if (!is_undefined(game_ready)){
+			game_ready()
+		}
 	}
 }
 
@@ -36,16 +40,19 @@ if (global.player.prev_weapon != global.player.weapon or global.player.prev_armo
 	global.player.invulnerability_frames += ((is_undefined(_armor[$"inv_frames"])) ? 0 : _armor[$"inv_frames"])
 }
 
-//In general if the player drops to 0 HP, we trigger the Game Over, no matter when, if it reaches 0 HP, it will Game Over
-if (global.player.hp <= 0 and state != GAME_STATE.GAME_OVER){
+//In general if the player drops to 0 HP, we trigger the Game Over, no matter when, if it reaches 0 HP, it will Game Over (except if on game menu of course)
+if (global.player.hp <= 0 and state != GAME_STATE.GAME_OVER and state != GAME_STATE.MENU_CONTROL){
 	trigger_game_over()
 }
 
 //Step the player menu system, even if it's not open, it must update
-player_menu_system.step()
+player_menu_system.step() //SHould not work in the menu_control state
 
 //Depending on the state of the game, different updates happen, they can be from the system or made here only in the obj_game.
 switch (state){
+	case GAME_STATE.MENU_CONTROL: { //Your own menu logic, in this example I'm using a constructor to handle my menu.
+		game_menu_system.step()
+	break}
 	case GAME_STATE.GAME_OVER: { //Game over system update
 		game_over_system.step()
 	break}
@@ -257,15 +264,18 @@ switch (state){
 //Fullscreen toggle, always there like in Undertale
 if (keyboard_check_pressed(vk_f4)){
 	set_fullscreen(!window_get_fullscreen())
-}
-
-//Border toggle - TEMP
-if (keyboard_check_pressed(ord("G"))){
-	toggle_border(!global.game_settings.border_active)
-}
-if (keyboard_check_pressed(ord("H"))){
-	toggle_dynamic_borders(!is_border_dynamic())
+	save_game_settings()
 }
 
 //Step the dialog system of the overworld
 dialog.step()
+
+if (get_escape_button() and state != GAME_STATE.MENU_CONTROL){
+	quit_timer++
+	
+	if (quit_timer == 180){
+		go_to_game_menu()
+	}
+}else{
+	quit_timer = 0
+}

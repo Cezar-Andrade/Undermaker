@@ -10,7 +10,7 @@ interaction = function(_direction){
 	count = false
 	timer = -irandom_range(75, 120)
 	
-	overworld_dialog(["I'm a different moving entity.[w:20]\nI'm made so I take into consideration your position and my surroundings.","Unlike the other one.[w:20]\nThis means I move where there's space always.","Try as you want, you can't force me into a corner.","Your collision is rectangular[w:20], that's why you can't.","And even if you somehow manage to do it by changing your collision[w:20], I just won't move."],, (obj_player_overworld.y > 210))
+	overworld_dialog(global.dialogues.hot_room.faceless_2,, (obj_player_overworld.y > 210))
 	
 	image_index = (8 + _direction/22.5)%16
 }

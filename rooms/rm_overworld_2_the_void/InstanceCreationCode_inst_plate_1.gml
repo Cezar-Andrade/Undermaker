@@ -18,7 +18,7 @@ step = function(){
 			inst_rock_1.can_player_push = false
 			inst_rock_2.can_player_push = false
 	
-			overworld_dialog(["Test successful!", "You are done with this puzzle."],, false)
+			overworld_dialog(global.dialogues.the_void.puzzle,, false)
 		
 			global.save_data.puzzle_1 = true
 			inst_collision_door.when_colliding = undefined

@@ -4,7 +4,7 @@
 var _screen_height = resolutions_height[global.game_settings.resolution_active]
 var _game_width = _screen_height*(4/3)
 //Detrminate if the UI should draw or not
-var _show_ui = (input_system.can_draw() or state == GAME_STATE.PLAYER_MENU_CONTROL or state == GAME_STATE.BATTLE_END or (state == GAME_STATE.BATTLE and (battle_system.battle_black_alpha > 0 or get_battle_state() == BATTLE_STATE.END_DODGE_ATTACK)) or state == GAME_STATE.GAME_OVER or state == GAME_STATE.ROOM_CHANGE or state == GAME_STATE.BATTLE_START_ANIMATION or !battle_system.battle_dialog.is_finished() or !dialog.is_finished())
+var _show_ui = (quit_timer > 0 or input_system.can_draw() or state == GAME_STATE.MENU_CONTROL or state == GAME_STATE.PLAYER_MENU_CONTROL or state == GAME_STATE.BATTLE_END or (state == GAME_STATE.BATTLE and (battle_system.battle_black_alpha > 0 or get_battle_state() == BATTLE_STATE.END_DODGE_ATTACK)) or state == GAME_STATE.GAME_OVER or state == GAME_STATE.ROOM_CHANGE or state == GAME_STATE.BATTLE_START_ANIMATION or !battle_system.battle_dialog.is_finished() or !dialog.is_finished())
 
 if (_show_ui){
 	if (!surface_exists(ui_surface)){
@@ -15,6 +15,9 @@ if (_show_ui){
 	draw_clear_alpha(c_black, 0) //Clear the contents
 	
 	switch (state){
+		case GAME_STATE.MENU_CONTROL:{ //Menu control system
+			game_menu_system.draw()
+		break}
 		case GAME_STATE.GAME_OVER:{ //Game over system
 			game_over_system.draw()
 		break}
@@ -92,6 +95,14 @@ if (_show_ui){
 	}
 	
 	input_system.draw() //Input drawing in case a controller/gamepad is connected
+	
+	if (quit_timer > 0){
+		draw_set_font(fnt_determination_sans)
+		draw_set_halign(fa_left)
+		draw_set_valign(fa_top)
+		
+		draw_text_transformed_color(10, 6 + (is_undefined(input_system.control_message) ? 0 : 20), global.UI_texts.quitting + string_repeat(".", ceil((quit_timer - 60)/30)), 1.5, 1.5, 0, c_white, c_white, c_white, c_white, min(quit_timer/120, 1))
+	}
 
 	surface_reset_target()
 }

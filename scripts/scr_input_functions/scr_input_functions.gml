@@ -78,6 +78,14 @@ function get_menu_button(_hold=true){
 	}
 }
 
+function get_escape_button(_hold=true){
+	if (_hold){
+		return global.escape_hold_button
+	}else{
+		return global.escape_button
+	}
+}
+
 function get_horizontal_button_force(_hold=true){
 	if (_hold){
 		return (global.right_hold_button - global.left_hold_button)

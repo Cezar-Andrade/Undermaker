@@ -1,3 +1,5 @@
+add_instance_reference(id, "inst_kris_2")
+
 movement_speed = 2
 
 sprite_index = spr_kris_dog
@@ -9,7 +11,7 @@ move_entity = function(){
 
 interaction = function(_direction){
 	if (path_position == path_positionprevious){
-		overworld_dialog(["[bind_instance:" + string(real(id)) + "]I'm an entity that will move when you talk to me using a path resource.","When this dialog ends I'm gonna move.","Anytime now...[wait_key:confirm]\nAlmost there...[wait_key:confirm]\n..........","Dude end already.[wait_key:confirm]\n..........[wait_key:confirm]\nOk enough, I will move.","[func:" + string(id) + ",move_entity]Even with a dialog playing.[w:20]\nScrew you game."],, false)
+		overworld_dialog(global.dialogues.hot_room.kris_2,, false)
 	}
 }
 

@@ -52,14 +52,18 @@ function load_game_settings(){
 	
 		global.game_settings = json_parse(_text)
 	}
+	
+	var _fullscreen = global.game_settings.fullscreen
+	if (_fullscreen){
+		set_fullscreen(_fullscreen)
+	}else{
+		set_resolution(global.game_settings.resolution_active)
+	}
 }
 
 function load_game_data(){
 	load_game_settings()
-	
-	var _lang = global.game_settings.language
-	
-	load_game_texts(_lang)
+	load_game_texts(global.game_settings.language)
 }
 
 function load_audio(){
@@ -71,11 +75,8 @@ function is_audio_loaded(){
 	var _is_loaded = (audio_group_is_loaded(audiogroup_sound) and audio_group_is_loaded(audiogroup_music))
 	
 	if (_is_loaded){
-		var _snd_volume = global.game_settings.sound_volume
-		var _mus_volume = global.game_settings.music_volume
-	
-		audio_group_set_gain(audiogroup_sound, _snd_volume, 0)
-		audio_group_set_gain(audiogroup_music, _mus_volume, 0)
+		audio_group_set_gain(audiogroup_sound, global.game_settings.sound_volume/100, 0)
+		audio_group_set_gain(audiogroup_music, global.game_settings.music_volume/100, 0)
 	}
 	
 	return _is_loaded

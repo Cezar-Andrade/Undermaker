@@ -4,6 +4,6 @@ if (global.save_data.puzzle_1){
 }else{
 	when_colliding = function(){
 		obj_player_overworld.player_anim_stop()
-		overworld_dialog(["Hey hey hey![w:20]\nDo not dare to approach me.","You cannot pass through me[w:10], unless you solve that puzzle over there."])
+		overworld_dialog(global.dialogues.the_void.collision)
 	}
 }

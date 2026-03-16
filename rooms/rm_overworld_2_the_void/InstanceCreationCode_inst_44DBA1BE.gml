@@ -1,3 +1,5 @@
+add_instance_reference(id, "inst_entity_1")
+
 interaction = function(){
-	overworld_dialog(["[bind_instance:" + string(real(id)) + "]This collision block on the right is awesome!","It took some days for the creator to get right[w:10], but it was worth it I would say."],, false)
+	overworld_dialog(global.dialogues.the_void.entity_1,, false)
 }

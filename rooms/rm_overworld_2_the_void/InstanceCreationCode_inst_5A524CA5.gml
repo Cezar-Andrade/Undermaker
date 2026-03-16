@@ -9,9 +9,10 @@ trigger_function = function(){
 				entity = instance_create_layer(1480, obj_player_overworld.y - 190, "Collisions", obj_kris_dog_group)
 				entity.image_xscale = -2
 				entity.image_yscale = 2
+				add_instance_reference(entity.id, "inst_outlander")
 				
 				entity.interaction = function(){
-					overworld_dialog(["[bind_instance:" + string(real(entity)) + "][effect:malfunction,100,true][apply_to_asterisk]NOOOOO!!![w:20]\nI'M A ROCK NOW!!!![w:20]\nHOW AM I GONNA WALK NOW?!"])
+					overworld_dialog(global.dialogues.hot_room.outlander.interaction)
 				}
 				
 				camera_set_view_target(view_camera[0], entity)
@@ -37,7 +38,7 @@ trigger_function = function(){
 						_entity.image_index = 0
 					}else if (timer == 120){
 						//It works as well if you bind the instance itself directly, cause it holds the id directly that.
-						overworld_dialog("[bind_instance:" + string(real(_entity)) + "][effect:oscillate][apply_to_asterisk]It's so fricking hot...[w:20]\nI can't bear it anymore...")
+						overworld_dialog(global.dialogues.hot_room.outlander.dialog_1)
 					}else if (timer == 121){
 						if (!dialog.is_finished()){
 							timer--
@@ -55,7 +56,7 @@ trigger_function = function(){
 							}else if (timer == 361){
 								_entity.image_index = 0
 							}else if (timer == 420){
-								overworld_dialog("[bind_instance:" + string(real(_entity.id)) + "][effect:shake][apply_to_asterisk][talk_speed:4]Please...[w:20]\nHelp...")
+								overworld_dialog(global.dialogues.hot_room.outlander.dialog_2)
 								camera_set_view_target(view_camera[0], -1)
 							}else if (timer == 421){
 								if (!dialog.is_finished()){

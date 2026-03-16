@@ -112,8 +112,9 @@ function heal_player(_number){
 	audio_play_sound(snd_player_heal, 0, false)
 }
 
-function damage_player(_number){
+function damage_player(_number, _invulnerability_frames=-1, _player=obj_player_battle){
 	global.player.hp = max(global.player.hp - abs(_number), 0)
+	_player.invulnerability_frames = ((_invulnerability_frames == -1) ? global.player.invulnerability_frames : _invulnerability_frames)
 	
 	audio_play_sound(snd_player_hurt, 0, false)
 }

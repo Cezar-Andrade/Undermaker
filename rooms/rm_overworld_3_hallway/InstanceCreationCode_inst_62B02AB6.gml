@@ -1,10 +1,12 @@
+add_instance_reference(id, "inst_kris_4")
+
 timer = -1
 
 sprite_index = spr_kris_dog
 image_xscale = -2
 
 interaction = function(_direction){
-	overworld_dialog(["[bind_instance:" + string(real(id)) + "]Try to not get in the way of our rock ball.","Things might get...[w:20] weird with collisions."])
+	overworld_dialog(global.dialogues.hot_room.kris_4)
 }
 
 step = function(){ //Important the order of creation or events, the ball must update first and then the 2 entities that play with it, or it will push them.

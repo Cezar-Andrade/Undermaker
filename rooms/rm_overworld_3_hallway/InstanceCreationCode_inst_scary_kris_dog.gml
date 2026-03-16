@@ -23,14 +23,14 @@ room_change = function(){
 			room_goto(rm_overworld_3_hallway)
 			
 			obj_game.start_room_function = function(){
-				overworld_dialog(["[bind_instance:inst_scary_kris_dog]Hey you still there?[w:20]\nYou should go find some water perhaps."])
+				overworld_dialog(global.dialogues.hot_room.scary_kris.dialog_3)
 				
 				room_persistent = false
 				obj_player_overworld.image_alpha = 1
 			}
 		}
 		
-		overworld_dialog(["[bind_instance:" + string(real(inst_kris_dog_angy.id)) + "]Achoo![w:20]\nI feel like someone is talking about me...","[func:" + string(inst_kris_dog_angy.id) + ",room_unchange]"])
+		overworld_dialog(global.dialogues.hot_room.scary_kris.dialog_2)
 		camera_set_view_target(view_camera[0], inst_kris_dog_angy)
 		
 		obj_player_overworld.image_alpha = 0
@@ -38,5 +38,5 @@ room_change = function(){
 }
 
 interaction = function(){
-	overworld_dialog(["[bind_instance:inst_scary_kris_dog]Boo![w:20]\nDid I scare you?","No?[w:20][func:inst_scary_kris_dog,sprite_change]\nHow about now?","Too scary?[w:20] Alright alright.[w:20][func:" + string(id) + ",sprite_unchange]\nThere[w:20], easy.","It's so easy to do that I don't understand how anyone could get stuck doing that.","[func:" + string(id) + ",room_change]"])
+	overworld_dialog(global.dialogues.hot_room.scary_kris.dialog_1)
 }

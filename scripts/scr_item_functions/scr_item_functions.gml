@@ -139,10 +139,10 @@ function drop_item(_inventory_index){
 	
 	var _item_drop_dialog = _item_data[$"drop dialog"]
 	if (is_undefined(_item_drop_dialog)){
-		_item_drop_dialog = "You dropped the " + _item_data[$"inventory name"]
+		_item_drop_dialog = string_replace(global.UI_texts[$"item dropped default dialog"], "[ITEM]", _item_data[$"inventory name"])
 	}
 	
-	/*
+	/* Outdated, you can put the reference to functions in the dialog
 	switch (_item_index){
 		case ITEM.WILTED_VINE:
 			//Do stuff before passing the dialog out.

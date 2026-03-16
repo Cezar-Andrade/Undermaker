@@ -31,7 +31,7 @@ Player states for the overworld, used in the Player Overworld object, and change
 Read the programmer manual to know more about this.
 */
 enum GAME_STATE{
-	MENU_CONTROL, //This state is not used in the engine, it is for you to use in your menu so you have your own logic and doesn't affect anything inside this engine, you can chane it, remove it, whatever you want.
+	MENU_CONTROL, //This state is not used in the engine, it is for you to use in your menu so you have your own logic and doesn't affect anything inside this engine, you can change it, remove it, whatever you want.
 	ROOM_CHANGE,
 	PLAYER_CONTROL,
 	PLAYER_MENU_CONTROL,

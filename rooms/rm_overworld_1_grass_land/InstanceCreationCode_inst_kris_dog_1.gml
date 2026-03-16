@@ -1,5 +1,6 @@
+add_instance_reference(id, "inst_kris_dog_1")
 sprite_index = spr_kris_dog
 
 interaction = function(){
-	overworld_dialog(["[bind_instance:" + string(real(id)) + "]Hi[w:10], I'm a test entity that has a dialog interaction.","If you talk to the other entity on the left I will look as if I'm talking too.","[bind_instance:" + string(real(object_index)) + "]That's because we both are instances of the same object[w:10], but with different data on creation","isn't that really neat simply?"],, false)
+	overworld_dialog(global.dialogues.grass_land.inst_kris_dog_1,, false)
 }

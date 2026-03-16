@@ -171,6 +171,10 @@ function load_save_info(){
 	return _save_info
 }
 
+function does_save_file_0_exist(){
+	return file_exists(working_directory + "/save0.save")
+}
+
 function get_room_name(_rm){
 	var room_name = room_get_name(_rm)
 	

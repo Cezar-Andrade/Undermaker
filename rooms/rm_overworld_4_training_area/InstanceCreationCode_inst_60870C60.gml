@@ -18,7 +18,7 @@ trigger_function = function(){
 		collided_with_player = true
 		image_blend = c_gray
 		
-		var _attacks = [ENEMY_ATTACK.ATTACK_1]
+		var _attacks = [ENEMY_ATTACK.ATTACK_2]
 	
 		start_attack(_attacks)
 	}

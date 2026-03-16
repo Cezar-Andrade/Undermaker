@@ -10,7 +10,7 @@ interaction = function(_direction){
 	count = false
 	timer = -irandom_range(75, 120)
 	
-	overworld_dialog(["I'm a moving entity.[w:20]\nI'm made so I turn towards you when you talk to me.","I also push you around if you are on the way I wanna go.","I'm dumb enough to not know when I'm hitting a wall so I still move towards the direction I choose","I use the exact same sprite you have since there's not another one available.","No hard feelings about that[w:20], right?"],, (obj_player_overworld.y > 210))
+	overworld_dialog(global.dialogues.hot_room.faceless_1,, (obj_player_overworld.y > 210))
 	
 	image_index = (8 + _direction/22.5)%16
 }

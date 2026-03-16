@@ -5,7 +5,7 @@ alarm[1] = 60 //Temporary timer startup, this should be moved to the menu stuff 
 
 starting_up = true //Variable to do stuff on start up
 
-state = GAME_STATE.PLAYER_CONTROL ////TODO: REPLACE WHEN ALL IS DONE.
+state =  -1 //Doesn't matter the initial state, the menu function at the very bottom replaces this value
 battle_start_animation_type = BATTLE_START_ANIMATION.NORMAL
 
 //Position where the player heart will move at the battle starting animations
@@ -17,6 +17,7 @@ player_heart_sprite = spr_player_heart
 player_heart_subimage = 0 //The index of the sprite heart to use for menus, you can have another one for the battle one if you want, just change this variable when accessing the states.
 player_heart_color = c_red
 
+quit_timer = 0 //Necessary for the hold ESC quitting.
 anim_timer = 0 //Timer for the animation of transition to battle room and going back to overworld
 selection = -1 //Selection of the multiple choice dialog events
 ui_surface = -1 //UI surface reference variable
@@ -68,3 +69,10 @@ calculate_resolutions()
 //Load all the game data the game needs to functions, these come from files and may be configuration, dialogs, etc.
 load_game_data()
 load_audio()
+
+//The menu system I manage, needed after the load_game_data()
+game_menu_system = undefined
+
+game_ready = function(){
+	go_to_game_menu() //Loads the menu, the function can be used in any place of the game and will lead you to the menu.
+}

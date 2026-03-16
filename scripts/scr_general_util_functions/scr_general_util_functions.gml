@@ -4,15 +4,53 @@ function save_game_settings(){
 	file_text_close(_file)
 }
 
-function load_game_texts(_language){
-	load_items_info("Item pool " + _language + ".json")
-	load_ui_texts("UI texts " + _language + ".json")
-	load_dialogues_file("Dialogues " + _language + ".json")
+function load_game_texts(_id){
+	global.game_settings.language = _id
+	var _language = get_language_by_id(_id)
+	
+	var _item_path = "Item pool " + _language + ".json"
+	var _ui_texts_path = "UI texts " + _language + ".json"
+	var _dialogues_path = "Dialogues " + _language + ".json"
+	
+	if (!file_exists(working_directory + "/" + _item_path)){
+		show_error("The Item pool file in the \"" + _language + "\" language doesn't exist, make sure you named it correct as \"Item pool " + _language + ".json\" or set the correct language name in the global.languages_available variable.", true)
+	}
+	if (!file_exists(working_directory + "/" + _item_path)){
+		show_error("The UI texts file in the \"" + _language + "\" language doesn't exist, make sure you named it correct as \"UI texts " + _language + ".json\" or set the correct language name in the global.languages_available variable.", true)
+	}
+	if (!file_exists(working_directory + "/" + _item_path)){
+		show_error("The Dialogues file in the \"" + _language + "\" language doesn't exist, make sure you named it correct as \"Dialogues " + _language + ".json\" or set the correct language name in the global.languages_available variable.", true)
+	}
+	
+	load_items_info(_item_path)
+	load_ui_texts(_ui_texts_path)
+	load_dialogues_file(_dialogues_path)
 	load_save_info()
+}
+
+function get_language_by_id(_id){
+	return global.languages_available[_id]
+}
+
+function get_current_language(){
+	return global.languages_available[get_current_language_id()]
+}
+
+function get_current_language_id(){
+	return global.game_settings.language
+}
+
+function get_languages_amount(){
+	return array_length(global.languages_available)
 }
 
 function set_resolution(_index){
 	with (obj_game){
+		if (_index == array_length(resolutions_width) - 1){
+			return //Invalidate, that space contains the size for the fullscreen window, use set_fullscreen() to set fullscreen and not set_resolution.
+		}
+		
+		global.game_settings.fullscreen = false
 		global.game_settings.resolution_active = _index
 	
 		var _curr_width = resolutions_width[global.game_settings.resolution_active]
@@ -20,25 +58,57 @@ function set_resolution(_index){
 		var _display_width = display_get_width()
 		var _display_height = display_get_height()
 	
-		// Set to fullscreen if on fullscreen resolution, otherwise, set to windowed
-		if (array_length(resolutions_width) - 1 == global.game_settings.resolution_active){
+		// Always set to windowed
+		if (global.game_settings.border_active){
+			_curr_width *= 1.5
+			_curr_height *= 1.125
+		}
+		
+		display_set_gui_size(_curr_width, _curr_height)
+		window_set_fullscreen(false)
+		
+		// The margin on both sides of the window from the edge of the screen
+		// is half the difference between the display size and current size.
+		// We use this to center the window.
+		window_set_rectangle((_display_width - _curr_width)/2, (_display_height - _curr_height)/2, _curr_width, _curr_height)
+	}
+}
+
+function set_fullscreen(_state){
+	global.game_settings.fullscreen = _state
+	
+	with (obj_game){
+		if (_state){
+			var _id = array_length(resolutions_width) - 1
+			var _resolution_id = global.game_settings.resolution_active
+			if (_resolution_id < _id){
+				global.game_settings.resolution_last_active = _resolution_id
+			}
+			
+			var _curr_width = resolutions_width[_id]
+			var _curr_height = resolutions_height[_id]
+			global.game_settings.resolution_active = _id
+			
 			display_set_gui_size(_curr_width, _curr_height)
 			window_set_fullscreen(true)
 		}else{
-			if (global.game_settings.border_active){
-				_curr_width *= 1.5
-				_curr_height *= 1.125
-			}
-		
-			display_set_gui_size(_curr_width, _curr_height)
-			window_set_fullscreen(false)
-
-			// The margin on both sides of the window from the edge of the screen
-			// is half the difference between the display size and current size.
-			// We use this to center the window.
-			window_set_rectangle((_display_width - _curr_width)/2, (_display_height - _curr_height)/2, _curr_width, _curr_height)
+			set_resolution(global.game_settings.resolution_last_active)
 		}
 	}
+}
+
+function get_current_resolution(){
+	with (obj_game){
+		return [resolutions_width[get_current_resolution_id()], resolutions_height[get_current_resolution_id()]]
+	}
+}
+
+function get_current_resolution_id(){
+	return global.game_settings.resolution_active
+}
+
+function get_resolutions_amount(){
+	return array_length(obj_game.resolutions_width) - 1 //Last ID is always fullscreen, use the set_fullscreen function for that.
 }
 
 function toggle_border(_state){
@@ -68,32 +138,51 @@ function toggle_dynamic_borders(_active){
 }
 
 function set_border(_id=0){
-	if (is_border_dynamic()){
-		return
-	}
-	
-	obj_game.border_alpha = 1
 	global.game_settings.border_last_id = _id
 	
-	if (is_border_dynamic()){
+	if (!is_border_dynamic()){
+		obj_game.border_alpha = 1
+		
 		global.game_settings.border_id = _id
 	}
+}
+
+function get_current_border_id(_dynamic=false){
+	if (_dynamic){
+		return obj_game.border_id
+	}else{
+		return global.game_settings.border_id
+	}
+}
+
+function get_borders_amount(){
+	return sprite_get_number(spr_border)
 }
 
 function is_border_dynamic(){
 	return (global.game_settings.border_id == -1)
 }
 
-function set_fullscreen(_state){
-	with (obj_game){
-		if (_state){
-			global.game_settings.resolution_last_active = global.game_settings.resolution_active
-	
-			set_resolution(array_length(resolutions_width) - 1)
-		}else{
-			set_resolution(global.game_settings.resolution_last_active)
-		}
-	}
+function is_border_enabled(){
+	return global.game_settings.border_active
+}
+
+function set_music_volume(_volume){
+	global.game_settings.music_volume = clamp(_volume, 0, 100)
+	audio_group_set_gain(audiogroup_music, global.game_settings.music_volume/100, 0)
+}
+
+function set_sound_volume(_volume){
+	global.game_settings.sound_volume = clamp(_volume, 0, 100)
+	audio_group_set_gain(audiogroup_sound, global.game_settings.sound_volume/100, 0)
+}
+
+function get_music_volume(){
+	return global.game_settings.music_volume
+}
+
+function get_sound_volume(){
+	return global.game_settings.sound_volume
 }
 
 function trigger_game_over(_music=mus_game_over, _dialog=undefined){ //This function is also used for the battle room, so it has a condition to separate both cases.
@@ -196,4 +285,12 @@ function remove_instance_reference(_id, _name=undefined){
 
 function get_instance_reference(_name){
 	return struct_get(global.instance_references, _name)
+}
+
+function set_event_update(_function){
+	obj_game.event_update = _function
+}
+
+function set_event_end_condition(_function){
+	obj_game.event_end_condition = _function
 }

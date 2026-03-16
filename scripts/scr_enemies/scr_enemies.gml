@@ -90,7 +90,7 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			player_attack_y = -50
 			hp_bar_width_attacked = 200
 			
-			name = "Mad Dummy"
+			name = get_enemie_name("mad_dummy")
 			hp = 100
 			max_hp = 100
 			head_index = 0
@@ -126,10 +126,11 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			}
 			
 			act = function(_command){ //ACT
+				var _dialogues = get_enemie_dialogues("mad_dummy_sprited").act_dialogues
 				switch (_command){
 					case ACT_COMMAND.CHECK:{
-						return ["Doodle Monster - ? ATK inf DEF[w:20]\nThis dummy in particular is made out of layer sprites.","It doesn't use the draw function to be on screen."]
-					break}
+						return _dialogues.check
+					}
 				}
 			}
 			
@@ -138,7 +139,7 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			}
 			
 			dialog_starts = function(){
-				next_dialog = "I have a dialog."
+				next_dialog = get_enemie_dialogues("mad_dummy_sprited").dialogues.dialog
 			}
 			
 			attack_starts = function(){
@@ -146,7 +147,7 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			}
 			
 			turn_ends = function(){
-				next_dialog = "I have a dialog after the attack too!"
+				next_dialog = get_enemie_dialogues("mad_dummy_sprited").dialogues.end_turn
 			}
 			
 			step = function(){
@@ -196,7 +197,7 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			hp_bar_color = c_aqua
 			hp = 74
 			max_hp = 100
-			name = "Mad Dummy"
+			name = get_enemie_name("mad_dummy")
 			head_index = 0
 			layer_inst = layer_create(100)
 			timer = 0
@@ -215,14 +216,16 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			}
 			
 			act = function(_command){ //ACT
+				var _dialogues = get_enemie_dialogues("mad_dummy_drawn").act_dialogues
 				switch (_command){
-					case ACT_COMMAND.CHECK:
-						return ["Mad Dummy - ? ATK 999 DEF[w:20]\nThis dummy in particular is made using draw function.","It contains a bit of a shield against attacks."]
+					case ACT_COMMAND.CHECK:{
+						return _dialogues.check
+					}
 				}
 			}
 			
 			flee = function(){ //FLEE
-				next_dialog = "Don't you dare try to flee on us again."
+				next_dialog = get_enemie_dialogues("mad_dummy_drawn").dialogues.flee
 			}
 			
 			attack_starts = function(){
@@ -267,7 +270,7 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			
 			hp = 100
 			max_hp = 100
-			name = "Monster"
+			name = get_enemie_name("monster")
 			layer_inst = layer_create(300)
 			timer = -1
 			array_push(act_commands, ACT_COMMAND.ANNOY, ACT_COMMAND.FLUSTER)
@@ -290,33 +293,37 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			}
 			
 			act = function(_command){ //ACT
+				var _dialogues = get_enemie_dialogues("monster").act_dialogues
 				switch (_command){
 					case ACT_COMMAND.CHECK:{
-						return ["Monster - " + string(atk) + " ATK " + string(def) + " DEF[w:20]\nThis monster has actual functional atk and def.","Use ACT to change the values up or down."]
-					break}
+						var _dialog = _dialogues.check
+						_dialog[0] = string_replace(string_replace(_dialog[0], "[ATK]", string(atk)), "[DEF]", string(def))
+						
+						return _dialog
+					}
 					case ACT_COMMAND.ANNOY:{
 						atk += 5
 						def += 5
 						
-						return ["You annoy the monster...[w:30]\nIt gets angrier.[w:30]\nATK and DEF increased!"]
-					break}
+						return _dialogues.annoy
+					}
 					case ACT_COMMAND.FLUSTER:{
 						atk -= 5
 						def -= 5
 						can_spare = true
 						
-						return ["You fluster the monster...[w:30]\nIt calms down a little.[w:30]\nATK and DEF decreased!"]
-					break}
+						return _dialogues.fluster
+					}
 				}
 			}
 			
 			item_used = function(_item_index){ //ITEM
-				next_dialog = "[color_rgb:255,255,255]Can I have some of your item too?"
+				next_dialog = get_enemie_dialogues("monster").dialogues.item_used
 			}
 			
 			dialog_starts = function(){
 				if (is_undefined(next_dialog)){
-					next_dialog = "[color_rgb:255,255,255]I have a dialog."
+					next_dialog = get_enemie_dialogues("monster").dialogues.dialog
 				}
 			}
 			
@@ -326,16 +333,17 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			
 			turn_ends = function(_box_dialog){
 				var _dialog
+				var _dialogues = get_enemie_dialogues("monster").box_dialogues
 				
 				switch (irandom(2)){
 					case 0:{
-						_dialog = "Monster plots some evil plans."
+						_dialog = _dialogues.random_1
 					break}
 					case 1:{
-						_dialog = "Monster showcases its skillful platform attacks."
+						_dialog = _dialogues.random_2
 					break}
 					case 2:{
-						_dialog = "You are blue...[w:30] or are you orange?"
+						_dialog = _dialogues.random_3
 					break}
 				}
 				
@@ -397,7 +405,7 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			
 			hp = 10
 			max_hp = 10
-			name = "Angy Monster"
+			name = get_enemie_name("angy_monster")
 			layer_inst = layer_create(300)
 			timer = -1
 			dodge = -1
@@ -423,24 +431,28 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 					timer = 0
 					distracted = false
 					can_spare = false
-					next_dialog = "[effect.shake][color_rgb:255,255,255]I'M FOCUSED AGAIN! RAAAAAHHH!!"
+					next_dialog = get_enemie_dialogues("angy_monster").dialogues.focused
 					
 					return round(_damage)
 				}else{
-					return "MISS"
+					return get_battle_ui_damage_text("miss")
 				}
 			}
 			
 			act = function(_command){ //ACT
+				var _dialogues = get_enemie_dialogues("angy_monster").act_dialogues
 				switch (_command){
 					case ACT_COMMAND.CHECK:{
-						return ["Angy Monster - " + string(atk) + " ATK " + string(def) + " DEF[w:20]\nThis monster has actual functional atk and def.","Use ACT to distract and spare or kill."]
+						var _dialog = _dialogues.check
+						_dialog[0] = string_replace(string_replace(_dialog[0], "[ATK]", string(atk)), "[DEF]", string(def))
+						
+						return _dialog
 					}
 					case ACT_COMMAND.DISTRACT:{
 						distracted = true
 						can_spare = true
 						
-						return ["You distract the monster.[w:30]\nIt seems is very well distracted for an attack."]
+						return _dialogues.distract
 					}
 				}
 			}
@@ -451,16 +463,17 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			
 			item_used = function(_item_index){ //ITEM
 				if (!distracted){
-					next_dialog = "[effect:shake][color_rgb:255,255,255]WHY I DON'T HAVE ITEMS?!"
+					next_dialog = get_enemie_dialogues("angy_monster").dialogues.item_complain
 				}
 			}
 			
 			dialog_starts = function(){
+				var _dialogues = get_enemie_dialogues("angy_monster").dialogues
 				if (is_undefined(next_dialog)){
 					if (distracted){
-						next_dialog = "[effect:shake][color_rgb:255,255,255]I'M SO DISTRACTED RIGHT NOW!"
+						next_dialog = _dialogues.distracted
 					}else{
-						next_dialog = "[effect:malfunction,1000,true][effect:shake][color_rgb:255,255,255]ASKODNAS\rILNDLIUA!!!"
+						next_dialog = _dialogues.anger
 					}
 				}
 			}
@@ -473,16 +486,17 @@ function Enemy(_monster, _x_pos, _y_pos) constructor{
 			
 			turn_ends = function(_box_dialog){
 				var _dialog
+				var _dialogues = get_enemie_dialogues("angy_monster").box_dialogues
 				
 				if (distracted){
-					_dialog = "Monster is very distracted."
+					_dialog = _dialogues.distracted
 				}else{
 					switch (irandom(1)){
 						case 0:{
-							_dialog = "Monster scream angrily for longer turns."
+							_dialog = _dialogues.random_1
 						break}
 						case 1:{
-							_dialog = "Monster knows your IP address.[w:30]\nOh no."
+							_dialog = _dialogues.random_2
 						break}
 					}
 				}

@@ -1,3 +1,3 @@
 interaction = function(){
-	overworld_dialog(["I'm a test dialog.", "You can't get past me![w:20] Yippie!"])
+	overworld_dialog(global.dialogues.grass_land.interaction_4)
 }

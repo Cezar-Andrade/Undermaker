@@ -157,7 +157,7 @@ function BattleSystem() constructor{
 		}
 		
 		switch (battle_state){
-			case BATTLE_STATE.START:{
+			case BATTLE_STATE.START:{ //No break
 				battle_exp = 0
 				battle_gold = 0
 				battle_flee_event_type = FLEE_EVENT.IMPROVED
@@ -166,37 +166,12 @@ function BattleSystem() constructor{
 				
 				var _length = array_length(global.battle_enemies)
 				var _x = 640/(_length + 1)
-				var _to_check = []
 				
 				for (var _i=0; _i<_length; _i++){
 					var _enemy = new Enemy(global.battle_enemies[_i], _x*(_i + 1), 240)
 					_enemy.name = string_trim(_enemy.name)
 				
-					array_push(_to_check, _i)
-				
 					global.battle_enemies[_i] = _enemy
-				}
-				
-				for (var _i=0; _i<_length - 1; _i++){
-					var _count = 0
-					var _enemy_1 = global.battle_enemies[_to_check[_i]]
-					
-					for (var _j=_i + 1; _j<_length; _j++){
-						var _enemy_2 = global.battle_enemies[_to_check[_j]]
-					
-						if (_enemy_1.name == _enemy_2.name){
-							_enemy_2.name += string_concat(" ", chr(66 + _count)) //Starts at B the chr()
-							_count++
-						
-							array_delete(_to_check, _j, 1)
-							_j--
-							_length--
-						}
-					}
-					
-					if (_count > 0){
-						_enemy_1.name += " A"
-					}
 				}
 			} //No break
 			case BATTLE_STATE.START_DODGE_ATTACK:{
@@ -907,8 +882,18 @@ function BattleSystem() constructor{
 	}
 
 	clear_battle = function(){
+		while (!battle_dialog.is_finished()){
+			battle_dialog.next_dialog()
+		}
+		
 		var _length = array_length(global.battle_enemies)
-		for (var _i=0; _i<_length; _i++){
+		for (var _i=_length - 1; _i>=0; _i--){
+			var _enemy = global.battle_enemies[_i]
+			
+			if (!is_undefined(_enemy.destroy)){
+				_enemy.destroy()
+			}
+			
 			array_pop(global.battle_enemies)
 		}
 					

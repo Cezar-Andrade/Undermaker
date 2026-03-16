@@ -6,6 +6,25 @@
     },
     "gold": "G",
     "none": "None",
+    "quitting": "Quitting",
+    "game menu":{
+        "new game": "New Game",
+        "load game": "Load Game",
+        "sound settings": "Sound Settings",
+        "video settings": "Video Settings",
+        "go back": "Go Back",
+        "resolution": "Resolution",
+        "fullscreen": "Fullscreen",
+        "music volume": "Music Volume",
+        "sounds volume": "Sounds Volume",
+        "border": "Border",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "border style": "Border Style",
+        "dynamic borders": "Dynamic Borders",
+        "language": "Language",
+        "current language": "English"
+    },
     "menu item": "ITEM",
     "menu stat": "STAT",
     "menu cell": "CELL",
@@ -26,6 +45,7 @@
         "maxheal": "Your HP is maxed out!",
         "overheal": "Your HP has overflowed!"
     },
+    "item dropped default dialog": "You dropped the [ITEM]",
     "box inventory": "INVENTORY",
     "box box": "BOX",
     "box exit": "Press [X] to Finish",
@@ -39,6 +59,10 @@
     "battle flee earning": "Got [ExpWon] EXP and [GoldWon] Gold with you.",
     "battle no enemy": "No one",
     "battle no acts": "Can't act",
+    "battle default box dialog": "Dialog was not set.",
+    "battle damage texts": {
+        "miss": "MISS"
+    },
     "battle acts": [
         "Check",
         "Annoy",
@@ -96,6 +120,11 @@
 			"No items."
 		]
 	},
+    "enemie_names": {
+        "mad_dummy": "Mad Dummy",
+        "monster": "Monster",
+        "angy_monster": "Angy Monster"
+    },
     "rooms": {
         "rm_overworld_1_grass_land": "The Grass Land",
         "rm_overworld_2_the_void": "The Void",

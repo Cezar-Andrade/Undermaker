@@ -1,8 +1,10 @@
+add_instance_reference(id, "inst_entity_2")
+
 timer = 0
 angle = 0
 
 interaction = function(){
-	overworld_dialog(["[bind_instance:" + string(real(id)) + "]I'm floating!","However I'm scared of heights![w:10]\nPlease help me get down!"],, false)
+	overworld_dialog(global.dialogues.the_void.entity_2,, false)
 }
 
 step = function(){

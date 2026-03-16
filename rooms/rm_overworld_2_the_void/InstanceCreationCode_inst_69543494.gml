@@ -1,3 +1,5 @@
+add_instance_reference(id, "inst_entity_11")
+
 timer = 0
 has_interacted = false
 dialog_1 = new DialogSystem(440, 740, [], 50,,,,,,, spr_box_normal, spr_box_normal_tiny_tail, spr_box_normal_mask)
@@ -15,7 +17,7 @@ detect_movement = function(){
 interaction = function(){
 	if (timer > 0 and obj_game.dialog.is_finished()){
 		timer = -300
-		overworld_dialog(["[no_skip][progress_mode:none][bind_instance:" + string(real(id)) + "]Don't interrupt me.[w:20]\nI'm trying to annoy the dog on the left.[w:120][next]"], false)
+		overworld_dialog(global.dialogues.the_void.entity_11.dialog, false)
 		dialog_1.bind_instance(undefined)
 		dialog_2.bind_instance(undefined)
 		dialog_3.bind_instance(undefined)
@@ -28,20 +30,20 @@ step = function(){
 	//You will flow and slow your game if you keep using add_dialogues constantly and stay in the same room, eventually the array becomes too big to handle and we get somewhat of a memory leak, use instead set_dialogues.
 	//You can debug the data of these with add_dialogues and set_dialogues so you see the difference.
 	if (timer%180 == 61){
-		dialog_1.set_dialogues(["[no_voice][no_skip][bind_instance:" + string(real(id)) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Bark.[w:60][next]"])
-		//dialog_1.add_dialogues(["[no_voice][no_skip][bind_instance:" + string(id) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Bark.[w:60][next]"])
+		dialog_1.set_dialogues(global.dialogues.the_void.entity_11.dialog_1)
+		//dialog_1.add_dialogues(global.dialogues.the_void.entity_11.dialog_1)
 		dialog_3.bind_instance(undefined)
 	}
 	
 	if (timer%180 == 121){
-		dialog_2.set_dialogues(["[no_voice][no_skip][bind_instance:" + string(real(id)) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Woof.[w:60][next]"])
-		//dialog_2.add_dialogues(["[no_voice][no_skip][bind_instance:" + string(id) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Woof.[w:60][next]"])
+		dialog_2.set_dialogues(global.dialogues.the_void.entity_11.dialog_2)
+		//dialog_2.add_dialogues(global.dialogues.the_void.entity_11.dialog_2)
 		dialog_1.bind_instance(undefined)
 	}
 	
 	if (timer%180 == 1){
-		dialog_3.set_dialogues(["[no_voice][no_skip][bind_instance:" + string(real(id)) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Meow.[w:60][next]"])
-		//dialog_3.add_dialogues(["[no_voice][no_skip][bind_instance:" + string(id) + "][effect:oscillate][progress_mode:none][apply_to_asterisk]Meow.[w:60][next]"])
+		dialog_3.set_dialogues(global.dialogues.the_void.entity_11.dialog_3)
+		//dialog_3.add_dialogues(global.dialogues.the_void.entity_11.dialog_3)
 		dialog_2.bind_instance(undefined)
 	}
 	

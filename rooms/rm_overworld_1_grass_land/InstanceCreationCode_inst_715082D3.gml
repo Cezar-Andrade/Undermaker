@@ -1,1 +1,0 @@
-spawn_point_instance = inst_spawn_point_grass_land

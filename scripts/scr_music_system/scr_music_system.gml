@@ -1,5 +1,6 @@
 function MusicSystem() constructor{
 	music_instance = undefined
+	music_name = ""
 	change_music_to = undefined
 	ignore = false
 	
@@ -23,18 +24,21 @@ function MusicSystem() constructor{
 		var _undefined = is_undefined(_music)
 		
 		if (!_undefined){
-			if (music_instance != undefined and audio_get_name(_music) == audio_get_name(music_instance)){
+			var _is_playing = audio_exists(music_instance) and audio_is_playing(music_instance)
+			if (_is_playing and audio_get_name(_music) == music_name){
 				return
 			}
 			
-			if (audio_exists(music_instance) and audio_is_playing(music_instance)){
+			if (_is_playing){
 				audio_stop_sound(music_instance)
 				
 				music_instance = undefined
+				music_name = ""
 			}
 		
 			if (_music != -1){
 				music_instance = audio_play_sound(_music, 100, true)
+				music_name = audio_get_name(music_instance)
 			}
 		}
 	}

@@ -5,7 +5,8 @@ enum ENEMY_ATTACK{
 	PLATFORM_1,
 	PLATFORM_2,
 	PLATFORM_3,
-	ATTACK_1
+	ATTACK_1,
+	ATTACK_2
 }
 
 function EnemyAttack(_attack_name, _position, _damage) constructor{
@@ -246,6 +247,55 @@ function EnemyAttack(_attack_name, _position, _damage) constructor{
 							}
 						}
 					}
+				}
+				
+				if (timer > 360){
+					attack_done = true
+				}
+			}
+		break}
+		case ENEMY_ATTACK.ATTACK_2: {
+			battle_set_box_polygon_points([140, 385, 500, 385], false)
+			set_soul_mode(SOUL_MODE.GRAVITY)
+			damage = _damage
+			
+			step = function(){
+				timer++
+				
+				if (timer%60 == 10){
+					var _except = 60 - 20*irandom(4)
+					for (var _i = -120; _i <= 60; _i += 20){
+						if (_except == _i){
+							continue
+						}
+						
+						with (spawn_bullet(spr_circle_bullet, 210, _i, 0,,, damage)){
+							image_blend = c_white
+							can_damage = true
+							image_alpha = 0
+							
+							step = function(){
+								x -= 3
+								
+								if (x < 110){
+									image_alpha -= 0.05
+									
+									if (image_alpha <= 0){
+										instance_destroy()
+									}
+								}else if (image_alpha < 1){
+									image_alpha += 0.05
+								}
+							}
+						}
+					}
+				}
+				
+				if (obj_player_battle.y >= 500){
+					damage_player(5)
+					
+					obj_player_battle.gravity_data.jump.speed = 6
+					obj_player_battle.gravity_data.cannot_stop_jump = true
 				}
 				
 				if (timer > 360){

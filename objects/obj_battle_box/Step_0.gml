@@ -196,7 +196,7 @@ if (box_polygon_points.update or _update_points){
 		var _p4_y = _p2_y - 5*dsin(_direction)
 		
 		array_push(_outside_points, _p3_x, _p3_y, _p4_x, _p4_y)
-		array_push(_direction, _direction + 90)
+		array_push(_direction_points, _direction + 90)
 	}
 }
 
